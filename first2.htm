@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд для Telegram Web App</title>
+    <!-- Подключаем библиотеку для создания диаграмм -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Подключаем современный шрифт для лучшей читаемости -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- Новая палитра и основные стили --- */
+        :root {
+            --primary-blue: #007AFF;
+            --light-blue: #EAF5FF;
+            --primary-green: #34C759;
+            --light-green: #E3F8E9;
+            --primary-yellow: #FF9500;
+            --light-yellow: #FFF6E5;
+            
+            --bg-color: #F5F7FA;
+            --card-color: #FFFFFF;
+            --text-primary: #1D232A;
+            --text-secondary: #6C757D;
+            --border-color: #E9ECEF;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+        
+        /* --- Общая структура --- */
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-grow: 1;
+            height: 90vh;
+            padding: 0 12px 12px 12px; /* Добавляем отступы для "воздуха" */
+            gap: 12px; /* Пространство между блоками */
+            box-sizing: border-box;
+        }
+
+        /* --- БЛОК В (Верхний блок) --- */
+        .block-v {
+            height: 10vh;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            background-color: var(--card-color);
+            border-bottom: 1px solid var(--border-color);
+            box-sizing: border-box;
+        }
+
+        .header-buttons button {
+            margin-right: 12px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-blue);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        
+        .header-buttons button:hover {
+            background-color: #0056b3;
+        }
+        
+        .user-info {
+            font-weight: 600;
+            font-size: 18px; /* Шрифт стал больше и жирнее */
+        }
+        
+        /* --- Стилизация блоков Л, С, П как карточек --- */
+        .block-l, .block-c, .block-p {
+            flex: 1;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        /* --- БЛОК Л (Левый) --- */
+        .block-l-top {
+            height: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .chart-center-text {
+            position: absolute;
+            text-align: center;
+            pointer-events: none;
+        }
+        
+        .chart-center-text .title {
+            font-size: 16px;
+            color: var(--text-secondary);
+        }
+        
+        .chart-center-text .value {
+            font-size: 26px; /* Увеличили размер времени */
+            font-weight: 700;
+        }
+        
+        .block-l-bottom {
+            height: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .horizontal-bar {
+            height: 45px; /* Сделали полосы толще */
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            padding-left: 15px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        /* Обновленные цвета для полос */
+        .bar-calls {
+            background-color: var(--light-blue);
+            color: var(--primary-blue);
+            width: 100%;
+        }
+        .bar-leads {
+            background-color: var(--light-yellow);
+            color: var(--primary-yellow);
+            width: 80%; /* 4/5 */
+        }
+        .bar-time {
+            background-color: var(--light-green);
+            color: var(--primary-green);
+            width: 60%; /* 3/5 */
+        }
+        
+        /* --- БЛОК С (Центральный) --- */
+        .block-c-top {
+            height: 75%;
+            overflow-y: auto;
+            background-color: #F8F9FA; /* Фон на пол тона темнее */
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 15px; /* Увеличили текст для читаемости */
+            line-height: 1.6;
+        }
+        
+        .block-c-top p { margin: 0; }
+        
+        .block-c-bottom {
+            height: 25%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 20px;
+        }
+        
+        .cat-image {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        /* --- БЛОК П (Правый) --- */
+        .block-p { overflow-y: auto; }
+        
+        .block-p table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .block-p th, .block-p td {
+            border-bottom: 1px solid var(--border-color);
+            padding: 14px 8px;
+            text-align: left;
+        }
+        
+        .block-p tr:last-child td { border-bottom: none; }
+        
+        .block-p th {
+            background-color: var(--primary-blue);
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .block-p td { font-size: 15px; }
+
+        .block-p th:last-child, .block-p td:last-child {
+            width: 30%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- ==================== БЛОК В ==================== -->
+        <div class="block-v">
+            <div class="header-buttons">
+                <button>День</button>
+                <button>Месяц</button>
+                <button>Динамика</button>
+            </div>
+            <div class="user-info">
+                Иван Иванов
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- ==================== БЛОК Л ==================== -->
+            <div class="block-l">
+                <div class="block-l-top">
+                    <div class="chart-center-text">
+                        <div class="title">Трафик</div>
+                        <div class="value">32:33:43</div>
+                    </div>
+                    <canvas id="doughnutChart"></canvas>
+                </div>
+                <div class="block-l-bottom">
+                    <div class="horizontal-bar bar-calls">Количество звонков - #380</div>
+                    <div class="horizontal-bar bar-leads">Количество лидов - #23</div>
+                    <div class="horizontal-bar bar-time">Среднее время на лид - #15:43:12</div>
+                </div>
+            </div>
+
+            <!-- ==================== БЛОК С ==================== -->
+            <div class="block-c">
+                <div class="block-c-top">
+                    <p>
+                        Напиши код на языке html для создания дашборда в Telegram Web App. Структура дашборда: Дашборда страницы разделена на несколько блоков: 1) БЛОК В - верхняя часть страницы, размер 1/10 от страницы; 2) БЛОК Л - левая часть страницы, разделенная на верхнюю и нижнюю половину; 3) БЛОК С - средняя часть страницы, разделенная на верхнюю и нижнюю часть (верхняя часть занимает 3/4 блока); 4) БЛОК П - правая часть страницы; 5) БЛОК Л, БЛОК С и БЛОК П - одинаковый угол, не заступает на БЛОК В. Наполнение для дашборда: 1) В БЛОК слева вставьте три кнопки одинакового размера, с надписями «День», «Месяц» и «Динамика». Кнопки расположены горизонтально. В правой части БЛОК добавьте надпись «Иван Иванов». 2) в верхнюю половину БЛОК Л вставьте кольцевую диаграмму. 3) в нижней половине БЛОК Л вставьте три горизонтальные полосы. 4) в верхней части БЛОК С текстом добавь описание этого промта. 5) в нижней части БЛОК С добавь из интернета небольшую картинку кота. 6) в БЛОК П добавить таблицу. Таблица состоит из 10 строк и 2 колонок, в первой колонке название "Теги", во второй колонке "Кол-во". Добавьте в эту таблицу слева фрукты, а справа цифры.
+                    </p>
+                </div>
+                <div class="block-c-bottom">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
+                </div>
+            </div>
+
+            <!-- ==================== БЛОК П ==================== -->
+            <div class="block-p">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Теги</th>
+                            <th>Кол-во</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Яблоко</td><td>42</td></tr>
+                        <tr><td>Банан</td><td>78</td></tr>
+                        <tr><td>Апельсин</td><td>21</td></tr>
+                        <tr><td>Груша</td><td>15</td></tr>
+                        <tr><td>Виноград</td><td>95</td></tr>
+                        <tr><td>Киви</td><td>33</td></tr>
+                        <tr><td>Манго</td><td>12</td></tr>
+                        <tr><td>Ананас</td><td>7</td></tr>
+                        <tr><td>Персик</td><td>54</td></tr>
+                        <tr><td>Слива</td><td>61</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript для инициализации диаграммы -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctx = document.getElementById('doughnutChart').getContext('2d');
+            const doughnutChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Основной', 'Дополнительный'],
+                    datasets: [{
+                        data: [60, 40],
+                        backgroundColor: [
+                            'var(--primary-blue)',
+                            'var(--primary-green)'
+                        ],
+                        borderColor: 'var(--card-color)',
+                        borderWidth: 6,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '80%', 
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
