@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд для Telegram Web App</title>
+    <!-- Подключаем библиотеку для создания диаграмм -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Подключаем современный шрифт для лучшей читаемости -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Подключаем библиотеку Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Подключаем официальный скрипт Telegram для Web Apps -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        /* Ваши стили остаются без изменений */
+        :root {
+            --primary-blue: #007AFF;
+            --light-blue: #EAF5FF;
+            --primary-green: #34C759;
+            --light-green: #E3F8E9;
+            --primary-yellow: #FF9500;
+            --light-yellow: #FFF6E5;
+            
+            --bg-color: #F5F7FA;
+            --card-color: #FFFFFF;
+            --text-primary: #1D232A;
+            --text-secondary: #6C757D;
+            --border-color: #E9ECEF;
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            overflow: hidden;
+        }
+        
+        .dashboard-container { display: flex; flex-direction: column; height: 100vh; }
+        .main-content { display: flex; flex-grow: 1; height: 90vh; padding: 0 12px 12px 12px; gap: 12px; box-sizing: border-box; }
+        .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; }
+        .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--primary-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s; }
+        .user-info-container { display: flex; align-items: center; gap: 16px; }
+        #operator-name { font-weight: 600; font-size: 18px; }
+        #dashboard-date { font-size: 15px; font-weight: 500; color: var(--text-secondary); background-color: var(--bg-color); padding: 6px 12px; border-radius: 8px; }
+        .block-l, .block-c, .block-p { flex: 1; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
+        .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; }
+        .chart-center-text { position: absolute; text-align: center; pointer-events: none; }
+        .chart-center-text .title { font-size: 16px; color: var(--text-secondary); }
+        .chart-center-text .value { font-size: 26px; font-weight: 700; }
+        .block-l-bottom { height: 50%; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+        .horizontal-bar { height: 45px; border-radius: 10px; display: flex; align-items: center; padding-left: 15px; font-size: 14px; font-weight: 500; }
+        .bar-calls { background-color: var(--light-blue); color: var(--primary-blue); width: 100%; }
+        .bar-leads { background-color: var(--light-yellow); color: var(--primary-yellow); width: 80%; }
+        .bar-time { background-color: var(--light-green); color: var(--primary-green); width: 60%; }
+        .block-c-top { height: 75%; overflow-y: auto; background-color: #F8F9FA; padding: 16px; border-radius: 8px; font-size: 15px; line-height: 1.6; }
+        .block-c-top p { margin: 0; }
+        .block-c-bottom { height: 25%; display: flex; justify-content: center; align-items: center; padding-top: 20px; }
+        .cat-image { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: cover; }
+        .block-p { overflow-y: auto; }
+        .block-p table { width: 100%; border-collapse: collapse; }
+        .block-p th, .block-p td { border-bottom: 1px solid var(--border-color); padding: 14px 8px; text-align: left; }
+        .block-p tr:last-child td { border-bottom: none; }
+        .block-p th { background-color: var(--primary-blue); color: white; font-size: 14px; font-weight: 600; }
+        .block-p td { font-size: 15px; }
+        .block-p th:last-child, .block-p td:last-child { width: 30%; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- ==================== БЛОК В ==================== -->
+        <div class="block-v">
+            <div class="header-buttons">
+                <button>День</button>
+                <button>Месяц</button>
+                <button>Динамика</button>
+            </div>
+            <div class="user-info-container">
+                <span id="dashboard-date"></span>
+                <span id="operator-name">Загрузка...</span>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <!-- ==================== БЛОК Л ==================== -->
+            <div class="block-l">
+                <div class="block-l-top">
+                    <div class="chart-center-text">
+                        <div class="title">Трафик</div>
+                        <div class="value" id="trafic-value">...</div>
+                    </div>
+                    <canvas id="doughnutChart"></canvas>
+                </div>
+                <div class="block-l-bottom">
+                    <div class="horizontal-bar bar-calls" id="kz-bar"></div>
+                    <div class="horizontal-bar bar-leads" id="lid-bar"></div>
+                    <div class="horizontal-bar bar-time" id="avg-time-lid-bar"></div>
+                </div>
+            </div>
+
+            <!-- ==================== БЛОК С ==================== -->
+            <div class="block-c">
+                <div class="block-c-top">
+                    <p>Напиши код на языке html для создания дашборда в Telegram Web App... (текст промпта)</p>
+                </div>
+                <div class="block-c-bottom">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
+                </div>
+            </div>
+
+            <!-- ==================== БЛОК П ==================== -->
+            <div class="block-p">
+                <table>
+                    <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
+                    <tbody>
+                        <tr><td>Яблоко</td><td>42</td></tr>
+                        <tr><td>Банан</td><td>78</td></tr>
+                        <!-- ...остальные строки таблицы... -->
+                        <tr><td>Слива</td><td>61</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript для инициализации дашборда -->
+    <script>
+        // === Логика для загрузки данных из Supabase ===
+        const supabaseUrl = 'https://yhjrhnglgtenxwncrrnf.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function fetchDashboardData(telegramUsername) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('TMday')
+                    .select('operator, trafic, kz, lid, avg_time_lid, date')
+                    .eq('tg', telegramUsername)
+                    .limit(1)
+                    .single();
+
+                if (error) {
+                    if (error.code === 'PGRST116') {
+                        alert(`Пользователь "${telegramUsername}" не найден в базе данных. Проверьте правильность записи в столбце 'tg' в Supabase.`);
+                        document.getElementById('operator-name').textContent = 'Доступ запрещен';
+                    } else {
+                        throw error;
+                    }
+                    return;
+                }
+
+                if (data) {
+                    document.getElementById('operator-name').textContent = data.operator ?? 'Не найден';
+                    const dateValue = data.date;
+                    let formattedDate = '';
+                    if (dateValue) {
+                        const parts = dateValue.split('-');
+                        if (parts.length === 3) {
+                           formattedDate = `${parts[2]}.${parts[1]}`;
+                        }
+                    }
+                    document.getElementById('dashboard-date').textContent = formattedDate;
+                    document.getElementById('trafic-value').textContent = data.trafic ?? '00:00:00';
+                    document.getElementById('kz-bar').textContent = `Количество звонков - ${data.kz ?? 0}`;
+                    document.getElementById('lid-bar').textContent = `Количество лидов - ${data.lid ?? 0}`;
+                    document.getElementById('avg-time-lid-bar').textContent = `Среднее время на лид - ${data.avg_time_lid ?? '00:00:00'}`;
+                }
+
+            } catch (error) {
+                alert(`Произошла ошибка при запросе к Supabase: ${error.message}`);
+                console.error('Ошибка при загрузке данных с Supabase:', error.message);
+                document.getElementById('operator-name').textContent = 'Ошибка загрузки';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // === ДИАГНОСТИЧЕСКИЙ БЛОК ===
+            try {
+                Telegram.WebApp.ready();
+
+                // Показываем всю информацию, которую передал Telegram
+                alert('Шаг 1: Данные от Telegram:\n' + JSON.stringify(Telegram.WebApp.initDataUnsafe, null, 2));
+
+                const user = Telegram.WebApp.initDataUnsafe?.user;
+
+                if (user?.username) {
+                    const telegramUsername = `@${user.username}`;
+                    alert(`Шаг 2: Юзернейм найден: "${telegramUsername}".\nНачинаю поиск в базе данных.`);
+                    fetchDashboardData(telegramUsername);
+                } else {
+                    alert('Шаг 2: ОШИБКА.\nСвойство "user.username" не найдено в данных от Telegram. Проверьте, установлен ли юзернейм в настройках вашего профиля Telegram.');
+                    document.getElementById('operator-name').textContent = 'Ошибка: нет юзернейма';
+                }
+
+            } catch (e) {
+                // Эта ошибка сработает, если вы открыли страницу НЕ в Telegram
+                alert('КРИТИЧЕСКАЯ ОШИБКА!\nОбъект Telegram.WebApp не найден. Скорее всего, вы открыли эту страницу в обычном браузере, а не через кнопку в боте Telegram. Пожалуйста, тестируйте только через Telegram.');
+                document.getElementById('operator-name').textContent = 'Откройте через Telegram';
+            }
+
+            // --- Логика для диаграммы ---
+            const ctx = document.getElementById('doughnutChart')?.getContext('2d');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Основной', 'Дополнительный'],
+                        datasets: [{
+                            data: [60, 40],
+                            backgroundColor: [ 'var(--primary-blue)', 'var(--primary-green)' ],
+                            borderColor: 'var(--card-color)',
+                            borderWidth: 6,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '80%', 
+                        plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
