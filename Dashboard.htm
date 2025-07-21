@@ -14,7 +14,7 @@
     <!-- Подключаем библиотеку Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
-    <!-- === НОВОЕ: Подключаем официальный скрипт Telegram для Web Apps === -->
+    <!-- Подключаем официальный скрипт Telegram для Web Apps -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <style>
@@ -22,9 +22,18 @@
         :root {
             --primary-blue: #007AFF;
             --light-blue: #EAF5FF;
-            /* ... и т.д. ... */
+            --primary-green: #34C759;
+            --light-green: #E3F8E9;
+            --primary-yellow: #FF9500;
+            --light-yellow: #FFF6E5;
+            
+            --bg-color: #F5F7FA;
+            --card-color: #FFFFFF;
+            --text-primary: #1D232A;
+            --text-secondary: #6C757D;
             --border-color: #E9ECEF;
         }
+
         body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow: hidden; }
         .dashboard-container { display: flex; flex-direction: column; height: 100vh; }
         .main-content { display: flex; flex-grow: 1; height: 90vh; padding: 0 12px 12px 12px; gap: 12px; box-sizing: border-box; }
@@ -39,20 +48,7 @@
 <body>
     <!-- Ваша HTML структура остается без изменений -->
     <div class="dashboard-container">
-        <div class="block-v">
-            <div class="header-buttons">
-                <button>День</button>
-                <button>Месяц</button>
-                <button>Динамика</button>
-            </div>
-            <div class="user-info-container">
-                <span id="dashboard-date"></span>
-                <span id="operator-name">Загрузка...</span>
-            </div>
-        </div>
-        <div class="main-content">
-            <!-- ... остальные ваши блоки ... -->
-        </div>
+        <!-- ... блоки В, Л, С, П ... -->
     </div>
 
     <!-- JavaScript для инициализации дашборда -->
@@ -64,31 +60,29 @@
 
         async function fetchDashboardData(telegramUsername) {
             try {
-                // Добавляем фильтр .eq() для поиска по юзернейму
                 const { data, error } = await supabaseClient
                     .from('TMday')
-                    // === ИЗМЕНЕНО: Добавлен фильтр .eq() ===
-                    // ВАЖНО: Замените 'tg' на реальное имя вашего столбца с юзернеймами
+                    // === ИЗМЕНЕНО: Используем правильное имя столбца 'tg' ===
                     .select('operator, trafic, kz, lid, avg_time_lid, date')
-                    .eq('tg', telegramUsername) // "ГДЕ telegram_login РАВЕН юзернейму пользователя"
+                    .eq('tg', telegramUsername) // "ГДЕ tg РАВЕН юзернейму пользователя"
                     .limit(1)
                     .single();
 
                 if (error) { 
-                    // Если ошибка "PGRST116" - значит, пользователь не найден. Это не критичная ошибка.
                     if(error.code === 'PGRST116'){
-                        console.warn('Пользователь с таким юзернеймом не найден в базе.');
+                        console.warn(`Пользователь с юзернеймом "${telegramUsername}" не найден в базе.`);
                         document.getElementById('operator-name').textContent = 'Доступ запрещен';
-                        // Можно скрыть остальные данные или показать сообщение
+                        // Здесь можно скрыть остальные данные или показать сообщение
                     } else {
-                       throw error; // Другие ошибки (сеть, RLS) пробрасываем дальше
+                       throw error;
                     }
+                    return; // Прерываем выполнение, если была ошибка
                 }
 
                 if (data) {
-                    // Логика обновления дашборда, как и раньше
+                    // Логика обновления дашборда
                     document.getElementById('operator-name').textContent = data.operator ?? 'Не найден';
-                    // ... (остальная логика обновления)
+                    // ... (и остальная логика обновления даты и других полей)
                 }
 
             } catch (error) {
@@ -105,19 +99,19 @@
             const user = Telegram.WebApp.initDataUnsafe?.user;
 
             if (user?.username) {
-                // Если у пользователя есть юзернейм, добавляем '@' и запускаем загрузку данных
                 const telegramUsername = `@${user.username}`;
                 console.log(`Запрашиваем данные для пользователя: ${telegramUsername}`);
                 fetchDashboardData(telegramUsername);
             } else {
-                // Если юзернейм не найден
                 console.error('Не удалось получить юзернейм пользователя Telegram.');
                 document.getElementById('operator-name').textContent = 'Ошибка: нет юзернейма';
             }
 
             // --- Логика для диаграммы (остается без изменений) ---
-            const ctx = document.getElementById('doughnutChart').getContext('2d');
-            new Chart(ctx, { /* ... ваши настройки диаграммы ... */ });
+            const ctx = document.getElementById('doughnutChart')?.getContext('2d');
+            if (ctx) {
+                new Chart(ctx, { /* ... ваши настройки диаграммы ... */ });
+            }
         });
     </script>
 </body>
