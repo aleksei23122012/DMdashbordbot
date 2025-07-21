@@ -52,6 +52,7 @@
     </div>
 
     <!-- JavaScript для инициализации дашборда -->
+       <!-- JavaScript для инициализации дашборда -->
     <script>
         // === Логика для загрузки данных из Supabase ===
         const supabaseUrl = 'https://yhjrhnglgtenxwncrrnf.supabase.co';
@@ -62,27 +63,25 @@
             try {
                 const { data, error } = await supabaseClient
                     .from('TMday')
-                    // === ИЗМЕНЕНО: Используем правильное имя столбца 'tg' ===
                     .select('operator, trafic, kz, lid, avg_time_lid, date')
-                    .eq('tg', telegramUsername) // "ГДЕ tg РАВЕН юзернейму пользователя"
+                    .eq('tg', telegramUsername) // Ищем по столбцу 'tg'
                     .limit(1)
                     .single();
 
-                if (error) { 
-                    if(error.code === 'PGRST116'){
+                if (error) {
+                    if (error.code === 'PGRST116') {
                         console.warn(`Пользователь с юзернеймом "${telegramUsername}" не найден в базе.`);
                         document.getElementById('operator-name').textContent = 'Доступ запрещен';
-                        // Здесь можно скрыть остальные данные или показать сообщение
                     } else {
-                       throw error;
+                        throw error;
                     }
-                    return; // Прерываем выполнение, если была ошибка
+                    return;
                 }
 
                 if (data) {
                     // Логика обновления дашборда
                     document.getElementById('operator-name').textContent = data.operator ?? 'Не найден';
-                    // ... (и остальная логика обновления даты и других полей)
+                    // ... и остальная логика обновления ...
                 }
 
             } catch (error) {
@@ -92,25 +91,34 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Инициализируем Web App
-            Telegram.WebApp.ready();
+            // === ДИАГНОСТИЧЕСКИЙ БЛОК ===
+            try {
+                Telegram.WebApp.ready();
 
-            // Получаем информацию о пользователе
-            const user = Telegram.WebApp.initDataUnsafe?.user;
+                // Показываем все, что есть в initDataUnsafe
+                alert('Данные от Telegram: ' + JSON.stringify(Telegram.WebApp.initDataUnsafe, null, 2));
 
-            if (user?.username) {
-                const telegramUsername = `@${user.username}`;
-                console.log(`Запрашиваем данные для пользователя: ${telegramUsername}`);
-                fetchDashboardData(telegramUsername);
-            } else {
-                console.error('Не удалось получить юзернейм пользователя Telegram.');
-                document.getElementById('operator-name').textContent = 'Ошибка: нет юзернейма';
+                const user = Telegram.WebApp.initDataUnsafe?.user;
+
+                if (user?.username) {
+                    const telegramUsername = `@${user.username}`;
+                    alert(`Юзернейм найден: ${telegramUsername}. Начинаю поиск в базе.`);
+                    fetchDashboardData(telegramUsername);
+                } else {
+                    alert('Ошибка: user.username не найден в данных от Telegram.');
+                    document.getElementById('operator-name').textContent = 'Ошибка: нет юзернейма';
+                }
+
+            } catch (e) {
+                // Эта ошибка сработает, если вы открыли страницу НЕ в Telegram
+                alert('Критическая ошибка: объект Telegram.WebApp не найден. Вы открыли страницу в обычном браузере, а не через бота в Telegram.');
+                document.getElementById('operator-name').textContent = 'Откройте через Telegram';
             }
 
-            // --- Логика для диаграммы (остается без изменений) ---
+            // --- Логика для диаграммы ---
             const ctx = document.getElementById('doughnutChart')?.getContext('2d');
             if (ctx) {
-                new Chart(ctx, { /* ... ваши настройки диаграммы ... */ });
+                new Chart(ctx, { /* ... ваши настройки ... */ });
             }
         });
     </script>
