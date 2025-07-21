@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд для Telegram Web App</title>
+    <!-- Подключаем библиотеку для создания диаграмм -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Подключаем современный шрифт для лучшей читаемости -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Подключаем библиотеку Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- === НОВОЕ: Подключаем официальный скрипт Telegram для Web Apps === -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        /* Ваши стили остаются без изменений */
+        :root {
+            --primary-blue: #007AFF;
+            --light-blue: #EAF5FF;
+            /* ... и т.д. ... */
+            --border-color: #E9ECEF;
+        }
+        body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow: hidden; }
+        .dashboard-container { display: flex; flex-direction: column; height: 100vh; }
+        .main-content { display: flex; flex-grow: 1; height: 90vh; padding: 0 12px 12px 12px; gap: 12px; box-sizing: border-box; }
+        .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; }
+        .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--primary-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s; }
+        .user-info-container { display: flex; align-items: center; gap: 16px; }
+        #operator-name { font-weight: 600; font-size: 18px; }
+        #dashboard-date { font-size: 15px; font-weight: 500; color: var(--text-secondary); background-color: var(--bg-color); padding: 6px 12px; border-radius: 8px; }
+        /* ... остальные ваши стили ... */
+    </style>
+</head>
+<body>
+    <!-- Ваша HTML структура остается без изменений -->
+    <div class="dashboard-container">
+        <div class="block-v">
+            <div class="header-buttons">
+                <button>День</button>
+                <button>Месяц</button>
+                <button>Динамика</button>
+            </div>
+            <div class="user-info-container">
+                <span id="dashboard-date"></span>
+                <span id="operator-name">Загрузка...</span>
+            </div>
+        </div>
+        <div class="main-content">
+            <!-- ... остальные ваши блоки ... -->
+        </div>
+    </div>
+
+    <!-- JavaScript для инициализации дашборда -->
+    <script>
+        // === Логика для загрузки данных из Supabase ===
+        const supabaseUrl = 'https://yhjrhnglgtenxwncrrnf.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function fetchDashboardData(telegramUsername) {
+            try {
+                // Добавляем фильтр .eq() для поиска по юзернейму
+                const { data, error } = await supabaseClient
+                    .from('TMday')
+                    // === ИЗМЕНЕНО: Добавлен фильтр .eq() ===
+                    // ВАЖНО: Замените 'tg' на реальное имя вашего столбца с юзернеймами
+                    .select('operator, trafic, kz, lid, avg_time_lid, date')
+                    .eq('tg', telegramUsername) // "ГДЕ telegram_login РАВЕН юзернейму пользователя"
+                    .limit(1)
+                    .single();
+
+                if (error) { 
+                    // Если ошибка "PGRST116" - значит, пользователь не найден. Это не критичная ошибка.
+                    if(error.code === 'PGRST116'){
+                        console.warn('Пользователь с таким юзернеймом не найден в базе.');
+                        document.getElementById('operator-name').textContent = 'Доступ запрещен';
+                        // Можно скрыть остальные данные или показать сообщение
+                    } else {
+                       throw error; // Другие ошибки (сеть, RLS) пробрасываем дальше
+                    }
+                }
+
+                if (data) {
+                    // Логика обновления дашборда, как и раньше
+                    document.getElementById('operator-name').textContent = data.operator ?? 'Не найден';
+                    // ... (остальная логика обновления)
+                }
+
+            } catch (error) {
+                console.error('Ошибка при загрузке данных с Supabase:', error.message);
+                document.getElementById('operator-name').textContent = 'Ошибка загрузки';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Инициализируем Web App
+            Telegram.WebApp.ready();
+
+            // Получаем информацию о пользователе
+            const user = Telegram.WebApp.initDataUnsafe?.user;
+
+            if (user?.username) {
+                // Если у пользователя есть юзернейм, добавляем '@' и запускаем загрузку данных
+                const telegramUsername = `@${user.username}`;
+                console.log(`Запрашиваем данные для пользователя: ${telegramUsername}`);
+                fetchDashboardData(telegramUsername);
+            } else {
+                // Если юзернейм не найден
+                console.error('Не удалось получить юзернейм пользователя Telegram.');
+                document.getElementById('operator-name').textContent = 'Ошибка: нет юзернейма';
+            }
+
+            // --- Логика для диаграммы (остается без изменений) ---
+            const ctx = document.getElementById('doughnutChart').getContext('2d');
+            new Chart(ctx, { /* ... ваши настройки диаграммы ... */ });
+        });
+    </script>
+</body>
+</html>
