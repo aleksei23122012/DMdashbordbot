@@ -1,216 +1,138 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <!-- Весь <head> без изменений -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дашборд для Telegram Web App</title>
-    <!-- Подключаем библиотеку для создания диаграмм -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Подключаем современный шрифт -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Подключаем Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- === ИЗМЕНЕНИЕ 1: Подключаем скрипт Telegram Web App === -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <style>
-        /* Весь блок <style> остается без изменений */
-        :root {
-            --primary-blue: #007AFF; --dark-blue: #0056b3; --light-blue: #EAF5FF;
-            --primary-green: #34C759; --light-green: #E3F8E9; --primary-yellow: #FF9500;
-            --light-yellow: #FFF6E5; --bg-color: #F5F7FA; --card-color: #FFFFFF;
-            --text-primary: #1D232A; --text-secondary: #6C757D; --border-color: #E9ECEF;
-            --light-red: #FFE3E3; 
+        /* Стили без изменений */
+        /* Добавим стиль для логов, чтобы текст был меньше и не переносился */
+        .debug-log {
+            font-family: monospace;
+            font-size: 10px;
+            white-space: pre;
+            margin-bottom: 5px;
         }
-        body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow: hidden; }
-        .dashboard-container { display: flex; flex-direction: column; height: 100vh; }
-        .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; flex-shrink: 0; }
-        .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--primary-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s; }
-        .header-buttons button.active { background-color: var(--dark-blue); }
-        .user-info-container { display: flex; align-items: center; gap: 16px; }
-        #operator-name { font-weight: 600; font-size: 18px; }
-        #dashboard-date { font-size: 15px; font-weight: 500; color: var(--text-secondary); background-color: var(--bg-color); padding: 6px 12px; border-radius: 8px; }
-        .content-area { flex-grow: 1; height: 90vh; padding: 12px; box-sizing: border-box; }
-        .view { display: none; height: 100%; }
-        .view.active { display: flex; }
-        #view-day { gap: 12px; }
-        #view-month, #view-dynamics { justify-content: center; align-items: center; font-size: 48px; font-weight: 700; color: var(--text-secondary); }
-        .block-l, .block-c, .block-p { flex: 1; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
-        .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; }
-        .chart-center-text { position: absolute; text-align: center; pointer-events: none; }
-        .chart-center-text .title { font-size: 18px; color: var(--text-secondary); }
-        .chart-center-text .value { font-size: 30px; font-weight: 700; }
-        .block-l-bottom { height: 50%; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
-        .horizontal-bar { height: 45px; border-radius: 10px; display: flex; align-items: center; padding-left: 15px; font-size: 16px; font-weight: 500; }
-        .bar-calls { background-color: var(--light-blue); color: var(--primary-blue); width: 100%; }
-        .bar-leads { background-color: var(--light-yellow); color: var(--primary-yellow); width: 80%; }
-        .bar-time { background-color: var(--light-green); color: var(--primary-green); width: 60%; }
-        .block-c-top { height: 75%; overflow-y: auto; background-color: #F8F9FA; padding: 16px; border-radius: 8px; font-size: 15px; line-height: 1.6; }
-        .block-c-top p { margin: 0; }
-        .block-c-bottom { height: 25%; display: flex; justify-content: center; align-items: center; padding-top: 20px; }
-        .cat-image { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: cover; }
-        .block-p { overflow-y: auto; }
-        .block-p table { width: 100%; border-collapse: collapse; }
-        .block-p th, .block-p td { border-bottom: 1px solid var(--border-color); padding: 8px; text-align: left; }
-        .block-p td { font-size: 14px; }
-        .block-p tr:last-child td { border-bottom: none; }
-        .block-p th { background-color: var(--primary-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: 0; }
-        .block-p tr.highlight-red { background-color: var(--light-red); }
+        .debug-log.error { color: red; font-weight: bold; }
+        .debug-log.success { color: green; font-weight: bold; }
     </style>
 </head>
 <body>
-    <!-- Вся структура body остается без изменений -->
+    <!-- HTML-структура без изменений -->
     <div class="dashboard-container">
-        <!-- Блок В -->
-        <div class="block-v">
-            <div class="header-buttons">
-                <button id="btn-day" class="active">День</button>
-                <button id="btn-month">Месяц</button>
-                <button id="btn-dynamics">Динамика</button>
+        <!-- ... -->
+        <div class="block-c">
+            <div class="block-c-top" id="debug-output"> <!-- Используем этот блок для вывода логов -->
+                <p class="debug-log">Запуск отладки...</p>
             </div>
-            <div class="user-info-container">
-                <span id="dashboard-date"></span>
-                <span id="operator-name">Загрузка...</span>
+            <div class="block-c-bottom">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
             </div>
         </div>
-        
-        <div class="content-area">
-            <div id="view-day" class="view active">
-                <!-- Блок Л -->
-                <div class="block-l">
-                    <div class="block-l-top">
-                        <div class="chart-center-text">
-                            <div class="title">Трафик</div>
-                            <div class="value" id="trafic-value">...</div>
-                        </div>
-                        <canvas id="doughnutChart"></canvas>
-                    </div>
-                    <div class="block-l-bottom">
-                        <div class="horizontal-bar bar-calls" id="kz-bar"></div>
-                        <div class="horizontal-bar bar-leads" id="lid-bar"></div>
-                        <div class="horizontal-bar bar-time" id="avg-time-lid-bar"></div>
-                    </div>
-                </div>
-                <!-- Блок C -->
-                <div class="block-c">
-                    <div class="block-c-top">
-                        <p id="os-text">Загрузка обратной связи...</p>
-                    </div>
-                    <div class="block-c-bottom">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
-                    </div>
-                </div>
-                <!-- БЛОК П -->
-                <div class="block-p">
-                    <table>
-                        <thead>
-                            <tr><th>Теги</th><th>Кол-во</th></tr>
-                        </thead>
-                        <tbody id="tags-table-body">
-                            <tr><td>Загрузка тегов...</td><td></td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <!-- Другие виды -->
-            <div id="view-month" class="view">МЕСЯЦ</div>
-            <div id="view-dynamics" class="view">ДИНАМИКА</div>
-        </div>
+        <!-- ... -->
     </div>
 
     <script>
-        // === Блок с константами и функцией updateTagsTable остается без изменений ===
+        // === Новая вспомогательная функция для логирования на экране ===
+        function logToScreen(message, type = 'info') {
+            const output = document.getElementById('debug-output');
+            const logEntry = document.createElement('p');
+            logEntry.className = 'debug-log';
+            if (type === 'error') {
+                logEntry.classList.add('error');
+            } else if (type === 'success') {
+                logEntry.classList.add('success');
+            }
+            logEntry.textContent = message;
+            output.appendChild(logEntry);
+        }
+
+        // Константы и другие функции без изменений
         const supabaseUrl = 'https://yhjrhnglgtenxwncrrnf.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        // ... и т.д. ...
+        function updateTagsTable(data) { /* ... */ }
+        function updateDoughnutChart(percentage = 0) { /* ... */ }
 
-        let doughnutChart;
-        const TAG_MAP = {
-            t_net: "Теги не проставлены", t_avtootvet: "Автоответчик", t_lid: "Лид",
-            t_neinteres: "Не интересно", t_finorg: "Фин. орг.", t_perezvon: "Перезвонить позже",
-            t_woman: "Женщина", t_sbros: "Сброс", t_nomany: "Нет денег",
-            t_buisnes: "Есть бизнес", t_mat: "Ругается", t_idiot: "Неадекват",
-            t_deti: "Дети", t_old: "Пенсионер", t_bankrot: "Банкрот",
-            t_duble: "Дубль"
-        };
-        const TAG_COLUMNS = Object.keys(TAG_MAP).join(',');
 
-        function updateTagsTable(data) { /* ... без изменений ... */ }
-        function updateDoughnutChart(percentage = 0) { /* ... без изменений ... */ }
-
-        // === ИЗМЕНЕНИЕ 2: Модифицируем функцию получения данных ===
+        // === ДИАГНОСТИЧЕСКАЯ ВЕРСИЯ ГЛАВНОЙ ФУНКЦИИ ===
         async function fetchDashboardData(tableName) {
-            let telegramUsername = null;
-            
-            // 1. Получаем данные пользователя Telegram
-            // Проверяем, запущен ли дашборд внутри Telegram
+            logToScreen("ЗАПУСК: функция fetchDashboardData вызвана.");
+            document.getElementById('operator-name').textContent = 'Определение пользователя...';
+
+            let userIdentifier = null;
+            let userIdentifierForDisplay = 'Неизвестный';
+
+            logToScreen("ШАГ 1: Проверка window.Telegram...");
             if (window.Telegram && window.Telegram.WebApp) {
+                logToScreen("УСПЕХ: Объект window.Telegram.WebApp найден!", "success");
                 const tgWebApp = window.Telegram.WebApp;
-                // Убеждаемся, что приложение готово
                 tgWebApp.ready();
-                telegramUsername = tgWebApp.initDataUnsafe?.user?.username;
+                
+                logToScreen("ШАГ 2: Проверка initDataUnsafe...");
+                const initData = tgWebApp.initDataUnsafe;
+                if (initData && Object.keys(initData).length > 0) {
+                    logToScreen("УСПЕХ: initDataUnsafe не пустой!", "success");
+                    logToScreen(`  Содержимое: ${JSON.stringify(initData)}`);
+                    const user = initData.user;
+
+                    logToScreen("ШАГ 3: Проверка объекта user...");
+                    if (user) {
+                        logToScreen("УСПЕХ: Объект user найден!", "success");
+                        logToScreen(`  Содержимое: ${JSON.stringify(user)}`);
+                        if (user.username) {
+                            userIdentifier = user.username;
+                            userIdentifierForDisplay = `@${user.username}`;
+                        } else if (user.id) {
+                            userIdentifier = user.id.toString();
+                            userIdentifierForDisplay = `ID: ${user.id}`;
+                        }
+                    } else {
+                        logToScreen("ОШИБКА: Объект user не найден внутри initData!", "error");
+                    }
+                } else {
+                    logToScreen("ОШИБКА: initDataUnsafe пустой или отсутствует!", "error");
+                }
             } else {
-                // Это для локального тестирования в браузере.
-                // Впишите сюда свой логин в ТГ, чтобы проверять дашборд не из Telegram.
-                console.warn("Не удалось найти объект Telegram. Используется тестовый логин.");
-                telegramUsername = 'ВАШ_ТЕСТОВЫЙ_ТГ_ЛОГИН'; 
+                logToScreen("КРИТИЧЕСКАЯ ОШИБКА: window.Telegram.WebApp не найден!", "error");
             }
-
-            if (!telegramUsername) {
+            
+            logToScreen("ШАГ 4: Финальный идентификатор: " + userIdentifier);
+            if (!userIdentifier) {
                 document.getElementById('operator-name').textContent = 'Не удалось определить пользователя';
+                logToScreen("ИТОГ: Идентификатор не получен. Загрузка прервана.", "error");
                 return;
             }
 
-            // Пока что персонализация работает только для вида "День"
-            if (tableName !== 'TMday') {
-                document.getElementById('operator-name').textContent = 'Выберите "День"';
-                return;
-            }
-
+            // Далее обычная логика запроса к Supabase
             try {
-                // 2. Модифицируем запрос: добавляем .eq() для фильтрации по колонке 'tg'
                 const { data, error } = await supabaseClient
                     .from(tableName)
-                    .select(`operator, trafic, kz, lid, avg_time_lid, date, per_trafic, OS, ${TAG_COLUMNS}`)
-                    .eq('tg', telegramUsername) // Ищем строку, где 'tg' равно логину пользователя
-                    .single(); // Ожидаем одну-единственную строку
-
-                // 3. Улучшенная обработка ошибок
-                if (error) {
-                    // Код 'PGRST116' означает "single row not found"
-                    if (error.code === 'PGRST116') {
-                        console.error(`Пользователь с логином '${telegramUsername}' не найден в таблице.`);
-                        document.getElementById('operator-name').textContent = `Пользователь не найден`;
-                        document.getElementById('os-text').textContent = `Ваш логин '${telegramUsername}' не зарегистрирован в системе. Обратитесь к администратору.`;
-                    } else {
-                        // Другие ошибки базы данных
-                        throw error;
-                    }
-                    return; // Прерываем выполнение
-                }
-
+                    .select('...') // Ваш список полей
+                    .eq('tg', userIdentifier)
+                    .single();
+                if (error) { throw error; }
                 if (data) {
-                    // Весь код обновления интерфейса остается без изменений
-                    document.getElementById('operator-name').textContent = data.operator ?? 'Не найден';
-                    // ... и так далее ...
-                    updateTagsTable(data);
-                    const trafficPercentage = (parseFloat(data.per_trafic) || 0) * 100;
-                    updateDoughnutChart(trafficPercentage);
+                    logToScreen("УСПЕХ: Данные из Supabase загружены!", "success");
+                    // ... обновление интерфейса ...
                 }
-
             } catch (error) {
-                console.error(`Ошибка при загрузке данных:`, error.message);
-                document.getElementById('operator-name').textContent = 'Ошибка загрузки';
+                logToScreen(`ОШИБКА SUPABASE: ${error.message}`, "error");
+                if (error.code === 'PGRST116') {
+                    document.getElementById('os-text').textContent = `Ваш идентификатор '${userIdentifierForDisplay}' не зарегистрирован.`;
+                }
             }
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-            // Весь код инициализации диаграммы и кнопок остается без изменений
-            // ...
-
+            // ... остальной код без изменений ...
             fetchDashboardData('TMday');
         });
     </script>
