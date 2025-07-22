@@ -1,35 +1,171 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <!-- ... head без изменений ... -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд для Telegram Web App</title>
+    <!-- Подключаем библиотеку для создания диаграмм -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Подключаем современный шрифт -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Подключаем Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Подключаем скрипт Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <style>
+        :root {
+            --primary-blue: #007AFF;
+            --dark-blue: #0056b3;
+            --light-blue: #EAF5FF;
+            --primary-green: #34C759;
+            --light-green: #E3F8E9;
+            --primary-yellow: #FF9500;
+            --light-yellow: #FFF6E5;
+            --bg-color: #F5F7FA;
+            --card-color: #FFFFFF;
+            --text-primary: #1D232A;
+            --text-secondary: #6C757D;
+            --border-color: #E9ECEF;
+            --light-red: #FFE3E3;
+        }
+        body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow: hidden; }
+        .dashboard-container { display: flex; flex-direction: column; height: 100vh; }
+        .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; flex-shrink: 0; }
+        .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--primary-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s; }
+        .header-buttons button.active { background-color: var(--dark-blue); }
+        .user-info-container { display: flex; align-items: center; gap: 16px; }
+        #operator-name { font-weight: 600; font-size: 18px; }
+        #dashboard-date { font-size: 15px; font-weight: 500; color: var(--text-secondary); background-color: var(--bg-color); padding: 6px 12px; border-radius: 8px; }
+        .content-area { flex-grow: 1; height: 90vh; padding: 12px; box-sizing: border-box; }
+        .view { display: none; height: 100%; }
+        .view.active { display: flex; }
+        #view-day { gap: 12px; }
+        #view-month, #view-dynamics { justify-content: center; align-items: center; font-size: 48px; font-weight: 700; color: var(--text-secondary); }
+        .block-l, .block-c, .block-p { flex: 1; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
+        .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; }
+        .chart-center-text { position: absolute; text-align: center; pointer-events: none; }
+        .chart-center-text .title { font-size: 18px; color: var(--text-secondary); }
+        .chart-center-text .value { font-size: 30px; font-weight: 700; }
+        .block-l-bottom { height: 50%; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+        .horizontal-bar { height: 45px; border-radius: 10px; display: flex; align-items: center; padding-left: 15px; font-size: 16px; font-weight: 500; }
+        .bar-calls { background-color: var(--light-blue); color: var(--primary-blue); width: 100%; }
+        .bar-leads { background-color: var(--light-yellow); color: var(--primary-yellow); width: 80%; }
+        .bar-time { background-color: var(--light-green); color: var(--primary-green); width: 60%; }
+        .block-c-top { height: 75%; overflow-y: auto; background-color: #F8F9FA; padding: 16px; border-radius: 8px; font-size: 15px; line-height: 1.6; }
+        .block-c-top p { margin: 0; }
+        .block-c-bottom { height: 25%; display: flex; justify-content: center; align-items: center; padding-top: 20px; }
+        .cat-image { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: cover; }
+        .block-p { overflow-y: auto; }
+        .block-p table { width: 100%; border-collapse: collapse; }
+        .block-p th, .block-p td { border-bottom: 1px solid var(--border-color); padding: 8px; text-align: left; }
+        .block-p td { font-size: 14px; }
+        .block-p tr:last-child td { border-bottom: none; }
+        .block-p th { background-color: var(--primary-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: 0; }
+        .block-p tr.highlight-red { background-color: var(--light-red); }
+    </style>
 </head>
-<style>
-    /* ... style без изменений ... */
-</style>
 <body>
     <div class="dashboard-container">
-        <!-- ... структура без изменений ... -->
-        <div class="block-c">
-            <div class="block-c-top">
-                <!-- Вернули исходный параграф -->
-                <p id="os-text">Загрузка обратной связи...</p>
+        <!-- Блок В -->
+        <div class="block-v">
+            <div class="header-buttons">
+                <button id="btn-day" class="active">День</button>
+                <button id="btn-month">Месяц</button>
+                <button id="btn-dynamics">Динамика</button>
             </div>
-            <div class="block-c-bottom">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
+            <div class="user-info-container">
+                <span id="dashboard-date"></span>
+                <span id="operator-name">Загрузка...</span>
             </div>
         </div>
-        <!-- ... -->
+        
+        <div class="content-area">
+            <div id="view-day" class="view active">
+                <!-- Блок Л -->
+                <div class="block-l">
+                    <div class="block-l-top">
+                        <div class="chart-center-text">
+                            <div class="title">Трафик</div>
+                            <div class="value" id="trafic-value">...</div>
+                        </div>
+                        <canvas id="doughnutChart"></canvas>
+                    </div>
+                    <div class="block-l-bottom">
+                        <div class="horizontal-bar bar-calls" id="kz-bar"></div>
+                        <div class="horizontal-bar bar-leads" id="lid-bar"></div>
+                        <div class="horizontal-bar bar-time" id="avg-time-lid-bar"></div>
+                    </div>
+                </div>
+                <!-- Блок C -->
+                <div class="block-c">
+                    <div class="block-c-top">
+                        <p id="os-text">Загрузка обратной связи...</p>
+                    </div>
+                    <div class="block-c-bottom">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
+                    </div>
+                </div>
+                <!-- БЛОК П -->
+                <div class="block-p">
+                    <table>
+                        <thead>
+                            <tr><th>Теги</th><th>Кол-во</th></tr>
+                        </thead>
+                        <tbody id="tags-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Другие виды -->
+            <div id="view-month" class="view">МЕСЯЦ</div>
+            <div id="view-dynamics" class="view">ДИНАМИКА</div>
+        </div>
     </div>
 
     <script>
-        // === КОНСТАНТЫ И ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
-        const supabaseUrl = 'https://yhjrhnglgtenxwncrrnf.supabase.co'; // Ваш URL
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI'; // Ваш ключ
+        const supabaseUrl = 'https://yhjrhnglgtenxwncrrnf.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-        // ... все остальные функции и константы (TAG_MAP, updateTagsTable и т.д.) ...
+
+        let doughnutChart;
+        const TAG_MAP = {
+            t_net: "Теги не проставлены", t_avtootvet: "Автоответчик", t_lid: "Лид",
+            t_neinteres: "Не интересно", t_finorg: "Фин. орг.", t_perezvon: "Перезвонить позже",
+            t_woman: "Женщина", t_sbros: "Сброс", t_nomany: "Нет денег",
+            t_buisnes: "Есть бизнес", t_mat: "Ругается", t_idiot: "Неадекват",
+            t_deti: "Дети", t_old: "Пенсионер", t_bankrot: "Банкрот",
+            t_duble: "Дубль"
+        };
+        const TAG_COLUMNS = Object.keys(TAG_MAP).join(',');
+
+        function updateTagsTable(data) {
+            const tbody = document.getElementById('tags-table-body');
+            if (!tbody || !data) return;
+            tbody.innerHTML = ''; 
+            const tagsArray = [];
+            for (const key in TAG_MAP) {
+                tagsArray.push({ key: key, name: TAG_MAP[key], count: data[key] || 0 });
+            }
+            tagsArray.sort((a, b) => b.count - a.count);
+            tagsArray.forEach(tag => {
+                if (tag.count > 0) {
+                    const row = document.createElement('tr');
+                    if (tag.key === 't_net') { row.classList.add('highlight-red'); }
+                    row.innerHTML = `<td>${tag.name}</td><td>${tag.count}</td>`;
+                    tbody.appendChild(row);
+                }
+            });
+        }
         
-        // === ФИНАЛЬНАЯ ВЕРСИЯ ГЛАВНОЙ ФУНКЦИИ (без логов) ===
+        function updateDoughnutChart(percentage = 0) {
+            if (!doughnutChart) return;
+            const validPercentage = Math.max(0, Math.min(100, percentage));
+            doughnutChart.data.datasets[0].data = [validPercentage, 100 - validPercentage];
+            doughnutChart.update();
+        }
+
         async function fetchDashboardData(tableName) {
             let userIdentifier = null;
             let userIdentifierForDisplay = 'Неизвестный';
@@ -48,8 +184,9 @@
                     }
                 }
             } else {
-                // Для локального тестирования
-                userIdentifier = 'ВАШ_ТЕСТОВЫЙ_ТГ_ЛОГИН';
+                // Для локального тестирования в браузере.
+                console.warn("Тестовый режим: используется логин 'Aleksei_Li_Radievich'");
+                userIdentifier = 'Aleksei_Li_Radievich'; 
                 userIdentifierForDisplay = `@${userIdentifier}`;
             }
 
@@ -58,26 +195,49 @@
                 return;
             }
 
-            // ... остальная логика функции без изменений ...
+            if (tableName !== 'TMday') {
+                document.getElementById('operator-name').textContent = 'Выберите "День"';
+                // Сбрасываем значения при переключении на другие вкладки
+                document.getElementById('os-text').textContent = '';
+                document.getElementById('tags-table-body').innerHTML = '';
+                updateDoughnutChart(0);
+                return;
+            }
+
             try {
                 const { data, error } = await supabaseClient
                     .from(tableName)
-                    .select(`...`) // Ваш список полей
+                    .select(`operator, trafic, kz, lid, avg_time_lid, date, per_trafic, OS, ${TAG_COLUMNS}`)
                     .eq('tg', userIdentifier)
                     .single();
 
                 if (error) {
                     if (error.code === 'PGRST116') {
                         document.getElementById('operator-name').textContent = `Пользователь не найден`;
-                        document.getElementById('os-text').textContent = `Ваш идентификатор '${userIdentifierForDisplay}' не зарегистрирован в системе.`;
+                        document.getElementById('os-text').textContent = `Ваш идентификатор '${userIdentifierForDisplay}' не зарегистрирован в системе. Обратитесь к администратору.`;
                     } else { throw error; }
                     return;
                 }
 
                 if (data) {
-                    // === ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ===
+                    document.getElementById('operator-name').textContent = data.operator ?? 'Не найден';
+                    const dateValue = data.date;
+                    let formattedDate = '';
+                    if (dateValue) {
+                        const parts = dateValue.split('-');
+                        if (parts.length === 3) { formattedDate = `${parts[2]}.${parts[1]}`; }
+                    }
+                    document.getElementById('dashboard-date').textContent = formattedDate;
+                    document.getElementById('trafic-value').textContent = data.trafic ?? '00:00:00';
+                    document.getElementById('kz-bar').textContent = `Количество звонков - ${data.kz ?? 0}`;
+                    document.getElementById('lid-bar').textContent = `Количество лидов - ${data.lid ?? 0}`;
+                    document.getElementById('avg-time-lid-bar').textContent = `Среднее время на лид - ${data.avg_time_lid ?? '00:00:00'}`;
                     document.getElementById('os-text').textContent = data.OS ?? 'Обратная связь от оператора отсутствует.';
-                    // ... все остальные обновления ...
+                    
+                    updateTagsTable(data);
+                    
+                    const trafficPercentage = (parseFloat(data.per_trafic) || 0) * 100;
+                    updateDoughnutChart(trafficPercentage);
                 }
             } catch (error) {
                 console.error(`Ошибка при загрузке данных:`, error.message);
@@ -86,7 +246,47 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
-            // ... код инициализации ...
+            const ctx = document.getElementById('doughnutChart').getContext('2d');
+            const darkBlueColor = getComputedStyle(document.documentElement).getPropertyValue('--dark-blue').trim();
+
+            doughnutChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Процент трафика', 'Остаток'],
+                    datasets: [{
+                        data: [0, 100], 
+                        backgroundColor: [ darkBlueColor, 'transparent' ], 
+                        borderColor: 'var(--card-color)',
+                        borderWidth: 6,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, cutout: '80%', 
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                }
+            });
+
+            const btnDay = document.getElementById('btn-day');
+            const btnMonth = document.getElementById('btn-month');
+            const btnDynamics = document.getElementById('btn-dynamics');
+            const viewDay = document.getElementById('view-day');
+            const viewMonth = document.getElementById('view-month');
+            const viewDynamics = document.getElementById('view-dynamics');
+            const allButtons = [btnDay, btnMonth, btnDynamics];
+            const allViews = [viewDay, viewMonth, viewDynamics];
+
+            function switchView(viewToShow, buttonToActivate) {
+                allViews.forEach(view => view.classList.remove('active'));
+                allButtons.forEach(button => button.classList.remove('active'));
+                viewToShow.classList.add('active');
+                buttonToActivate.classList.add('active');
+            }
+
+            btnDay.addEventListener('click', () => { switchView(viewDay, btnDay); fetchDashboardData('TMday'); });
+            btnMonth.addEventListener('click', () => { switchView(viewMonth, btnMonth); fetchDashboardData('TMmonth'); });
+            btnDynamics.addEventListener('click', () => { switchView(viewDynamics, btnDynamics); fetchDashboardData('TMdynamics'); });
+
             fetchDashboardData('TMday');
         });
     </script>
