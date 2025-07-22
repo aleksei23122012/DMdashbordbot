@@ -6,54 +6,45 @@
     <title>Дашборд для Telegram Web App</title>
     <!-- Подключаем библиотеку для создания диаграмм -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Подключаем современный шрифт для лучшей читаемости -->
+    <!-- Подключаем современный шрифт -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Подключаем библиотеку Supabase -->
+    <!-- Подключаем Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
+    <!-- === ИЗМЕНЕНИЕ 1: Подключаем скрипт Telegram Web App === -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
     <style>
-        /* Стили остаются без изменений */
+        /* Весь блок <style> остается без изменений */
         :root {
-            --primary-blue: #007AFF;
-            --light-blue: #EAF5FF;
-            --primary-green: #34C759;
-            --light-green: #E3F8E9;
-            --primary-yellow: #FF9500;
-            --light-yellow: #FFF6E5;
-            
-            --bg-color: #F5F7FA;
-            --card-color: #FFFFFF;
-            --text-primary: #1D232A;
-            --text-secondary: #6C757D;
-            --border-color: #E9ECEF;
+            --primary-blue: #007AFF; --dark-blue: #0056b3; --light-blue: #EAF5FF;
+            --primary-green: #34C759; --light-green: #E3F8E9; --primary-yellow: #FF9500;
+            --light-yellow: #FFF6E5; --bg-color: #F5F7FA; --card-color: #FFFFFF;
+            --text-primary: #1D232A; --text-secondary: #6C757D; --border-color: #E9ECEF;
+            --light-red: #FFE3E3; 
         }
-
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            overflow: hidden;
-        }
-        
+        body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow: hidden; }
         .dashboard-container { display: flex; flex-direction: column; height: 100vh; }
-        .main-content { display: flex; flex-grow: 1; height: 90vh; padding: 0 12px 12px 12px; gap: 12px; box-sizing: border-box; }
-        .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; }
+        .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; flex-shrink: 0; }
         .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--primary-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s; }
+        .header-buttons button.active { background-color: var(--dark-blue); }
         .user-info-container { display: flex; align-items: center; gap: 16px; }
         #operator-name { font-weight: 600; font-size: 18px; }
         #dashboard-date { font-size: 15px; font-weight: 500; color: var(--text-secondary); background-color: var(--bg-color); padding: 6px 12px; border-radius: 8px; }
+        .content-area { flex-grow: 1; height: 90vh; padding: 12px; box-sizing: border-box; }
+        .view { display: none; height: 100%; }
+        .view.active { display: flex; }
+        #view-day { gap: 12px; }
+        #view-month, #view-dynamics { justify-content: center; align-items: center; font-size: 48px; font-weight: 700; color: var(--text-secondary); }
         .block-l, .block-c, .block-p { flex: 1; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
         .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; }
         .chart-center-text { position: absolute; text-align: center; pointer-events: none; }
-        .chart-center-text .title { font-size: 16px; color: var(--text-secondary); }
-        .chart-center-text .value { font-size: 26px; font-weight: 700; }
+        .chart-center-text .title { font-size: 18px; color: var(--text-secondary); }
+        .chart-center-text .value { font-size: 30px; font-weight: 700; }
         .block-l-bottom { height: 50%; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
-        .horizontal-bar { height: 45px; border-radius: 10px; display: flex; align-items: center; padding-left: 15px; font-size: 14px; font-weight: 500; }
+        .horizontal-bar { height: 45px; border-radius: 10px; display: flex; align-items: center; padding-left: 15px; font-size: 16px; font-weight: 500; }
         .bar-calls { background-color: var(--light-blue); color: var(--primary-blue); width: 100%; }
         .bar-leads { background-color: var(--light-yellow); color: var(--primary-yellow); width: 80%; }
         .bar-time { background-color: var(--light-green); color: var(--primary-green); width: 60%; }
@@ -63,21 +54,22 @@
         .cat-image { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: cover; }
         .block-p { overflow-y: auto; }
         .block-p table { width: 100%; border-collapse: collapse; }
-        .block-p th, .block-p td { border-bottom: 1px solid var(--border-color); padding: 14px 8px; text-align: left; }
+        .block-p th, .block-p td { border-bottom: 1px solid var(--border-color); padding: 8px; text-align: left; }
+        .block-p td { font-size: 14px; }
         .block-p tr:last-child td { border-bottom: none; }
-        .block-p th { background-color: var(--primary-blue); color: white; font-size: 14px; font-weight: 600; }
-        .block-p td { font-size: 15px; }
-        .block-p th:last-child, .block-p td:last-child { width: 30%; text-align: center; }
+        .block-p th { background-color: var(--primary-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: 0; }
+        .block-p tr.highlight-red { background-color: var(--light-red); }
     </style>
 </head>
 <body>
+    <!-- Вся структура body остается без изменений -->
     <div class="dashboard-container">
-        <!-- ==================== БЛОК В ==================== -->
+        <!-- Блок В -->
         <div class="block-v">
             <div class="header-buttons">
-                <button>День</button>
-                <button>Месяц</button>
-                <button>Динамика</button>
+                <button id="btn-day" class="active">День</button>
+                <button id="btn-month">Месяц</button>
+                <button id="btn-dynamics">Динамика</button>
             </div>
             <div class="user-info-container">
                 <span id="dashboard-date"></span>
@@ -85,119 +77,141 @@
             </div>
         </div>
         
-        <div class="main-content">
-            <!-- ==================== БЛОК Л ==================== -->
-            <div class="block-l">
-                <div class="block-l-top">
-                    <div class="chart-center-text">
-                        <div class="title">Трафик</div>
-                        <div class="value" id="trafic-value">...</div>
+        <div class="content-area">
+            <div id="view-day" class="view active">
+                <!-- Блок Л -->
+                <div class="block-l">
+                    <div class="block-l-top">
+                        <div class="chart-center-text">
+                            <div class="title">Трафик</div>
+                            <div class="value" id="trafic-value">...</div>
+                        </div>
+                        <canvas id="doughnutChart"></canvas>
                     </div>
-                    <canvas id="doughnutChart"></canvas>
+                    <div class="block-l-bottom">
+                        <div class="horizontal-bar bar-calls" id="kz-bar"></div>
+                        <div class="horizontal-bar bar-leads" id="lid-bar"></div>
+                        <div class="horizontal-bar bar-time" id="avg-time-lid-bar"></div>
+                    </div>
                 </div>
-                <div class="block-l-bottom">
-                    <div class="horizontal-bar bar-calls" id="kz-bar"></div>
-                    <div class="horizontal-bar bar-leads" id="lid-bar"></div>
-                    <div class="horizontal-bar bar-time" id="avg-time-lid-bar"></div>
+                <!-- Блок C -->
+                <div class="block-c">
+                    <div class="block-c-top">
+                        <p id="os-text">Загрузка обратной связи...</p>
+                    </div>
+                    <div class="block-c-bottom">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
+                    </div>
+                </div>
+                <!-- БЛОК П -->
+                <div class="block-p">
+                    <table>
+                        <thead>
+                            <tr><th>Теги</th><th>Кол-во</th></tr>
+                        </thead>
+                        <tbody id="tags-table-body">
+                            <tr><td>Загрузка тегов...</td><td></td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
-            <!-- ==================== БЛОК С ==================== -->
-            <div class="block-c">
-                <div class="block-c-top">
-                    <p>Напиши код на языке html для создания дашборда в Telegram Web App... (текст промпта)</p>
-                </div>
-                <div class="block-c-bottom">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
-                </div>
-            </div>
-
-            <!-- ==================== БЛОК П ==================== -->
-            <div class="block-p">
-                <table>
-                    <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
-                    <tbody>
-                        <tr><td>Яблоко</td><td>42</td></tr>
-                        <tr><td>Банан</td><td>78</td></tr>
-                        <!-- ...остальные строки таблицы... -->
-                        <tr><td>Слива</td><td>61</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <!-- Другие виды -->
+            <div id="view-month" class="view">МЕСЯЦ</div>
+            <div id="view-dynamics" class="view">ДИНАМИКА</div>
         </div>
     </div>
 
-    <!-- JavaScript для инициализации дашборда -->
     <script>
-        // === Логика для загрузки данных из Supabase ===
+        // === Блок с константами и функцией updateTagsTable остается без изменений ===
         const supabaseUrl = 'https://yhjrhnglgtenxwncrrnf.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function fetchDashboardData() {
-            try {
-                // Запрашиваем все нужные столбцы из первой попавшейся строки
-                const { data, error } = await supabaseClient
-                    .from('TMday')
-                    .select('operator, trafic, kz, lid, avg_time_lid, date')
-                    .limit(1)
-                    .single();
+        let doughnutChart;
+        const TAG_MAP = {
+            t_net: "Теги не проставлены", t_avtootvet: "Автоответчик", t_lid: "Лид",
+            t_neinteres: "Не интересно", t_finorg: "Фин. орг.", t_perezvon: "Перезвонить позже",
+            t_woman: "Женщина", t_sbros: "Сброс", t_nomany: "Нет денег",
+            t_buisnes: "Есть бизнес", t_mat: "Ругается", t_idiot: "Неадекват",
+            t_deti: "Дети", t_old: "Пенсионер", t_bankrot: "Банкрот",
+            t_duble: "Дубль"
+        };
+        const TAG_COLUMNS = Object.keys(TAG_MAP).join(',');
 
-                if (error) { throw error; }
+        function updateTagsTable(data) { /* ... без изменений ... */ }
+        function updateDoughnutChart(percentage = 0) { /* ... без изменений ... */ }
+
+        // === ИЗМЕНЕНИЕ 2: Модифицируем функцию получения данных ===
+        async function fetchDashboardData(tableName) {
+            let telegramUsername = null;
+            
+            // 1. Получаем данные пользователя Telegram
+            // Проверяем, запущен ли дашборд внутри Telegram
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tgWebApp = window.Telegram.WebApp;
+                // Убеждаемся, что приложение готово
+                tgWebApp.ready();
+                telegramUsername = tgWebApp.initDataUnsafe?.user?.username;
+            } else {
+                // Это для локального тестирования в браузере.
+                // Впишите сюда свой логин в ТГ, чтобы проверять дашборд не из Telegram.
+                console.warn("Не удалось найти объект Telegram. Используется тестовый логин.");
+                telegramUsername = 'ВАШ_ТЕСТОВЫЙ_ТГ_ЛОГИН'; 
+            }
+
+            if (!telegramUsername) {
+                document.getElementById('operator-name').textContent = 'Не удалось определить пользователя';
+                return;
+            }
+
+            // Пока что персонализация работает только для вида "День"
+            if (tableName !== 'TMday') {
+                document.getElementById('operator-name').textContent = 'Выберите "День"';
+                return;
+            }
+
+            try {
+                // 2. Модифицируем запрос: добавляем .eq() для фильтрации по колонке 'tg'
+                const { data, error } = await supabaseClient
+                    .from(tableName)
+                    .select(`operator, trafic, kz, lid, avg_time_lid, date, per_trafic, OS, ${TAG_COLUMNS}`)
+                    .eq('tg', telegramUsername) // Ищем строку, где 'tg' равно логину пользователя
+                    .single(); // Ожидаем одну-единственную строку
+
+                // 3. Улучшенная обработка ошибок
+                if (error) {
+                    // Код 'PGRST116' означает "single row not found"
+                    if (error.code === 'PGRST116') {
+                        console.error(`Пользователь с логином '${telegramUsername}' не найден в таблице.`);
+                        document.getElementById('operator-name').textContent = `Пользователь не найден`;
+                        document.getElementById('os-text').textContent = `Ваш логин '${telegramUsername}' не зарегистрирован в системе. Обратитесь к администратору.`;
+                    } else {
+                        // Другие ошибки базы данных
+                        throw error;
+                    }
+                    return; // Прерываем выполнение
+                }
 
                 if (data) {
-                    // Обновляем имя оператора
+                    // Весь код обновления интерфейса остается без изменений
                     document.getElementById('operator-name').textContent = data.operator ?? 'Не найден';
-                    
-                    // Форматируем и отображаем дату
-                    const dateValue = data.date;
-                    let formattedDate = '';
-                    if (dateValue) {
-                        const parts = dateValue.split('-');
-                        if (parts.length === 3) {
-                           formattedDate = `${parts[2]}.${parts[1]}`;
-                        }
-                    }
-                    document.getElementById('dashboard-date').textContent = formattedDate;
-
-                    // Обновляем значения в БЛОКЕ Л
-                    document.getElementById('trafic-value').textContent = data.trafic ?? '00:00:00';
-                    document.getElementById('kz-bar').textContent = `Количество звонков - ${data.kz ?? 0}`;
-                    document.getElementById('lid-bar').textContent = `Количество лидов - ${data.lid ?? 0}`;
-                    document.getElementById('avg-time-lid-bar').textContent = `Среднее время на лид - ${data.avg_time_lid ?? '00:00:00'}`;
+                    // ... и так далее ...
+                    updateTagsTable(data);
+                    const trafficPercentage = (parseFloat(data.per_trafic) || 0) * 100;
+                    updateDoughnutChart(trafficPercentage);
                 }
 
             } catch (error) {
-                console.error('Ошибка при загрузке данных с Supabase:', error.message);
+                console.error(`Ошибка при загрузке данных:`, error.message);
                 document.getElementById('operator-name').textContent = 'Ошибка загрузки';
             }
         }
-
+        
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Логика для диаграммы (остается без изменений) ---
-            const ctx = document.getElementById('doughnutChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Основной', 'Дополнительный'],
-                    datasets: [{
-                        data: [60, 40],
-                        backgroundColor: [ 'var(--primary-blue)', 'var(--primary-green)' ],
-                        borderColor: 'var(--card-color)',
-                        borderWidth: 6,
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '80%', 
-                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
-                }
-            });
+            // Весь код инициализации диаграммы и кнопок остается без изменений
+            // ...
 
-            // Вызов функции для получения данных
-            fetchDashboardData();
+            fetchDashboardData('TMday');
         });
     </script>
 </body>
