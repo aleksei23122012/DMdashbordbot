@@ -3,68 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Дашборд для Telegram Web App</title>
-    <!-- Подключаем библиотеку для создания диаграмм -->
+    <title>Дашборд</title>
+    <!-- Подключаем все необходимые скрипты и шрифты -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Подключаем современный шрифт -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Подключаем Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Подключаем скрипт Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <style>
         :root {
-            --primary-blue: #007AFF;
-            --dark-blue: #0056b3;
-            --light-blue: #EAF5FF;
-            --primary-green: #34C759;
-            --light-green: #E3F8E9;
-            --primary-yellow: #FF9500;
-            --light-yellow: #FFF6E5;
-            --bg-color: #F5F7FA;
-            --card-color: #FFFFFF;
-            --text-primary: #1D232A;
-            --text-secondary: #6C757D;
-            --border-color: #E9ECEF;
-            --light-red: #FFE3E3;
+            --primary-blue: #007AFF; --dark-blue: #0056b3; --light-blue: #EAF5FF;
+            --primary-green: #34C759; --light-green: #E3F8E9; --primary-yellow: #FF9500;
+            --light-yellow: #FFF6E5; --bg-color: #F5F7FA; --card-color: #FFFFFF;
+            --text-primary: #1D232A; --text-secondary: #6C757D; --border-color: #E9ECEF;
+            --light-red: #FFE3E3; --indicator-green: #28a745; --indicator-red: #dc3545;
         }
-        body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow: hidden; }
-        .dashboard-container { display: flex; flex-direction: column; height: 100vh; }
+        body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow-x: hidden; }
+        .dashboard-container { display: flex; flex-direction: column; min-height: 100vh; }
         .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; flex-shrink: 0; }
-        .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--primary-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s; }
-        .header-buttons button.active { background-color: var(--dark-blue); }
+        .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--dark-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s, opacity 0.2s; opacity: 0.6; }
+        .header-buttons button.active { opacity: 1; }
         .user-info-container { display: flex; align-items: center; gap: 16px; }
-        #operator-name { font-weight: 600; font-size: 18px; }
-        #dashboard-date { font-size: 15px; font-weight: 500; color: var(--text-secondary); background-color: var(--bg-color); padding: 6px 12px; border-radius: 8px; }
-        .content-area { flex-grow: 1; height: 90vh; padding: 12px; box-sizing: border-box; }
-        .view { display: none; height: 100%; }
+        #operator-name { font-weight: 700; font-size: 22px; }
+        .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; }
+        .view { display: none; }
         .view.active { display: flex; }
-        #view-day { gap: 12px; }
-        #view-month, #view-dynamics { justify-content: center; align-items: center; font-size: 48px; font-weight: 700; color: var(--text-secondary); }
-        .block-l, .block-c, .block-p { flex: 1; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
+        #view-day, #view-month, #view-team { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
+        .block-l { flex: 1.1; }
+        .block-c { flex: 0.8; }
+        .block-p { flex: 1.1; }
+        .block-l, .block-c, .block-p, .block-team-custom { padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
         .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; }
         .chart-center-text { position: absolute; text-align: center; pointer-events: none; }
         .chart-center-text .title { font-size: 18px; color: var(--text-secondary); }
         .chart-center-text .value { font-size: 30px; font-weight: 700; }
         .block-l-bottom { height: 50%; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
-        .horizontal-bar { height: 45px; border-radius: 10px; display: flex; align-items: center; padding-left: 15px; font-size: 16px; font-weight: 500; }
+        .horizontal-bar { height: 45px; border-radius: 10px; display: flex; align-items: center; padding-left: 15px; font-size: 16px; font-weight: 500; transition: transform 0.2s ease; }
+        .horizontal-bar:hover { transform: scale(1.02); }
         .bar-calls { background-color: var(--light-blue); color: var(--primary-blue); width: 100%; }
         .bar-leads { background-color: var(--light-yellow); color: var(--primary-yellow); width: 80%; }
         .bar-time { background-color: var(--light-green); color: var(--primary-green); width: 60%; }
         .block-c-top { height: 75%; overflow-y: auto; background-color: #F8F9FA; padding: 16px; border-radius: 8px; font-size: 15px; line-height: 1.6; }
-        .block-c-top p { margin: 0; }
+        #view-month .block-c-top { height: 100%; }
+        .block-c-top p { margin: 0; white-space: pre-line; }
         .block-c-bottom { height: 25%; display: flex; justify-content: center; align-items: center; padding-top: 20px; }
         .cat-image { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: cover; }
         .block-p { overflow-y: auto; }
-        .block-p table { width: 100%; border-collapse: collapse; }
-        .block-p th, .block-p td { border-bottom: 1px solid var(--border-color); padding: 8px; text-align: left; }
-        .block-p td { font-size: 14px; }
-        .block-p tr:last-child td { border-bottom: none; }
-        .block-p th { background-color: var(--primary-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: 0; }
-        .block-p tr.highlight-red { background-color: var(--light-red); }
+        .data-table { width: 100%; border-collapse: collapse; } 
+        .data-table th, .data-table td { border-bottom: 1px solid var(--border-color); padding: 8px; text-align: left; vertical-align: middle; }
+        .data-table td { font-size: 14px; text-align: center;}
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table th { background-color: var(--dark-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: -1px; text-align: center;}
+        .data-table tr.highlight-red { background-color: var(--light-red); }
+        .block-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+        #view-month .block-p-upper { height: 40%; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: 500; padding: 10px; text-align: center; }
+        #view-month .plan-indicator .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+        #view-month .block-p-lower { height: 60%; overflow-y: auto; }
+        .indicator-col { width: 30px; text-align: center; font-size: 18px; font-weight: bold; }
+        .indicator-green { color: var(--indicator-green); }
+        .indicator-red { color: var(--indicator-red); }
+        .separator-right { border-right: 2px solid var(--dark-blue); }
+        
+        @media (max-width: 1024px) {
+            #view-day, #view-month, #view-team { flex-direction: column; height: auto; }
+            .block-l, .block-c, .block-p, .block-team-custom { min-height: 300px; }
+        }
     </style>
 </head>
 <body>
@@ -74,18 +80,18 @@
             <div class="header-buttons">
                 <button id="btn-day" class="active">День</button>
                 <button id="btn-month">Месяц</button>
-                <button id="btn-dynamics">Динамика</button>
+                <button id="btn-team">Команда</button>
             </div>
             <div class="user-info-container">
-                <span id="dashboard-date"></span>
+                <span id="team-name" style="font-weight: 600; color: var(--text-secondary);"></span>
                 <span id="operator-name">Загрузка...</span>
             </div>
         </div>
         
         <div class="content-area">
+            <!-- Вид "День" -->
             <div id="view-day" class="view active">
-                <!-- Блок Л -->
-                <div class="block-l">
+                 <div class="block-l">
                     <div class="block-l-top">
                         <div class="chart-center-text">
                             <div class="title">Трафик</div>
@@ -99,28 +105,108 @@
                         <div class="horizontal-bar bar-time" id="avg-time-lid-bar"></div>
                     </div>
                 </div>
-                <!-- Блок C -->
                 <div class="block-c">
                     <div class="block-c-top">
                         <p id="os-text">Загрузка обратной связи...</p>
                     </div>
                     <div class="block-c-bottom">
-                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
+                        <img id="cat-image-day" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
                     </div>
                 </div>
-                <!-- БЛОК П -->
                 <div class="block-p">
-                    <table>
-                        <thead>
-                            <tr><th>Теги</th><th>Кол-во</th></tr>
-                        </thead>
+                    <table class="data-table">
+                        <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
                         <tbody id="tags-table-body"></tbody>
                     </table>
                 </div>
             </div>
-            <!-- Другие виды -->
-            <div id="view-month" class="view">МЕСЯЦ</div>
-            <div id="view-dynamics" class="view">ДИНАМИКА</div>
+
+            <!-- Вид "Месяц" -->
+            <div id="view-month" class="view">
+                <div class="block-l">
+                    <div class="block-l-top">
+                        <div class="chart-center-text">
+                            <div class="title">Трафик (Месяц)</div>
+                            <div class="value" id="trafic-value-month">...</div>
+                        </div>
+                        <canvas id="doughnutChartMonth"></canvas>
+                    </div>
+                    <div class="block-l-bottom">
+                        <div class="horizontal-bar bar-calls" id="kz-bar-month">...</div>
+                        <div class="horizontal-bar bar-leads" id="lid-bar-month">...</div>
+                        <div class="horizontal-bar bar-time" id="avg-time-lid-bar-month">...</div>
+                    </div>
+                </div>
+                <div class="block-c">
+                    <div class="block-c-top">
+                        <p id="os-text-month">Загрузка обратной связи...</p>
+                    </div>
+                </div>
+                <div class="block-p">
+                     <div class="block-p-upper">
+                        <div class="plan-indicator"><div>Выполнение плана по трафику (прогноз):</div><div id="plan-trafic-prognoz-value" class="value">...</div></div>
+                        <div class="plan-indicator"><div>Выполнение плана по лидам (прогноз):</div><div id="plan-lid-prognoz-value" class="value">...</div></div>
+                    </div>
+                    <div class="block-p-lower">
+                        <table class="data-table">
+                            <thead><tr><th>Показатели</th><th>Твои</th><th class="indicator-col"></th><th>Средние</th></tr></thead>
+                            <tbody>
+                                <tr><td>Количество звонков</td><td id="month-user-kz">...</td><td id="month-ind-kz" class="indicator-col"></td><td id="month-srav-kz">...</td></tr>
+                                <tr><td>Количество лидов</td><td id="month-user-lid">...</td><td id="month-ind-lid" class="indicator-col"></td><td id="month-srav-lid">...</td></tr>
+                                <tr><td>Время на лид</td><td id="month-user-time">...</td><td id="month-ind-time" class="indicator-col"></td><td id="month-srav-time">...</td></tr>
+                                <tr><td>Трафик</td><td id="month-user-trafic">...</td><td id="month-ind-trafic" class="indicator-col"></td><td id="month-srav-trafic">...</td></tr>
+                                <tr><td>Чек</td><td id="month-user-check">...</td><td id="month-ind-check" class="indicator-col"></td><td id="month-srav-check">...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ДИНАМИЧЕСКИЙ ВИД "КОМАНДА" -->
+            <div id="view-team" class="view">
+                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
+                    <h3 class="block-title">День</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="separator-right" style="vertical-align: middle; width: 200px;">Оператор</th>
+                                <th colspan="6" class="separator-right">Показатели</th>
+                                <th colspan="2">План</th>
+                            </tr>
+                            <tr>
+                                <th>Трафик</th>
+                                <th>Вып.<br>трафика</th>
+                                <th>Кол-во<br>звонков</th>
+                                <th>Лиды</th>
+                                <th>Время на<br>лид</th>
+                                <th class="separator-right">Вып.<br>лидов</th>
+                                <th>План по<br>трафику</th>
+                                <th>План по<br>лидам</th>
+                            </tr>
+                        </thead>
+                        <tbody id="team-data-body-day"></tbody>
+                    </table>
+                </div>
+                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
+                    <h3 class="block-title">Месяц</h3>
+                     <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="separator-right">Оператор</th>
+                                <th>Трафик</th>
+                                <th>Вып.<br>трафика</th>
+                                <th>Кол-во<br>звонков</th>
+                                <th>Лиды</th>
+                                <th>Время на<br>лид</th>
+                                <th class="separator-right">Вып.<br>лидов</th>
+                                <th>Ср. время<br>поствызова</th>
+                                <th>Чек</th>
+                            </tr>
+                        </thead>
+                        <tbody id="team-data-body-month"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -130,6 +216,9 @@
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         let doughnutChart;
+        let doughnutChartMonth;
+        let currentTeamName = null;
+        
         const TAG_MAP = {
             t_net: "Теги не проставлены", t_avtootvet: "Автоответчик", t_lid: "Лид",
             t_neinteres: "Не интересно", t_finorg: "Фин. орг.", t_perezvon: "Перезвонить позже",
@@ -139,6 +228,15 @@
             t_duble: "Дубль"
         };
         const TAG_COLUMNS = Object.keys(TAG_MAP).join(',');
+        
+        const CAT_IMAGE_MAP = {
+            1: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat1.png',
+            2: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat2.png',
+            3: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat3.png',
+            4: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat4.png',
+            5: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat5.png'
+        };
+        const DEFAULT_CAT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s';
 
         function updateTagsTable(data) {
             const tbody = document.getElementById('tags-table-body');
@@ -159,133 +257,352 @@
             });
         }
         
-        function updateDoughnutChart(percentage = 0) {
-            if (!doughnutChart) return;
+        function updateDoughnutChart(chartInstance, percentage = 0) {
+            if (!chartInstance) return;
             const validPercentage = Math.max(0, Math.min(100, percentage));
-            doughnutChart.data.datasets[0].data = [validPercentage, 100 - validPercentage];
-            doughnutChart.update();
+            chartInstance.data.datasets[0].data = [validPercentage, 100 - validPercentage];
+            chartInstance.update();
+        }
+
+        function formatNumber(num) {
+            if (num === null || num === undefined) return 'N/A';
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        }
+
+        function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) {
+            const element = document.getElementById(elementId);
+            if (!element || userValue === null || avgValue === null) {
+                if (element) element.textContent = '';
+                return;
+            };
+            
+            let userIsBetter;
+            if (isTime) {
+                userIsBetter = timeToSeconds(userValue) < timeToSeconds(avgValue);
+            } else {
+                userIsBetter = parseFloat(userValue) > parseFloat(avgValue);
+            }
+
+            if (userIsBetter) {
+                element.textContent = '>';
+                element.className = 'indicator-col indicator-green';
+            } else {
+                element.textContent = '<';
+                element.className = 'indicator-col indicator-red';
+            }
+        }
+        
+        function timeToSeconds(timeStr) {
+            if (!timeStr || typeof timeStr !== 'string') return 0;
+            const parts = timeStr.split(':');
+            if (parts.length !== 3) return 0;
+            return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10);
         }
 
         async function fetchDashboardData(tableName) {
             let userIdentifier = null;
             let userIdentifierForDisplay = 'Неизвестный';
 
-            if (window.Telegram && window.Telegram.WebApp) {
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
                 const tgWebApp = window.Telegram.WebApp;
                 tgWebApp.ready();
                 const user = tgWebApp.initDataUnsafe?.user;
-                if (user) {
-                    if (user.username) {
-                        userIdentifier = user.username;
-                        userIdentifierForDisplay = `@${user.username}`;
-                    } else if (user.id) {
-                        userIdentifier = user.id.toString();
-                        userIdentifierForDisplay = `ID: ${user.id}`;
-                    }
+                if (user && (user.username || user.id)) {
+                    userIdentifier = user.username ? user.username.toString() : user.id.toString();
+                    userIdentifierForDisplay = user.username ? `@${user.username}` : `ID: ${user.id}`;
                 }
-            } else {
-                // Для локального тестирования в браузере.
-                console.warn("Тестовый режим: используется логин 'Aleksei_Li_Radievich'");
-                userIdentifier = 'Aleksei_Li_Radievich'; 
-                userIdentifierForDisplay = `@${userIdentifier}`;
             }
-
+            
+            // БОЕВОЙ РЕЖИМ: Если пользователь не определен, прекращаем выполнение.
             if (!userIdentifier) {
-                document.getElementById('operator-name').textContent = 'Не удалось определить пользователя';
+                document.getElementById('operator-name').textContent = 'Пользователь не определен';
+                document.getElementById('team-name').textContent = '';
+                console.error("Не удалось определить пользователя Telegram.");
                 return;
             }
+            
+            document.getElementById('operator-name').textContent = 'Загрузка...';
+            document.getElementById('team-name').textContent = '';
 
-            if (tableName !== 'TMday') {
-                document.getElementById('operator-name').textContent = 'Выберите "День"';
-                // Сбрасываем значения при переключении на другие вкладки
-                document.getElementById('os-text').textContent = '';
-                document.getElementById('tags-table-body').innerHTML = '';
-                updateDoughnutChart(0);
-                return;
-            }
+            if (tableName === 'TMday') {
+                try {
+                    const { data, error } = await supabaseClient.from(tableName).select(`operator, team, cat, trafic, kz, lid, avg_time_lid, per_trafic, OS, ${TAG_COLUMNS}`).eq('tg', userIdentifier).single();
+                    if (error) throw error;
+                    
+                    if (data) {
+                        currentTeamName = data.team;
+                        document.getElementById('operator-name').textContent = data.operator ?? 'Имя не найдено';
+                        document.getElementById('team-name').textContent = data.team ?? '';
+                        document.getElementById('trafic-value').textContent = data.trafic ?? '00:00:00';
+                        document.getElementById('kz-bar').textContent = `Количество звонков - ${data.kz ?? 0}`;
+                        document.getElementById('lid-bar').textContent = `Количество лидов - ${data.lid ?? 0}`;
+                        document.getElementById('avg-time-lid-bar').textContent = `Время на лид - ${data.avg_time_lid ?? '00:00:00'}`;
+                        document.getElementById('os-text').textContent = data.OS ?? 'Обратная связь от оператора отсутствует.';
+                        updateTagsTable(data);
+                        const trafficPercentage = (parseFloat(data.per_trafic) || 0) * 100;
+                        updateDoughnutChart(doughnutChart, trafficPercentage);
 
-            try {
-                const { data, error } = await supabaseClient
-                    .from(tableName)
-                    .select(`operator, trafic, kz, lid, avg_time_lid, date, per_trafic, OS, ${TAG_COLUMNS}`)
-                    .eq('tg', userIdentifier)
-                    .single();
+                        const catImageElement = document.getElementById('cat-image-day');
+                        const catNumber = data.cat;
+                        catImageElement.src = CAT_IMAGE_MAP[catNumber] || DEFAULT_CAT_IMAGE;
 
-                if (error) {
-                    if (error.code === 'PGRST116') {
-                        document.getElementById('operator-name').textContent = `Пользователь не найден`;
-                        document.getElementById('os-text').textContent = `Ваш идентификатор '${userIdentifierForDisplay}' не зарегистрирован в системе. Обратитесь к администратору.`;
-                    } else { throw error; }
-                    return;
-                }
-
-                if (data) {
-                    document.getElementById('operator-name').textContent = data.operator ?? 'Не найден';
-                    const dateValue = data.date;
-                    let formattedDate = '';
-                    if (dateValue) {
-                        const parts = dateValue.split('-');
-                        if (parts.length === 3) { formattedDate = `${parts[2]}.${parts[1]}`; }
+                    } else {
+                         document.getElementById('operator-name').textContent = 'Пользователь не найден';
+                         document.getElementById('os-text').textContent = `Данные за день для '${userIdentifierForDisplay}' не найдены.`;
                     }
-                    document.getElementById('dashboard-date').textContent = formattedDate;
-                    document.getElementById('trafic-value').textContent = data.trafic ?? '00:00:00';
-                    document.getElementById('kz-bar').textContent = `Количество звонков - ${data.kz ?? 0}`;
-                    document.getElementById('lid-bar').textContent = `Количество лидов - ${data.lid ?? 0}`;
-                    document.getElementById('avg-time-lid-bar').textContent = `Среднее время на лид - ${data.avg_time_lid ?? '00:00:00'}`;
-                    document.getElementById('os-text').textContent = data.OS ?? 'Обратная связь от оператора отсутствует.';
-                    
-                    updateTagsTable(data);
-                    
-                    const trafficPercentage = (parseFloat(data.per_trafic) || 0) * 100;
-                    updateDoughnutChart(trafficPercentage);
+                } catch (error) {
+                    document.getElementById('operator-name').textContent = 'Пользователь не найден';
+                    document.getElementById('os-text').textContent = `Данные за день для '${userIdentifierForDisplay}' не найдены. Проверьте RLS.`;
+                    console.error(`Ошибка при загрузке данных 'TMday':`, error.message);
                 }
-            } catch (error) {
-                console.error(`Ошибка при загрузке данных:`, error.message);
-                document.getElementById('operator-name').textContent = 'Ошибка загрузки';
+            } else if (tableName === 'TMmonth') {
+                try {
+                    const { data: userData, error: userError } = await supabaseClient
+                        .from('TMmonth')
+                        .select('operator, team, trafic, per_trafic, kz, lid, avg_time_lid, OS, per_trafic_prognoz, per_lid_prognoz, check')
+                        .eq('tg', userIdentifier)
+                        .single();
+                    
+                    if (userError) throw userError;
+
+                    const { data: avgData, error: avgError } = await supabaseClient
+                        .from('AVGmonth')
+                        .select('kz, lid, avg_time_lid, trafic, check')
+                        .single();
+
+                    if (avgError) throw avgError;
+
+                    if (userData) {
+                        currentTeamName = userData.team;
+                        document.getElementById('operator-name').textContent = userData.operator ?? 'Имя не найдено';
+                        document.getElementById('team-name').textContent = userData.team ?? '';
+                        
+                        document.getElementById('trafic-value-month').textContent = userData.trafic ?? 'N/A';
+                        const trafficPercentageMonth = (parseFloat(userData.per_trafic) || 0) * 100;
+                        updateDoughnutChart(doughnutChartMonth, trafficPercentageMonth);
+                        document.getElementById('kz-bar-month').textContent = `Количество звонков - ${userData.kz ?? 'N/A'}`;
+                        document.getElementById('lid-bar-month').textContent = `Количество лидов - ${userData.lid ?? 'N/A'}`;
+                        document.getElementById('avg-time-lid-bar-month').textContent = `Время на лид - ${userData.avg_time_lid ?? 'N/A'}`;
+                        document.getElementById('os-text-month').textContent = userData.OS ?? 'Обратная связь за месяц отсутствует.';
+                        
+                        const traficPrognoz = (parseFloat(userData.per_trafic_prognoz) || 0) * 100;
+                        const lidPrognoz = (parseFloat(userData.per_lid_prognoz) || 0) * 100;
+                        document.getElementById('plan-trafic-prognoz-value').textContent = `${Math.round(traficPrognoz)}%`;
+                        document.getElementById('plan-lid-prognoz-value').textContent = `${Math.round(lidPrognoz)}%`;
+
+                        if(avgData){
+                            document.getElementById('month-user-kz').textContent = userData.kz ?? 'N/A';
+                            document.getElementById('month-user-lid').textContent = userData.lid ?? 'N/A';
+                            document.getElementById('month-user-time').textContent = userData.avg_time_lid ?? 'N/A';
+                            document.getElementById('month-user-trafic').textContent = userData.trafic ?? 'N/A';
+                            document.getElementById('month-user-check').textContent = formatNumber(userData.check);
+
+                            document.getElementById('month-srav-kz').textContent = avgData.kz ?? 'N/A';
+                            document.getElementById('month-srav-lid').textContent = avgData.lid ?? 'N/A';
+                            document.getElementById('month-srav-time').textContent = avgData.avg_time_lid ?? 'N/A';
+                            document.getElementById('month-srav-trafic').textContent = avgData.trafic ?? 'N/A';
+                            document.getElementById('month-srav-check').textContent = formatNumber(avgData.check);
+                            
+                            setComparisonIndicator('month-ind-kz', userData.kz, avgData.kz);
+                            setComparisonIndicator('month-ind-lid', userData.lid, avgData.lid);
+                            setComparisonIndicator('month-ind-time', userData.avg_time_lid, avgData.avg_time_lid, true);
+                            setComparisonIndicator('month-ind-trafic', userData.trafic, avgData.trafic, true);
+                            setComparisonIndicator('month-ind-check', userData.check, avgData.check);
+                        }
+
+                    } else {
+                        document.getElementById('operator-name').textContent = 'Пользователь не найден';
+                    }
+                } catch (error) {
+                    document.getElementById('operator-name').textContent = 'Пользователь не найден';
+                    document.getElementById('os-text-month').textContent = `Данные для '${userIdentifierForDisplay}' не найдены. Проверьте RLS.`;
+                    console.error(`Ошибка при загрузке данных для 'TMmonth':`, error.message);
+                }
             }
         }
         
-        document.addEventListener('DOMContentLoaded', () => {
-            const ctx = document.getElementById('doughnutChart').getContext('2d');
-            const darkBlueColor = getComputedStyle(document.documentElement).getPropertyValue('--dark-blue').trim();
+        async function fetchTeamData(teamName) {
+            if (!teamName) {
+                alert("Не удалось определить команду. Пожалуйста, сначала откройте вкладку 'День' или 'Месяц'.");
+                return;
+            }
+             document.getElementById('team-name').textContent = teamName;
 
-            doughnutChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Процент трафика', 'Остаток'],
-                    datasets: [{
-                        data: [0, 100], 
-                        backgroundColor: [ darkBlueColor, 'transparent' ], 
-                        borderColor: 'var(--card-color)',
-                        borderWidth: 6,
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false, cutout: '80%', 
-                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+            try {
+                const { data: dayData, error: dayError } = await supabaseClient.from('Teamday').select('*').eq('team', teamName);
+                if (dayError) throw dayError;
+
+                const { data: monthData, error: monthError } = await supabaseClient.from('Teammon').select('*').eq('team', teamName);
+                if (monthError) throw monthError;
+
+                populateTeamTableDay(dayData);
+                populateTeamTableMonth(monthData);
+
+            } catch (error) {
+                console.error("Ошибка при загрузке данных команды:", error.message);
+                alert("Не удалось загрузить данные команды. Проверьте RLS для таблиц Teamday и Teammon.");
+            }
+        }
+
+        function populateTeamTableDay(data) {
+            const tbody = document.getElementById('team-data-body-day');
+            tbody.innerHTML = '';
+            data.forEach(op => {
+                const row = document.createElement('tr');
+                row.dataset.traffic = timeToSeconds(op.trafic);
+                row.dataset.leads = op.lid;
+                row.innerHTML = `
+                    <td class="separator-right">${op.operator}</td>
+                    <td>${op.trafic || 'N/A'}</td>
+                    <td class="td-gradient-traffic-day">${(op.per_trafic * 100).toFixed(0)}%</td>
+                    <td>${op.kz || 0}</td>
+                    <td>${op.lid || 0}</td>
+                    <td class="td-gradient-time-day">${op.avg_time_lid || 'N/A'}</td>
+                    <td class="td-gradient-leads-day separator-right">${(op.per_lid * 100).toFixed(0)}%</td>
+                    <td>${op.plan_trafic || 'N/A'}</td>
+                    <td>${op.plan_lid || 0}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            sortTableByLeadsAndTraffic('team-data-body-day');
+            applyRelativeGradient('.td-gradient-traffic-day');
+            applyRelativeGradient('.td-gradient-leads-day');
+            applyRelativeGradient('.td-gradient-time-day', true);
+        }
+        
+        function populateTeamTableMonth(data) {
+            const tbody = document.getElementById('team-data-body-month');
+            tbody.innerHTML = '';
+            data.forEach(op => {
+                const row = document.createElement('tr');
+                row.dataset.traffic = timeToSeconds(op.trafic);
+                row.dataset.leads = op.lid;
+                row.innerHTML = `
+                    <td class="separator-right">${op.operator}</td>
+                    <td>${op.trafic || 'N/A'}</td>
+                    <td class="td-gradient-traffic-month">${(op.per_trafic * 100).toFixed(0)}%</td>
+                    <td>${op.kz || 0}</td>
+                    <td>${op.lid || 0}</td>
+                    <td class="td-gradient-time-month">${op.avg_time_lid || 'N/A'}</td>
+                    <td class="td-gradient-leads-month separator-right">${(op.per_lid * 100).toFixed(0)}%</td>
+                    <td>${op.avg_time_post || 'N/A'}</td>
+                    <td>${formatNumber(op.check) || 'N/A'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            sortTableByLeadsAndTraffic('team-data-body-month');
+            applyRelativeGradient('.td-gradient-traffic-month');
+            applyRelativeGradient('.td-gradient-leads-month');
+            applyRelativeGradient('.td-gradient-time-month', true);
+        }
+
+        function applyRelativeGradient(selector, isReversed = false) {
+            const cells = document.querySelectorAll(selector);
+            if (cells.length === 0) return;
+
+            const values = Array.from(cells).map(cell => {
+                const text = cell.textContent;
+                if (text.includes(':')) {
+                    const parts = text.split(':').map(Number);
+                    return (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0);
                 }
+                return parseFloat(text.replace('%', ''));
             });
 
+            const min = Math.min(...values);
+            const max = Math.max(...values);
+            const range = max - min;
+
+            cells.forEach((cell, index) => {
+                const value = values[index];
+                let normalized = 0.5;
+                if (range > 0) {
+                    normalized = (value - min) / range;
+                }
+                
+                if (isReversed) {
+                    normalized = 1 - normalized;
+                }
+                
+                const hue = normalized * 120; // 0 = red, 120 = green
+                cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`;
+                cell.style.color = `hsl(${hue}, 80%, 25%)`;
+                cell.style.fontWeight = '600';
+                cell.style.borderRadius = '4px';
+            });
+        }
+
+        function sortTableByLeadsAndTraffic(tbodyId) {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            rows.sort((a, b) => {
+                const leadsA = parseInt(a.dataset.leads, 10);
+                const leadsB = parseInt(b.dataset.leads, 10);
+                const trafficA = parseInt(a.dataset.traffic, 10);
+                const trafficB = parseInt(b.dataset.traffic, 10);
+
+                if (leadsA !== leadsB) {
+                    return leadsB - leadsA;
+                }
+                return trafficB - trafficA;
+            });
+
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const darkBlueColor = getComputedStyle(document.documentElement).getPropertyValue('--dark-blue').trim();
+            const chartOptions = { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false }, tooltip: { enabled: false } } };
+            const chartDataTemplate = { labels: ['Процент трафика', 'Остаток'], datasets: [{ data: [0, 100], backgroundColor: [ darkBlueColor, '#E9ECEF' ], borderColor: 'transparent' }] };
+
+            const ctxDay = document.getElementById('doughnutChart').getContext('2d');
+            doughnutChart = new Chart(ctxDay, { type: 'doughnut', data: JSON.parse(JSON.stringify(chartDataTemplate)), options: chartOptions });
+
+            const ctxMonth = document.getElementById('doughnutChartMonth').getContext('2d');
+            doughnutChartMonth = new Chart(ctxMonth, { type: 'doughnut', data: JSON.parse(JSON.stringify(chartDataTemplate)), options: chartOptions });
+            
             const btnDay = document.getElementById('btn-day');
             const btnMonth = document.getElementById('btn-month');
-            const btnDynamics = document.getElementById('btn-dynamics');
+            const btnTeam = document.getElementById('btn-team');
             const viewDay = document.getElementById('view-day');
             const viewMonth = document.getElementById('view-month');
-            const viewDynamics = document.getElementById('view-dynamics');
-            const allButtons = [btnDay, btnMonth, btnDynamics];
-            const allViews = [viewDay, viewMonth, viewDynamics];
+            const viewTeam = document.getElementById('view-team');
+            
+            const operatorNameEl = document.getElementById('operator-name');
+            const teamNameEl = document.getElementById('team-name');
+
+            const allButtons = [btnDay, btnMonth, btnTeam];
+            const allViews = [viewDay, viewMonth, viewTeam];
 
             function switchView(viewToShow, buttonToActivate) {
                 allViews.forEach(view => view.classList.remove('active'));
                 allButtons.forEach(button => button.classList.remove('active'));
                 viewToShow.classList.add('active');
                 buttonToActivate.classList.add('active');
+                
+                if (viewToShow.id === 'view-team') {
+                    operatorNameEl.style.display = 'none';
+                    teamNameEl.style.fontWeight = '700';
+                    teamNameEl.style.fontSize = '22px';
+                    teamNameEl.style.color = 'var(--text-primary)';
+                    fetchTeamData(currentTeamName);
+                } else {
+                    operatorNameEl.style.display = 'inline';
+                    teamNameEl.style.fontWeight = '600';
+                    teamNameEl.style.fontSize = 'inherit';
+                    teamNameEl.style.color = 'var(--text-secondary)';
+                    
+                    const tableName = viewToShow.id === 'view-day' ? 'TMday' : 'TMmonth';
+                    fetchDashboardData(tableName);
+                }
             }
 
-            btnDay.addEventListener('click', () => { switchView(viewDay, btnDay); fetchDashboardData('TMday'); });
-            btnMonth.addEventListener('click', () => { switchView(viewMonth, btnMonth); fetchDashboardData('TMmonth'); });
-            btnDynamics.addEventListener('click', () => { switchView(viewDynamics, btnDynamics); fetchDashboardData('TMdynamics'); });
+            btnDay.addEventListener('click', () => { switchView(viewDay, btnDay); });
+            btnMonth.addEventListener('click', () => { switchView(viewMonth, btnMonth); });
+            btnTeam.addEventListener('click', () => { switchView(viewTeam, btnTeam); });
 
             fetchDashboardData('TMday');
         });
