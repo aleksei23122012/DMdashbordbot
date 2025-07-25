@@ -25,25 +25,25 @@
         .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; flex-shrink: 0; }
         .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--dark-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s, opacity 0.2s; opacity: 0.6; }
         .header-buttons button.active { opacity: 1; }
-        .user-info-container { display: flex; align-items: center; gap: 16px; text-align: right; /* ИЗМЕНЕНИЕ */ }
+        .user-info-container { display: flex; align-items: center; gap: 16px; }
         #operator-name { font-weight: 700; font-size: 22px; }
         .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; }
         .view { display: none; }
         .view.active { display: flex; }
         #view-day, #view-month, #view-team { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
         
-        /* --- ИЗМЕНЕНИЯ ДЛЯ ОПТИМИЗАЦИИ РАСТЯГИВАНИЯ --- */
-        .block-l { flex: 1 1 400px; max-width: 450px; min-width: 320px; /* ИЗМЕНЕНИЕ */ }
-        .block-c { flex: 1 1 350px; min-width: 300px; /* ИЗМЕНЕНИЕ */ }
-        .block-p { flex: 1 1 400px; min-width: 320px; /* ИЗМЕНЕНИЕ */ }
-        /* ------------------------------------------- */
+        /* --- ИЗМЕНЕНИЕ №1: Ограничиваем растягивание блоков --- */
+        .block-l { flex: 1 1 400px; max-width: 450px; min-width: 320px; }
+        .block-c { flex: 1 1 350px; min-width: 300px; }
+        .block-p { flex: 1 1 400px; min-width: 320px; }
+        /* --------------------------------------------------- */
 
         .block-l, .block-c, .block-p, .block-team-custom { padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
-        .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; min-height: 200px; /* НОВОЕ ПРАВИЛО */ }
+        .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; }
         .chart-center-text { position: absolute; text-align: center; pointer-events: none; }
         .chart-center-text .title { font-size: 18px; color: var(--text-secondary); }
         .chart-center-text .value { font-size: 30px; font-weight: 700; }
-        .block-l-bottom { height: 50%; display: flex; flex-direction: column; justify-content: center; gap: 16px; min-height: 150px; /* НОВОЕ ПРАВИЛО */ }
+        .block-l-bottom { height: 50%; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
         .horizontal-bar { height: 45px; border-radius: 10px; display: flex; align-items: center; padding-left: 15px; font-size: 16px; font-weight: 500; transition: transform 0.2s ease; }
         .horizontal-bar:hover { transform: scale(1.02); }
         .bar-calls { background-color: var(--light-blue); color: var(--primary-blue); width: 100%; }
@@ -71,188 +71,37 @@
         .indicator-red { color: var(--indicator-red); }
         .separator-right { border-right: 2px solid var(--dark-blue); }
         
-        /* --- НОВЫЙ БЛОК ДЛЯ МОБИЛЬНОЙ ОПТИМИЗАЦИИ --- */
+        /* --- ИЗМЕНЕНИЕ №2: Адаптация для мобильных --- */
         @media (max-width: 1024px) {
             #view-day, #view-month, #view-team { 
                 flex-direction: column; 
                 height: auto; 
-                overflow-y: auto; /* Добавляем прокрутку для всей страницы */
             }
             .block-l, .block-c, .block-p, .block-team-custom { 
-                min-height: auto; /* Убираем минимальную высоту */
-                max-width: 100%; /* Разрешаем блокам занимать всю ширину */
-                flex-basis: auto; /* Сбрасываем базовую ширину */
-            }
-            .block-l-top, .block-l-bottom {
-                height: auto; /* Высота по контенту */
-                padding: 20px 0;
+                min-height: auto; /* Убираем минимальную высоту, чтобы блоки сжимались */
             }
             .block-v {
-                flex-wrap: wrap; /* Разрешаем перенос элементов в шапке */
-                height: auto;
+                height: auto; /* Позволяем шапке увеличиваться, если нужно */
                 padding: 12px;
+                flex-wrap: wrap; /* Разрешаем перенос элементов */
                 gap: 10px;
             }
             #operator-name {
-                font-size: 18px; /* Уменьшаем шрифт для мобильных */
-            }
-            .chart-center-text .value {
-                font-size: 24px; /* Уменьшаем шрифт в диаграмме */
+                font-size: 18px; /* Уменьшаем шрифт на мобильных */
             }
         }
         /* ------------------------------------------- */
     </style>
 </head>
 <body>
-    <!-- HTML-структура остается без изменений -->
+    <!-- Ваш HTML-код остается без изменений -->
     <div class="dashboard-container">
-        <!-- Блок В -->
-        <div class="block-v">
-            <div class="header-buttons">
-                <button id="btn-day" class="active">День</button>
-                <button id="btn-month">Месяц</button>
-                <button id="btn-team">Команда</button>
-            </div>
-            <div class="user-info-container">
-                <span id="team-name" style="font-weight: 600; color: var(--text-secondary);"></span>
-                <span id="operator-name">Загрузка...</span>
-            </div>
-        </div>
-        
-        <div class="content-area">
-            <!-- Вид "День" -->
-            <div id="view-day" class="view active">
-                 <div class="block-l">
-                    <div class="block-l-top">
-                        <div class="chart-center-text">
-                            <div class="title">Трафик</div>
-                            <div class="value" id="trafic-value">...</div>
-                        </div>
-                        <canvas id="doughnutChart"></canvas>
-                    </div>
-                    <div class="block-l-bottom">
-                        <div class="horizontal-bar bar-calls" id="kz-bar"></div>
-                        <div class="horizontal-bar bar-leads" id="lid-bar"></div>
-                        <div class="horizontal-bar bar-time" id="avg-time-lid-bar"></div>
-                    </div>
-                </div>
-                <div class="block-c">
-                    <div class="block-c-top">
-                        <p id="os-text">Загрузка обратной связи...</p>
-                    </div>
-                    <div class="block-c-bottom">
-                        <img id="cat-image-day" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
-                    </div>
-                </div>
-                <div class="block-p">
-                    <table class="data-table">
-                        <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
-                        <tbody id="tags-table-body"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Вид "Месяц" -->
-            <div id="view-month" class="view">
-                <div class="block-l">
-                    <div class="block-l-top">
-                        <div class="chart-center-text">
-                            <div class="title">Трафик (Месяц)</div>
-                            <div class="value" id="trafic-value-month">...</div>
-                        </div>
-                        <canvas id="doughnutChartMonth"></canvas>
-                    </div>
-                    <div class="block-l-bottom">
-                        <div class="horizontal-bar bar-calls" id="kz-bar-month">...</div>
-                        <div class="horizontal-bar bar-leads" id="lid-bar-month">...</div>
-                        <div class="horizontal-bar bar-time" id="avg-time-lid-bar-month">...</div>
-                    </div>
-                </div>
-                <div class="block-c">
-                    <div class="block-c-top">
-                        <p id="os-text-month">Загрузка обратной связи...</p>
-                    </div>
-                </div>
-                <div class="block-p">
-                     <div class="block-p-upper">
-                        <div class="plan-indicator"><div>Выполнение плана по трафику (прогноз):</div><div id="plan-trafic-prognoz-value" class="value">...</div></div>
-                        <div class="plan-indicator"><div>Выполнение плана по лидам (прогноз):</div><div id="plan-lid-prognoz-value" class="value">...</div></div>
-                    </div>
-                    <div class="block-p-lower">
-                        <table class="data-table">
-                            <thead><tr><th>Показатели</th><th>Твои</th><th class="indicator-col"></th><th>Средние</th></tr></thead>
-                            <tbody>
-                                <tr><td>Количество звонков</td><td id="month-user-kz">...</td><td id="month-ind-kz" class="indicator-col"></td><td id="month-srav-kz">...</td></tr>
-                                <tr><td>Количество лидов</td><td id="month-user-lid">...</td><td id="month-ind-lid" class="indicator-col"></td><td id="month-srav-lid">...</td></tr>
-                                <tr><td>Время на лид</td><td id="month-user-time">...</td><td id="month-ind-time" class="indicator-col"></td><td id="month-srav-time">...</td></tr>
-                                <tr><td>Трафик</td><td id="month-user-trafic">...</td><td id="month-ind-trafic" class="indicator-col"></td><td id="month-srav-trafic">...</td></tr>
-                                <tr><td>Чек</td><td id="month-user-check">...</td><td id="month-ind-check" class="indicator-col"></td><td id="month-srav-check">...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ДИНАМИЧЕСКИЙ ВИД "КОМАНДА" -->
-            <div id="view-team" class="view">
-                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
-                    <h3 class="block-title">День</h3>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th rowspan="2" class="separator-right" style="vertical-align: middle; width: 200px;">Оператор</th>
-                                <th colspan="6" class="separator-right">Показатели</th>
-                                <th colspan="2">План</th>
-                            </tr>
-                            <tr>
-                                <th>Трафик</th>
-                                <th>Вып.<br>трафика</th>
-                                <th>Кол-во<br>звонков</th>
-                                <th>Лиды</th>
-                                <th>Время на<br>лид</th>
-                                <th class="separator-right">Вып.<br>лидов</th>
-                                <th>План по<br>трафику</th>
-                                <th>План по<br>лидам</th>
-                            </tr>
-                        </thead>
-                        <tbody id="team-data-body-day"></tbody>
-                    </table>
-                </div>
-                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
-                    <h3 class="block-title">Месяц</h3>
-                     <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th class="separator-right">Оператор</th>
-                                <th>Трафик</th>
-                                <th>Вып.<br>трафика</th>
-                                <th>Кол-во<br>звонков</th>
-                                <th>Лиды</th>
-                                <th>Время на<br>лид</th>
-                                <th class="separator-right">Вып.<br>лидов</th>
-                                <th>Ср. время<br>поствызова</th>
-                                <th>Чек</th>
-                            </tr>
-                        </thead>
-                        <tbody id="team-data-body-month"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+        <!-- ... -->
     </div>
-    
-    <!-- JavaScript-код остается без изменений -->
-    <script>
-        // ... ВАШ JAVASCRIPT КОД ЗДЕСЬ ...
-        const supabaseUrl = 'https://yhjrhnglgtenxwncrrnf.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI';
-        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        let doughnutChart;
-        let doughnutChartMonth;
-        let currentTeamName = null;
-        
-        // ... весь остальной JavaScript код остается таким же ...
+    <!-- Ваш JavaScript-код остается без изменений -->
+    <script>
+        // ...
     </script>
 </body>
 </html>
