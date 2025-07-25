@@ -31,9 +31,9 @@
         .view { display: none; }
         .view.active { display: flex; }
         #view-day, #view-month, #view-team { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
-        .block-l { flex: 1 1 400px; max-width: 450px; min-width: 320px; }
-        .block-c { flex: 1 1 350px; min-width: 300px; }
-        .block-p { flex: 1 1 400px; min-width: 320px; }
+.block-l { width: 400px; flex-shrink: 0; } /* ЗАДАЕМ ФИКСИРОВАННУЮ ШИРИНУ */
+.block-c { flex-grow: 1; }                /* РАЗРЕШАЕМ РАСТИ ТОЛЬКО ЦЕНТРАЛЬНОМУ БЛОКУ */
+.block-p { width: 400px; flex-shrink: 0; } /* ЗАДАЕМ ФИКСИРОВАННУЮ ШИРИНУ */
         .block-l, .block-c, .block-p, .block-team-custom { padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
         .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; }
         .chart-center-text { position: absolute; text-align: center; pointer-events: none; }
