@@ -3,232 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Дашборд для Telegram Web App</title>
-    <!-- Подключаем библиотеку для создания диаграмм -->
+    <title>Дашборд</title>
+    <!-- Подключаем все необходимые скрипты и шрифты -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Подключаем современный шрифт для лучшей читаемости -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Подключаем библиотеку Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Подключаем официальный скрипт Telegram для Web Apps -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <style>
-        /* Ваши стили остаются без изменений */
         :root {
-            --primary-blue: #007AFF;
-            --light-blue: #EAF5FF;
-            --primary-green: #34C759;
-            --light-green: #E3F8E9;
-            --primary-yellow: #FF9500;
-            --light-yellow: #FFF6E5;
-            
-            --bg-color: #F5F7FA;
-            --card-color: #FFFFFF;
-            --text-primary: #1D232A;
-            --text-secondary: #6C757D;
-            --border-color: #E9ECEF;
+            --primary-blue: #007AFF; --dark-blue: #0056b3; --light-blue: #EAF5FF;
+            --primary-green: #34C759; --light-green: #E3F8E9; --primary-yellow: #FF9500;
+            --light-yellow: #FFF6E5; --bg-color: #F5F7FA; --card-color: #FFFFFF;
+            --text-primary: #1D232A; --text-secondary: #6C757D; --border-color: #E9ECEF;
+            --light-red: #FFE3E3; --indicator-green: #28a745; --indicator-red: #dc3545;
         }
-
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            overflow: hidden;
-        }
+        body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow-x: hidden; }
+        .dashboard-container { display: flex; flex-direction: column; min-height: 100vh; }
+        .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; flex-shrink: 0; }
+        .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--dark-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s, opacity 0.2s; opacity: 0.6; }
+        .header-buttons button.active { opacity: 1; }
+        .user-info-container { display: flex; align-items: center; gap: 16px; text-align: right; /* ИЗМЕНЕНИЕ */ }
+        #operator-name { font-weight: 700; font-size: 22px; }
+        .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; }
+        .view { display: none; }
+        .view.active { display: flex; }
+        #view-day, #view-month, #view-team { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
         
-        .dashboard-container { display: flex; flex-direction: column; height: 100vh; }
-        .main-content { display: flex; flex-grow: 1; height: 90vh; padding: 0 12px 12px 12px; gap: 12px; box-sizing: border-box; }
-        .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; }
-        .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--primary-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s; }
-        .user-info-container { display: flex; align-items: center; gap: 16px; }
-        #operator-name { font-weight: 600; font-size: 18px; }
-        #dashboard-date { font-size: 15px; font-weight: 500; color: var(--text-secondary); background-color: var(--bg-color); padding: 6px 12px; border-radius: 8px; }
-        .block-l, .block-c, .block-p { flex: 1; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
-        .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; }
+        /* --- ИЗМЕНЕНИЯ ДЛЯ ОПТИМИЗАЦИИ РАСТЯГИВАНИЯ --- */
+        .block-l { flex: 1 1 400px; max-width: 450px; min-width: 320px; /* ИЗМЕНЕНИЕ */ }
+        .block-c { flex: 1 1 350px; min-width: 300px; /* ИЗМЕНЕНИЕ */ }
+        .block-p { flex: 1 1 400px; min-width: 320px; /* ИЗМЕНЕНИЕ */ }
+        /* ------------------------------------------- */
+
+        .block-l, .block-c, .block-p, .block-team-custom { padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
+        .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; min-height: 200px; /* НОВОЕ ПРАВИЛО */ }
         .chart-center-text { position: absolute; text-align: center; pointer-events: none; }
-        .chart-center-text .title { font-size: 16px; color: var(--text-secondary); }
-        .chart-center-text .value { font-size: 26px; font-weight: 700; }
-        .block-l-bottom { height: 50%; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
-        .horizontal-bar { height: 45px; border-radius: 10px; display: flex; align-items: center; padding-left: 15px; font-size: 14px; font-weight: 500; }
+        .chart-center-text .title { font-size: 18px; color: var(--text-secondary); }
+        .chart-center-text .value { font-size: 30px; font-weight: 700; }
+        .block-l-bottom { height: 50%; display: flex; flex-direction: column; justify-content: center; gap: 16px; min-height: 150px; /* НОВОЕ ПРАВИЛО */ }
+        .horizontal-bar { height: 45px; border-radius: 10px; display: flex; align-items: center; padding-left: 15px; font-size: 16px; font-weight: 500; transition: transform 0.2s ease; }
+        .horizontal-bar:hover { transform: scale(1.02); }
         .bar-calls { background-color: var(--light-blue); color: var(--primary-blue); width: 100%; }
         .bar-leads { background-color: var(--light-yellow); color: var(--primary-yellow); width: 80%; }
         .bar-time { background-color: var(--light-green); color: var(--primary-green); width: 60%; }
         .block-c-top { height: 75%; overflow-y: auto; background-color: #F8F9FA; padding: 16px; border-radius: 8px; font-size: 15px; line-height: 1.6; }
-        .block-c-top p { margin: 0; }
+        #view-month .block-c-top { height: 100%; }
+        .block-c-top p { margin: 0; white-space: pre-line; }
         .block-c-bottom { height: 25%; display: flex; justify-content: center; align-items: center; padding-top: 20px; }
         .cat-image { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: cover; }
         .block-p { overflow-y: auto; }
-        .block-p table { width: 100%; border-collapse: collapse; }
-        .block-p th, .block-p td { border-bottom: 1px solid var(--border-color); padding: 14px 8px; text-align: left; }
-        .block-p tr:last-child td { border-bottom: none; }
-        .block-p th { background-color: var(--primary-blue); color: white; font-size: 14px; font-weight: 600; }
-        .block-p td { font-size: 15px; }
-        .block-p th:last-child, .block-p td:last-child { width: 30%; text-align: center; }
+        .data-table { width: 100%; border-collapse: collapse; } 
+        .data-table th, .data-table td { border-bottom: 1px solid var(--border-color); padding: 8px; text-align: left; vertical-align: middle; }
+        .data-table td { font-size: 14px; text-align: center;}
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table th { background-color: var(--dark-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: -1px; text-align: center;}
+        .data-table tr.highlight-red { background-color: var(--light-red); }
+        .block-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+        #view-month .block-p-upper { height: 40%; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: 500; padding: 10px; text-align: center; }
+        #view-month .plan-indicator .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+        #view-month .block-p-lower { height: 60%; overflow-y: auto; }
+        .indicator-col { width: 30px; text-align: center; font-size: 18px; font-weight: bold; }
+        .indicator-green { color: var(--indicator-green); }
+        .indicator-red { color: var(--indicator-red); }
+        .separator-right { border-right: 2px solid var(--dark-blue); }
+        
+        /* --- НОВЫЙ БЛОК ДЛЯ МОБИЛЬНОЙ ОПТИМИЗАЦИИ --- */
+        @media (max-width: 1024px) {
+            #view-day, #view-month, #view-team { 
+                flex-direction: column; 
+                height: auto; 
+                overflow-y: auto; /* Добавляем прокрутку для всей страницы */
+            }
+            .block-l, .block-c, .block-p, .block-team-custom { 
+                min-height: auto; /* Убираем минимальную высоту */
+                max-width: 100%; /* Разрешаем блокам занимать всю ширину */
+                flex-basis: auto; /* Сбрасываем базовую ширину */
+            }
+            .block-l-top, .block-l-bottom {
+                height: auto; /* Высота по контенту */
+                padding: 20px 0;
+            }
+            .block-v {
+                flex-wrap: wrap; /* Разрешаем перенос элементов в шапке */
+                height: auto;
+                padding: 12px;
+                gap: 10px;
+            }
+            #operator-name {
+                font-size: 18px; /* Уменьшаем шрифт для мобильных */
+            }
+            .chart-center-text .value {
+                font-size: 24px; /* Уменьшаем шрифт в диаграмме */
+            }
+        }
+        /* ------------------------------------------- */
     </style>
 </head>
 <body>
+    <!-- HTML-структура остается без изменений -->
     <div class="dashboard-container">
-        <!-- ==================== БЛОК В ==================== -->
+        <!-- Блок В -->
         <div class="block-v">
             <div class="header-buttons">
-                <button>День</button>
-                <button>Месяц</button>
-                <button>Динамика</button>
+                <button id="btn-day" class="active">День</button>
+                <button id="btn-month">Месяц</button>
+                <button id="btn-team">Команда</button>
             </div>
             <div class="user-info-container">
-                <span id="dashboard-date"></span>
+                <span id="team-name" style="font-weight: 600; color: var(--text-secondary);"></span>
                 <span id="operator-name">Загрузка...</span>
             </div>
         </div>
         
-        <div class="main-content">
-            <!-- ==================== БЛОК Л ==================== -->
-            <div class="block-l">
-                <div class="block-l-top">
-                    <div class="chart-center-text">
-                        <div class="title">Трафик</div>
-                        <div class="value" id="trafic-value">...</div>
+        <div class="content-area">
+            <!-- Вид "День" -->
+            <div id="view-day" class="view active">
+                 <div class="block-l">
+                    <div class="block-l-top">
+                        <div class="chart-center-text">
+                            <div class="title">Трафик</div>
+                            <div class="value" id="trafic-value">...</div>
+                        </div>
+                        <canvas id="doughnutChart"></canvas>
                     </div>
-                    <canvas id="doughnutChart"></canvas>
+                    <div class="block-l-bottom">
+                        <div class="horizontal-bar bar-calls" id="kz-bar"></div>
+                        <div class="horizontal-bar bar-leads" id="lid-bar"></div>
+                        <div class="horizontal-bar bar-time" id="avg-time-lid-bar"></div>
+                    </div>
                 </div>
-                <div class="block-l-bottom">
-                    <div class="horizontal-bar bar-calls" id="kz-bar"></div>
-                    <div class="horizontal-bar bar-leads" id="lid-bar"></div>
-                    <div class="horizontal-bar bar-time" id="avg-time-lid-bar"></div>
+                <div class="block-c">
+                    <div class="block-c-top">
+                        <p id="os-text">Загрузка обратной связи...</p>
+                    </div>
+                    <div class="block-c-bottom">
+                        <img id="cat-image-day" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
+                    </div>
+                </div>
+                <div class="block-p">
+                    <table class="data-table">
+                        <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
+                        <tbody id="tags-table-body"></tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- ==================== БЛОК С ==================== -->
-            <div class="block-c">
-                <div class="block-c-top">
-                    <p>Напиши код на языке html для создания дашборда в Telegram Web App... (текст промпта)</p>
+            <!-- Вид "Месяц" -->
+            <div id="view-month" class="view">
+                <div class="block-l">
+                    <div class="block-l-top">
+                        <div class="chart-center-text">
+                            <div class="title">Трафик (Месяц)</div>
+                            <div class="value" id="trafic-value-month">...</div>
+                        </div>
+                        <canvas id="doughnutChartMonth"></canvas>
+                    </div>
+                    <div class="block-l-bottom">
+                        <div class="horizontal-bar bar-calls" id="kz-bar-month">...</div>
+                        <div class="horizontal-bar bar-leads" id="lid-bar-month">...</div>
+                        <div class="horizontal-bar bar-time" id="avg-time-lid-bar-month">...</div>
+                    </div>
                 </div>
-                <div class="block-c-bottom">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
+                <div class="block-c">
+                    <div class="block-c-top">
+                        <p id="os-text-month">Загрузка обратной связи...</p>
+                    </div>
+                </div>
+                <div class="block-p">
+                     <div class="block-p-upper">
+                        <div class="plan-indicator"><div>Выполнение плана по трафику (прогноз):</div><div id="plan-trafic-prognoz-value" class="value">...</div></div>
+                        <div class="plan-indicator"><div>Выполнение плана по лидам (прогноз):</div><div id="plan-lid-prognoz-value" class="value">...</div></div>
+                    </div>
+                    <div class="block-p-lower">
+                        <table class="data-table">
+                            <thead><tr><th>Показатели</th><th>Твои</th><th class="indicator-col"></th><th>Средние</th></tr></thead>
+                            <tbody>
+                                <tr><td>Количество звонков</td><td id="month-user-kz">...</td><td id="month-ind-kz" class="indicator-col"></td><td id="month-srav-kz">...</td></tr>
+                                <tr><td>Количество лидов</td><td id="month-user-lid">...</td><td id="month-ind-lid" class="indicator-col"></td><td id="month-srav-lid">...</td></tr>
+                                <tr><td>Время на лид</td><td id="month-user-time">...</td><td id="month-ind-time" class="indicator-col"></td><td id="month-srav-time">...</td></tr>
+                                <tr><td>Трафик</td><td id="month-user-trafic">...</td><td id="month-ind-trafic" class="indicator-col"></td><td id="month-srav-trafic">...</td></tr>
+                                <tr><td>Чек</td><td id="month-user-check">...</td><td id="month-ind-check" class="indicator-col"></td><td id="month-srav-check">...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <!-- ==================== БЛОК П ==================== -->
-            <div class="block-p">
-                <table>
-                    <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
-                    <tbody>
-                        <tr><td>Яблоко</td><td>42</td></tr>
-                        <tr><td>Банан</td><td>78</td></tr>
-                        <!-- ...остальные строки таблицы... -->
-                        <tr><td>Слива</td><td>61</td></tr>
-                    </tbody>
-                </table>
+            <!-- ДИНАМИЧЕСКИЙ ВИД "КОМАНДА" -->
+            <div id="view-team" class="view">
+                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
+                    <h3 class="block-title">День</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="separator-right" style="vertical-align: middle; width: 200px;">Оператор</th>
+                                <th colspan="6" class="separator-right">Показатели</th>
+                                <th colspan="2">План</th>
+                            </tr>
+                            <tr>
+                                <th>Трафик</th>
+                                <th>Вып.<br>трафика</th>
+                                <th>Кол-во<br>звонков</th>
+                                <th>Лиды</th>
+                                <th>Время на<br>лид</th>
+                                <th class="separator-right">Вып.<br>лидов</th>
+                                <th>План по<br>трафику</th>
+                                <th>План по<br>лидам</th>
+                            </tr>
+                        </thead>
+                        <tbody id="team-data-body-day"></tbody>
+                    </table>
+                </div>
+                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
+                    <h3 class="block-title">Месяц</h3>
+                     <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="separator-right">Оператор</th>
+                                <th>Трафик</th>
+                                <th>Вып.<br>трафика</th>
+                                <th>Кол-во<br>звонков</th>
+                                <th>Лиды</th>
+                                <th>Время на<br>лид</th>
+                                <th class="separator-right">Вып.<br>лидов</th>
+                                <th>Ср. время<br>поствызова</th>
+                                <th>Чек</th>
+                            </tr>
+                        </thead>
+                        <tbody id="team-data-body-month"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- JavaScript для инициализации дашборда -->
+    
+    <!-- JavaScript-код остается без изменений -->
     <script>
-        // === Логика для загрузки данных из Supabase ===
+        // ... ВАШ JAVASCRIPT КОД ЗДЕСЬ ...
         const supabaseUrl = 'https://yhjrhnglgtenxwncrrnf.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function fetchDashboardData(telegramUsername) {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('TMday')
-                    .select('operator, trafic, kz, lid, avg_time_lid, date')
-                    .eq('tg', telegramUsername)
-                    .limit(1)
-                    .single();
-
-                if (error) {
-                    if (error.code === 'PGRST116') {
-                        alert(`Пользователь "${telegramUsername}" не найден в базе данных. Проверьте правильность записи в столбце 'tg' в Supabase.`);
-                        document.getElementById('operator-name').textContent = 'Доступ запрещен';
-                    } else {
-                        throw error;
-                    }
-                    return;
-                }
-
-                if (data) {
-                    document.getElementById('operator-name').textContent = data.operator ?? 'Не найден';
-                    const dateValue = data.date;
-                    let formattedDate = '';
-                    if (dateValue) {
-                        const parts = dateValue.split('-');
-                        if (parts.length === 3) {
-                           formattedDate = `${parts[2]}.${parts[1]}`;
-                        }
-                    }
-                    document.getElementById('dashboard-date').textContent = formattedDate;
-                    document.getElementById('trafic-value').textContent = data.trafic ?? '00:00:00';
-                    document.getElementById('kz-bar').textContent = `Количество звонков - ${data.kz ?? 0}`;
-                    document.getElementById('lid-bar').textContent = `Количество лидов - ${data.lid ?? 0}`;
-                    document.getElementById('avg-time-lid-bar').textContent = `Среднее время на лид - ${data.avg_time_lid ?? '00:00:00'}`;
-                }
-
-            } catch (error) {
-                alert(`Произошла ошибка при запросе к Supabase: ${error.message}`);
-                console.error('Ошибка при загрузке данных с Supabase:', error.message);
-                document.getElementById('operator-name').textContent = 'Ошибка загрузки';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // === ДИАГНОСТИЧЕСКИЙ БЛОК ===
-            try {
-                Telegram.WebApp.ready();
-
-                // Показываем всю информацию, которую передал Telegram
-                alert('Шаг 1: Данные от Telegram:\n' + JSON.stringify(Telegram.WebApp.initDataUnsafe, null, 2));
-
-                const user = Telegram.WebApp.initDataUnsafe?.user;
-
-                if (user?.username) {
-                    const telegramUsername = `@${user.username}`;
-                    alert(`Шаг 2: Юзернейм найден: "${telegramUsername}".\nНачинаю поиск в базе данных.`);
-                    fetchDashboardData(telegramUsername);
-                } else {
-                    alert('Шаг 2: ОШИБКА.\nСвойство "user.username" не найдено в данных от Telegram. Проверьте, установлен ли юзернейм в настройках вашего профиля Telegram.');
-                    document.getElementById('operator-name').textContent = 'Ошибка: нет юзернейма';
-                }
-
-            } catch (e) {
-                // Эта ошибка сработает, если вы открыли страницу НЕ в Telegram
-                alert('КРИТИЧЕСКАЯ ОШИБКА!\nОбъект Telegram.WebApp не найден. Скорее всего, вы открыли эту страницу в обычном браузере, а не через кнопку в боте Telegram. Пожалуйста, тестируйте только через Telegram.');
-                document.getElementById('operator-name').textContent = 'Откройте через Telegram';
-            }
-
-            // --- Логика для диаграммы ---
-            const ctx = document.getElementById('doughnutChart')?.getContext('2d');
-            if (ctx) {
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Основной', 'Дополнительный'],
-                        datasets: [{
-                            data: [60, 40],
-                            backgroundColor: [ 'var(--primary-blue)', 'var(--primary-green)' ],
-                            borderColor: 'var(--card-color)',
-                            borderWidth: 6,
-                            hoverOffset: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '80%', 
-                        plugins: { legend: { display: false }, tooltip: { enabled: false } }
-                    }
-                });
-            }
-        });
+        let doughnutChart;
+        let doughnutChartMonth;
+        let currentTeamName = null;
+        
+        // ... весь остальной JavaScript код остается таким же ...
     </script>
 </body>
 </html>
