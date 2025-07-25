@@ -31,9 +31,9 @@
         .view { display: none; }
         .view.active { display: flex; }
         #view-day, #view-month, #view-team { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
-        .block-l { flex: 1.1; }
-        .block-c { flex: 0.8; }
-        .block-p { flex: 1.1; }
+        .block-l { flex: 1 1 400px; max-width: 450px; min-width: 320px; }
+        .block-c { flex: 1 1 350px; min-width: 300px; }
+        .block-p { flex: 1 1 400px; min-width: 320px; }
         .block-l, .block-c, .block-p, .block-team-custom { padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
         .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; }
         .chart-center-text { position: absolute; text-align: center; pointer-events: none; }
@@ -68,9 +68,23 @@
         .separator-right { border-right: 2px solid var(--dark-blue); }
         
         @media (max-width: 1024px) {
-            #view-day, #view-month, #view-team { flex-direction: column; height: auto; }
-            .block-l, .block-c, .block-p, .block-team-custom { min-height: 300px; }
-        }
+    #view-day, #view-month, #view-team { 
+        flex-direction: column; 
+        height: auto; 
+    }
+    .block-l, .block-c, .block-p, .block-team-custom { 
+        min-height: auto; /* Убираем минимальную высоту, чтобы блоки сжимались */
+    }
+    .block-v {
+        height: auto; /* Позволяем шапке увеличиваться, если нужно */
+        padding: 12px;
+        flex-wrap: wrap; /* Разрешаем перенос элементов на новую строку */
+        gap: 10px;
+    }
+    #operator-name {
+        font-size: 18px; /* Немного уменьшаем шрифт имени на мобильных */
+    }
+}
     </style>
 </head>
 <body>
