@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Тестовый Дашборд</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style> body { font-family: sans-serif; padding: 20px; } </style>
+</head>
+<body>
+    <h1>Тестовый Дашборд</h1>
+    <p>Если вы видите эту страницу, значит, кнопка "Дашборд" работает.</p>
+    <hr>
+    <p>Ваш Telegram ID: <b id="user-id">определяется...</b></p>
+    <hr>
+    <p>Это доказывает, что бот знает, кто нажал на кнопку.</p>
+
+    <!-- Скрипт для связи с Telegram -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                    document.getElementById('user-id').textContent = tg.initDataUnsafe.user.id;
+                } else {
+                    document.getElementById('user-id').textContent = 'не удалось определить ID.';
+                }
+            } else {
+                document.getElementById('user-id').textContent = 'откройте эту страницу через бота в Telegram.';
+            }
+        });
+    </script>
+</body>
+</html>
