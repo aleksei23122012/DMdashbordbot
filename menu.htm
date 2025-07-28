@@ -17,7 +17,7 @@
             // Это специальная "глубокая ссылка" (deep link), которая говорит
             // приложению Telegram: "открой чат с ботом botUsername и отправь
             // ему команду /start"
-            const deepLink = "https://t.me/" + botUsername + "/start";
+            const deepLink = "https://t.me/" + botUsername + "?start=menu";
 
             // Перенаправляем пользователя по этой ссылке.
             // Telegram перехватит ее, закроет Web App и выполнит команду.
