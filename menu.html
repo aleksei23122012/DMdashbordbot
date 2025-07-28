@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Загрузка меню...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <p>Перенаправление...</p>
+
+    <script>
+        // Сразу после загрузки страницы, выполняем перенаправление
+        window.onload = function() {
+            // !!! ВАЖНО: Укажите здесь USERNAME вашего НОВОГО, БОЕВОГО бота !!!
+            // (без символа @)
+            const botUsername = "DMconcbot"; 
+
+            // Это специальная "глубокая ссылка" (deep link), которая говорит
+            // приложению Telegram: "открой чат с ботом botUsername и отправь
+            // ему команду /start"
+            const deepLink = "https://t.me/" + botUsername + "/start";
+
+            // Перенаправляем пользователя по этой ссылке.
+            // Telegram перехватит ее, закроет Web App и выполнит команду.
+            window.location.href = deepLink;
+        };
+    </script></body>
+</html>
