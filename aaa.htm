@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Тестовый Дашборд</title>
+    <title>Тестовый Дашборд v2</title> <!-- ИЗМЕНЕНИЕ ТУТ -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style> 
         body { 
@@ -10,50 +10,30 @@
             color: var(--tg-theme-text-color); 
             background-color: var(--tg-theme-bg-color);
         } 
-        hr {
-            border-color: var(--tg-theme-hint-color);
-        }
+        hr { border-color: var(--tg-theme-hint-color); }
     </style>
 </head>
 <body>
 
-    <h1>Тестовый Дашборд</h1>
+    <h1>Тестовый Дашборд (Версия 2)</h1> <!-- И ИЗМЕНЕНИЕ ТУТ -->
     <p>Если вы видите эту страницу, значит, кнопка "Дашборд" работает.</p>
     <hr>
     <h3>Ваш Telegram ID: <b id="user-id">определяется...</b></h3>
     <hr>
     <p>Это доказывает, что бот знает, кто нажал на кнопку.</p>
 
-
-    <!-- 
-        ============================================================
-        !!! ВОТ ОН, САМЫЙ ВАЖНЫЙ СКРИПТ, КОТОРОГО НЕ ХВАТАЛО !!! 
-        Он подключает официальную библиотеку Telegram Web App.
-        ============================================================
-    -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Ждем, пока страница полностью загрузится
         window.addEventListener('load', function() {
-            // Проверяем, что страница открыта именно из Telegram
             if (window.Telegram && window.Telegram.WebApp) {
                 const tg = window.Telegram.WebApp;
-
-                // Говорим Telegram, что наше приложение готово к работе и может менять цвета
                 tg.ready();
-
-                // Пытаемся получить данные пользователя.
-                // initDataUnsafe содержит информацию о пользователе, включая его ID.
                 if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    const user = tg.initDataUnsafe.user;
-                    // Вставляем ID пользователя в нужный нам элемент на странице
-                    document.getElementById('user-id').textContent = user.id; 
+                    document.getElementById('user-id').textContent = tg.initDataUnsafe.user.id; 
                 } else {
-                    // Эта надпись появится, если что-то пошло не так
                     document.getElementById('user-id').textContent = 'не удалось определить ID.';
                 }
             } else {
-                // Эта надпись появится, если кто-то откроет страницу просто по ссылке в браузере
                  document.getElementById('user-id').textContent = 'откройте эту страницу через бота в Telegram.';
             }
         });
