@@ -100,6 +100,7 @@
                 }
             }
             
+            // БОЕВОЙ РЕЖИМ: Если пользователь не определен, прекращаем выполнение.
             if (!userIdentifier) {
                 document.getElementById('operator-name').textContent = 'Пользователь не определен';
                 document.getElementById('team-name').textContent = '';
@@ -352,8 +353,7 @@
             
             const btnDay = document.getElementById('btn-day');
             const btnMonth = document.getElementById('btn-month');
-            const btnPosition = document.getElementById('btn-position'); // ИЗМЕНЕНО
-            const btnDynamics = document.getElementById('btn-dynamics');   // ДОБАВЛЕНО
+            const btnTeam = document.getElementById('btn-team');
             const viewDay = document.getElementById('view-day');
             const viewMonth = document.getElementById('view-month');
             const viewTeam = document.getElementById('view-team');
@@ -361,8 +361,8 @@
             const operatorNameEl = document.getElementById('operator-name');
             const teamNameEl = document.getElementById('team-name');
 
-            const allButtons = [btnDay, btnMonth, btnPosition, btnDynamics]; // ИЗМЕНЕНО
-            const allViews = [viewDay, viewMonth, viewTeam]; // Динамику пока не добавляем в переключение
+            const allButtons = [btnDay, btnMonth, btnTeam];
+            const allViews = [viewDay, viewMonth, viewTeam];
 
             function switchView(viewToShow, buttonToActivate) {
                 allViews.forEach(view => view.classList.remove('active'));
@@ -389,8 +389,7 @@
 
             btnDay.addEventListener('click', () => { switchView(viewDay, btnDay); });
             btnMonth.addEventListener('click', () => { switchView(viewMonth, btnMonth); });
-            btnPosition.addEventListener('click', () => { switchView(viewTeam, btnPosition); }); // ИЗМЕНЕНО
-            btnDynamics.addEventListener('click', () => { alert('Раздел "Динамика" в разработке!'); }); // ДОБАВЛЕНО
+            btnTeam.addEventListener('click', () => { switchView(viewTeam, btnTeam); });
 
             fetchDashboardData('TMday');
         });
