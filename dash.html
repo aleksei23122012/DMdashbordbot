@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Дашборд</title>
     
-    <!-- Подключаем внешние скрипты и шрифты -->
+    <!-- Внешние скрипты и шрифты -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- ВСТРАИВАЕМ CSS ПРЯМО СЮДА -->
+    <!-- Встроенный CSS -->
     <style>
         :root {
             --primary-blue: #007AFF; --dark-blue: #0056b3; --light-blue: #EAF5FF;
@@ -32,7 +32,7 @@
         .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; }
         .view { display: none; }
         .view.active { display: flex; }
-        #view-day, #view-month, #view-team, #view-dynamics { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
+        #view-day, #view-month, #view-position, #view-dynamics { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
         .block-l { width: 400px; flex-shrink: 0; }
         .block-c { flex-grow: 1; }
         .block-p { width: 400px; flex-shrink: 0; }
@@ -59,27 +59,24 @@
         .data-table th { background-color: var(--dark-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: -1px; text-align: center;}
         .data-table tr.highlight-red { background-color: var(--light-red); }
         .block-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; text-align: center; }
-        #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: 500; padding: 10px; text-align: center; }
-        #view-month .plan-indicator .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
         .indicator-col { width: 30px; text-align: center; font-size: 18px; font-weight: bold; }
         .indicator-green { color: var(--indicator-green); }
         .indicator-red { color: var(--indicator-red); }
         .separator-right { border-right: 2px solid var(--dark-blue); }
 
-        /* --- Новые и измененные стили для вида "Месяц" --- */
-        #view-month .block-p { width: 60%; flex-shrink: 0; display: flex; flex-direction: column; padding: 20px; }
-        #view-month .block-c { width: 40%; flex-shrink: 0; display: flex; flex-direction: column; padding: 20px; }
+        /* --- Стили для вида "Месяц" --- */
+        #view-month .block-c-bottom-month { height: 40%; display: flex; flex-direction: column; gap: 12px; padding-top: 20px; justify-content: space-around; }
+        #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: 500; padding: 10px; text-align: center; }
+        #view-month .plan-indicator .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
         #view-month .block-p-upper-month { height: 60%; overflow-y: auto; }
         #view-month .block-p-lower-month { height: 40%; overflow-y: auto; padding-top: 20px; }
-        #view-month .block-c-upper-month { height: 50%; overflow-y: auto; background-color: #F8F9FA; padding: 16px; border-radius: 8px; font-size: 15px; line-height: 1.6; }
-        #view-month .block-c-lower-month { height: 50%; display: flex; flex-direction: column; gap: 12px; padding-top: 20px; justify-content: space-around; }
         
         /* --- Стили для вида "Динамика" --- */
         .dynamics-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; width: 100%; height: 100%; }
         .dynamics-block { justify-content: center; align-items: center; font-size: 24px; color: var(--text-secondary); }
 
         @media (max-width: 1024px) {
-            #view-day, #view-month, #view-team, #view-dynamics { 
+            #view-day, #view-month, #view-position, #view-dynamics { 
                 flex-direction: column; height: auto; 
             }
             .dynamics-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
@@ -148,6 +145,15 @@
                         <div class="horizontal-bar bar-calls" id="kz-bar-month">...</div><div class="horizontal-bar bar-leads" id="lid-bar-month">...</div><div class="horizontal-bar bar-time" id="avg-time-lid-bar-month">...</div>
                     </div>
                 </div>
+                <div class="block-c">
+                    <div class="block-c-top">
+                        <p id="os-text-month">Загрузка обратной связи...</p>
+                    </div>
+                    <div class="block-c-bottom-month">
+                        <div class="plan-indicator"><div>Выполнение плана по трафику (прогноз):</div><div id="plan-trafic-prognoz-value" class="value">...</div></div>
+                        <div class="plan-indicator"><div>Выполнение плана по лидам (прогноз):</div><div id="plan-lid-prognoz-value" class="value">...</div></div>
+                    </div>
+                </div>
                 <div class="block-p">
                     <div class="block-p-upper-month">
                          <table class="data-table">
@@ -165,15 +171,6 @@
                             <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
                             <tbody id="tags-table-body-month"></tbody>
                         </table>
-                    </div>
-                </div>
-                <div class="block-c">
-                     <div class="block-c-upper-month">
-                        <p id="os-text-month">Загрузка обратной связи...</p>
-                    </div>
-                     <div class="block-c-lower-month">
-                        <div class="plan-indicator"><div>Выполнение плана по трафику (прогноз):</div><div id="plan-trafic-prognoz-value" class="value">...</div></div>
-                        <div class="plan-indicator"><div>Выполнение плана по лидам (прогноз):</div><div id="plan-lid-prognoz-value" class="value">...</div></div>
                     </div>
                 </div>
             </div>
@@ -224,7 +221,7 @@
         </div>
     </div>
 
-    <!-- ВСТРАИВАЕМ JAVASCRIPT ПРЯМО СЮДА -->
+    <!-- Встроенный JavaScript -->
     <script>
         const supabaseUrl = 'https://yhjrhnglgtenxwncrrnf.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI';
@@ -282,8 +279,7 @@
         function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) {
             const element = document.getElementById(elementId);
             if (!element || userValue === null || avgValue === null) {
-                if (element) element.textContent = '';
-                return;
+                if (element) element.textContent = ''; return;
             };
             let userIsBetter;
             if (isTime) {
@@ -389,7 +385,10 @@
         }
 
         async function fetchPositionData(position) {
-            if (!position) return;
+            if (!position) {
+                alert("Не удалось определить должность. Сначала откройте вкладку 'День' или 'Месяц'.");
+                return;
+            }
             document.getElementById('position-name').textContent = position;
             try {
                 const { data: dayData, error: dayError } = await supabaseClient.from('Teamday').select('*').eq('dolg', position);
@@ -408,15 +407,12 @@
             data.forEach(op => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="separator-right">${op.operator}</td>
-                    <td>${op.trafic || 'N/A'}</td>
+                    <td class="separator-right">${op.operator}</td><td>${op.trafic || 'N/A'}</td>
                     <td class="td-gradient-traffic-day">${(op.per_trafic * 100).toFixed(0)}%</td>
-                    <td>${op.kz || 0}</td>
-                    <td>${op.lid || 0}</td>
+                    <td>${op.kz || 0}</td><td>${op.lid || 0}</td>
                     <td class="td-gradient-time-day">${op.avg_time_lid || 'N/A'}</td>
                     <td class="td-gradient-leads-day separator-right">${(op.per_lid * 100).toFixed(0)}%</td>
-                    <td>${op.plan_trafic || 'N/A'}</td>
-                    <td>${op.plan_lid || 0}</td>
+                    <td>${op.plan_trafic || 'N/A'}</td><td>${op.plan_lid || 0}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -432,11 +428,9 @@
             data.forEach(op => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="separator-right">${op.operator}</td>
-                    <td>${op.trafic || 'N/A'}</td>
+                    <td class="separator-right">${op.operator}</td><td>${op.trafic || 'N/A'}</td>
                     <td class="td-gradient-traffic-month">${(op.per_trafic * 100).toFixed(0)}%</td>
-                    <td>${op.kz || 0}</td>
-                    <td>${op.lid || 0}</td>
+                    <td>${op.kz || 0}</td><td>${op.lid || 0}</td>
                     <td class="td-gradient-time-month">${op.avg_time_lid || 'N/A'}</td>
                     <td class="td-gradient-leads-month separator-right">${(op.per_lid * 100).toFixed(0)}%</td>
                     <td>${op.avg_time_post || 'N/A'}</td>
@@ -527,14 +521,7 @@
 
             btnDay.addEventListener('click', () => { switchView(viewDay, btnDay); });
             btnMonth.addEventListener('click', () => { switchView(viewMonth, btnMonth); });
-            // ИЗМЕНЕНИЕ ИМЕНИ КНОПКИ
-            document.getElementById('btn-team').id = 'btn-position';
-            document.getElementById('view-team').id = 'view-position';
-            
-            const newBtnPosition = document.getElementById('btn-position');
-            const newViewPosition = document.getElementById('view-position');
-
-            newBtnPosition.addEventListener('click', () => { switchView(newViewPosition, newBtnPosition); });
+            btnPosition.addEventListener('click', () => { switchView(viewPosition, btnPosition); });
             btnDynamics.addEventListener('click', () => { switchView(viewDynamics, btnDynamics); });
 
             fetchDashboardData('TMday');
