@@ -1,72 +1,81 @@
-   :root {
-            --primary-blue: #007AFF; --dark-blue: #0056b3; --light-blue: #EAF5FF;
-            --primary-green: #34C759; --light-green: #E3F8E9; --primary-yellow: #FF9500;
-            --light-yellow: #FFF6E5; --bg-color: #F5F7FA; --card-color: #FFFFFF;
-            --text-primary: #1D232A; --text-secondary: #6C757D; --border-color: #E9ECEF;
-            --light-red: #FFE3E3; --indicator-green: #28a745; --indicator-red: #dc3545;
-        }
-        body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow-x: hidden; }
-        .dashboard-container { display: flex; flex-direction: column; min-height: 100vh; }
-        .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; flex-shrink: 0; }
-        .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--dark-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s, opacity 0.2s; opacity: 0.6; }
-        .header-buttons button.active { opacity: 1; }
-        .user-info-container { display: flex; align-items: center; gap: 16px; }
-        #operator-name { font-weight: 700; font-size: 22px; }
-        .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; }
-        .view { display: none; }
-        .view.active { display: flex; }
-        #view-day, #view-month, #view-team { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
-.block-l { width: 400px; flex-shrink: 0; } /* ЗАДАЕМ ФИКСИРОВАННУЮ ШИРИНУ */
-.block-c { flex-grow: 1; }                /* РАЗРЕШАЕМ РАСТИ ТОЛЬКО ЦЕНТРАЛЬНОМУ БЛОКУ */
-.block-p { width: 400px; flex-shrink: 0; } /* ЗАДАЕМ ФИКСИРОВАННУЮ ШИРИНУ */
-        .block-l, .block-c, .block-p, .block-team-custom { padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
-        .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; }
-        .chart-center-text { position: absolute; text-align: center; pointer-events: none; }
-        .chart-center-text .title { font-size: 18px; color: var(--text-secondary); }
-        .chart-center-text .value { font-size: 30px; font-weight: 700; }
-        .block-l-bottom { height: 50%; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
-        .horizontal-bar { height: 45px; border-radius: 10px; display: flex; align-items: center; padding-left: 15px; font-size: 16px; font-weight: 500; transition: transform 0.2s ease; }
-        .horizontal-bar:hover { transform: scale(1.02); }
-        .bar-calls { background-color: var(--light-blue); color: var(--primary-blue); width: 100%; }
-        .bar-leads { background-color: var(--light-yellow); color: var(--primary-yellow); width: 80%; }
-        .bar-time { background-color: var(--light-green); color: var(--primary-green); width: 60%; }
-        .block-c-top { height: 75%; overflow-y: auto; background-color: #F8F9FA; padding: 16px; border-radius: 8px; font-size: 15px; line-height: 1.6; }
-        #view-month .block-c-top { height: 100%; }
-        .block-c-top p { margin: 0; white-space: pre-line; }
-        .block-c-bottom { height: 25%; display: flex; justify-content: center; align-items: center; padding-top: 20px; }
-        .cat-image { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: cover; }
-        .block-p { overflow-y: auto; }
-        .data-table { width: 100%; border-collapse: collapse; } 
-        .data-table th, .data-table td { border-bottom: 1px solid var(--border-color); padding: 8px; text-align: left; vertical-align: middle; }
-        .data-table td { font-size: 14px; text-align: center;}
-        .data-table tr:last-child td { border-bottom: none; }
-        .data-table th { background-color: var(--dark-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: -1px; text-align: center;}
-        .data-table tr.highlight-red { background-color: var(--light-red); }
-        .block-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; text-align: center; }
-        #view-month .block-p-upper { height: 40%; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: 500; padding: 10px; text-align: center; }
-        #view-month .plan-indicator .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
-        #view-month .block-p-lower { height: 60%; overflow-y: auto; }
-        .indicator-col { width: 30px; text-align: center; font-size: 18px; font-weight: bold; }
-        .indicator-green { color: var(--indicator-green); }
-        .indicator-red { color: var(--indicator-red); }
-        .separator-right { border-right: 2px solid var(--dark-blue); }
-        
-        @media (max-width: 1024px) {
-    #view-day, #view-month, #view-team { 
+:root {
+    /* ... переменные остаются без изменений ... */
+}
+body, html { /* ... без изменений ... */ }
+.dashboard-container { /* ... без изменений ... */ }
+.block-v { /* ... без изменений ... */ }
+.header-buttons button { /* ... без изменений ... */ }
+.user-info-container { /* ... без изменений ... */ }
+#operator-name { /* ... без изменений ... */ }
+.content-area { /* ... без изменений ... */ }
+.view { display: none; }
+.view.active { display: flex; }
+
+/* Общие стили для всех видов */
+#view-day, #view-month, #view-position { 
+    flex-direction: row; 
+    gap: 12px; 
+    height: calc(90vh - 24px); 
+}
+
+/* Стили для блоков День и Месяц */
+.block-l { width: 400px; flex-shrink: 0; }
+.block-c, .block-p { flex-grow: 1; }
+.block-l, .block-c, .block-p, .block-team-custom, .dynamics-block { 
+    padding: 20px; 
+    box-sizing: border-box; 
+    display: flex; 
+    flex-direction: column; 
+    background-color: var(--card-color); 
+    border-radius: 12px; 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); 
+}
+
+/* ... Стили .block-l-top, .chart-center-text, .block-l-bottom, .horizontal-bar остаются без изменений ... */
+
+/* ИЗМЕНЕНИЕ 2.2: Новые стили для вида "Месяц" */
+#view-month .block-p { width: 60%; flex-shrink: 0; } /* Таблицы занимают больше места */
+#view-month .block-c { width: 40%; flex-shrink: 0; } /* Блок с ОС и планами занимает меньше */
+
+#view-month .block-p-upper-month { height: 60%; overflow-y: auto; }
+#view-month .block-p-lower-month { height: 40%; overflow-y: auto; padding-top: 15px; }
+
+#view-month .block-c-upper-month { height: 50%; overflow-y: auto; background-color: #F8F9FA; padding: 16px; border-radius: 8px; font-size: 15px; line-height: 1.6; }
+#view-month .block-c-lower-month { height: 50%; display: flex; flex-direction: column; gap: 12px; padding-top: 20px; }
+
+/* ... Стили .data-table, .block-title, plan-indicator, indicator-col, separator-right остаются без изменений ... */
+#view-month .plan-indicator {
+    /* ... стили не меняются, но теперь они применяются к блокам в .block-c-lower-month ... */
+}
+
+/* ИЗМЕНЕНИЕ 3.1: Стили для вида "Динамика" */
+#view-dynamics {
+    height: calc(90vh - 24px);
+}
+.dynamics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    height: 100%;
+}
+.dynamics-block {
+    /* Общие стили для блоков уже заданы выше */
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    color: var(--text-secondary);
+}
+
+@media (max-width: 1024px) {
+    #view-day, #view-month, #view-position, #view-dynamics { 
         flex-direction: column; 
         height: auto; 
     }
-    .block-l, .block-c, .block-p, .block-team-custom { 
-        min-height: auto; /* Убираем минимальную высоту, чтобы блоки сжимались */
+    .dynamics-grid {
+        grid-template-columns: 1fr; /* На мобильных все блоки в один столбец */
+        grid-template-rows: auto;
     }
-    .block-v {
-        height: auto; /* Позволяем шапке увеличиваться, если нужно */
-        padding: 12px;
-        flex-wrap: wrap; /* Разрешаем перенос элементов на новую строку */
-        gap: 10px;
-    }
-    #operator-name {
-        font-size: 18px; /* Немного уменьшаем шрифт имени на мобильных */
-    }
+    /* ... остальные медиа-запросы без изменений ... */
 }
