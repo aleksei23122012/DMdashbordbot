@@ -27,7 +27,7 @@
         .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; flex-shrink: 0; }
         .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--dark-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s, opacity 0.2s; opacity: 0.6; }
         .header-buttons button.active { opacity: 1; }
-        .user-info-container { display: flex; align-items: center; gap: 16px; }
+        .user-info-container { display: flex; align-items: center; gap: 16px; text-align: right; }
         #operator-name { font-weight: 700; font-size: 22px; }
         .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; }
         .view { display: none; }
@@ -64,7 +64,6 @@
         .indicator-red { color: var(--indicator-red); }
         .separator-right { border-right: 2px solid var(--dark-blue); }
 
-        /* --- Стили для вида "Месяц" --- */
         #view-month .block-c-top { height: 60%; }
         #view-month .block-c-bottom-month { height: 40%; display: flex; gap: 12px; padding-top: 20px; }
         #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: 500; padding: 10px; text-align: center; }
@@ -73,14 +72,11 @@
         #view-month .block-p-upper-month { flex-shrink: 0; }
         #view-month .block-p-lower-month { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
         
-        /* --- Стили для вида "Динамика" --- */
         .dynamics-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; width: 100%; height: 100%; }
         .dynamics-block { justify-content: center; align-items: center; font-size: 24px; color: var(--text-secondary); }
 
         @media (max-width: 1024px) {
-            #view-day, #view-month, #view-position, #view-dynamics { 
-                flex-direction: column; height: auto; 
-            }
+            #view-day, #view-month, #view-position, #view-dynamics { flex-direction: column; height: auto; }
             .dynamics-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
             .block-l, .block-c, .block-p, .block-team-custom { min-height: auto; }
             .block-v { height: auto; padding: 12px; flex-wrap: wrap; gap: 10px; }
