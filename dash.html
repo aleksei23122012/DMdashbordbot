@@ -47,13 +47,14 @@
         .block-c-top p { margin: 0; white-space: pre-line; }
         .block-c-bottom { height: 25%; display: flex; justify-content: center; align-items: center; padding-top: 20px; }
         .cat-image { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: cover; }
-        .block-p { overflow-y: auto; }
+        .block-p { display: flex; flex-direction: column; } /* Changed for day view */
         .data-table { width: 100%; border-collapse: collapse; } 
         .data-table th, .data-table td { border-bottom: 1px solid var(--border-color); padding: 8px; text-align: left; vertical-align: middle; }
         .data-table td { font-size: 14px; text-align: center;}
         .data-table tr:last-child td { border-bottom: none; }
         .data-table th { background-color: var(--dark-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: -21px; text-align: center;}
         .data-table tr.highlight-red { background-color: var(--light-red); }
+        .data-table tr.current-user-row { background-color: var(--light-blue) !important; font-weight: 600; }
         .block-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; text-align: center; }
         .indicator-col { width: 30px; text-align: center; font-size: 18px; font-weight: bold; }
         .indicator-green { color: var(--indicator-green); }
@@ -61,17 +62,16 @@
         .separator-right { border-right: 2px solid var(--dark-blue); }
         
         #view-month .block-c-top { height: 60%; }
-        #view-month .block-c-bottom-month { height: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; padding-top: 20px; justify-content: center; }
-        #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 13px; font-weight: 500; padding: 8px; text-align: center; }
+        #view-month .block-c-bottom-month { height: auto; flex-grow: 1; flex-direction: row; display: flex; gap: 12px; align-items: center; justify-content: center; padding-top: 20px;}
+        #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 13px; font-weight: 500; padding: 8px; text-align: center; height: 100%; max-height: 100px;}
         #view-month .plan-indicator .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
-        #view-month .block-p { display: flex; flex-direction: column; }
         #view-month .block-p-upper-month { flex-shrink: 0; }
         #view-month .block-p-lower-month { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
+        .block-p-upper-day { flex-shrink: 0; }
+        .block-p-lower-day { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
         
         .dynamics-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; width: 100%; height: 100%; }
         .dynamics-block { justify-content: center; align-items: center; font-size: 24px; color: var(--text-secondary); }
-        
-        .data-table tr.current-user-row { background-color: var(--light-blue) !important; font-weight: 600; }
 
         @media (max-width: 1024px) {
             #view-day, #view-month, #view-position, #view-dynamics { flex-direction: column; height: auto; }
@@ -235,7 +235,9 @@
         // --- БЛОК С ТЕСТОВЫМИ ДАННЫМИ (ЗАГЛУШКИ) ---
         const CURRENT_USER_NAME = "Алексей Ли"; 
 
-        function generateRandomTime(maxHours = 4) { return `${String(Math.floor(Math.random() * maxHours)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`; }
+        function generateRandomTime(maxHours = 4) {
+            return `${String(Math.floor(Math.random() * maxHours)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`;
+        }
 
         function getTestData(tableName) {
             if (tableName === 'TMday') {
@@ -253,7 +255,10 @@
                     per_trafic_prognoz: 1.69, per_lid_prognoz: 0.61
                 };
             }
-            if (tableName === 'AVGmonth' || tableName === 'AVGday') {
+            if (tableName === 'AVGday') {
+                return { kz: 250, lid: 8, avg_time_lid: '00:25:00', trafic: '03:30:00' };
+            }
+            if (tableName === 'AVGmonth') {
                 return { kz: 800, lid: 90, avg_time_lid: '00:18:00', trafic: '90:00:00' };
             }
             if (tableName === 'Teamday' || tableName === 'Teammon') {
@@ -272,7 +277,7 @@
         let currentUserPosition = "Ведущий ТМ";
 
         const TAG_MAP = {"t_net": "Теги не проставлены", "t_avtootvet": "Автоответчик", "t_lid": "Лид", "t_neinteres": "Не интересно", "t_finorg": "Фин. орг.", "t_perezvon": "Перезвонить позже", "t_woman": "Женщина", "t_sbros": "Сброс", "t_nomany": "Нет денег", "t_buisnes": "Есть бизнес", "t_mat": "Ругается", "t_idiot": "Неадекват", "t_deti": "Дети", "t_old": "Пенсионер", "t_bankrot": "Банкрот", "t_duble": "Дубль"};
-        const CAT_IMAGE_MAP = {1: '...', 2: '...', 3: '...', 4: '...', 5: '...'};
+        const CAT_IMAGE_MAP = {1: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat1.png', 2: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat2.png', 3: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat3.png', 4: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat4.png', 5: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat5.png'};
         const DEFAULT_CAT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s';
 
         // --- ФУНКЦИИ-ПОМОЩНИКИ ---
@@ -515,10 +520,16 @@
                 if (viewToShow.id === 'view-position') {
                     operatorNameEl.style.display = 'none';
                     contextNameEl.style.display = 'inline';
+                    contextNameEl.style.fontWeight = '700';
+                    contextNameEl.style.fontSize = '22px';
+                    contextNameEl.style.color = 'var(--text-primary)';
                     fetchPositionData(currentUserPosition);
                 } else {
                     operatorNameEl.style.display = 'inline';
                     contextNameEl.style.display = 'inline';
+                    contextNameEl.style.fontWeight = '600';
+                    contextNameEl.style.fontSize = 'inherit';
+                    contextNameEl.style.color = 'var(--text-secondary)';
                     
                     if (viewToShow.id !== 'view-dynamics') {
                         const tableName = viewToShow.id === 'view-day' ? 'TMday' : 'TMmonth';
