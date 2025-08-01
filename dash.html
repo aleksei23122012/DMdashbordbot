@@ -65,11 +65,11 @@
         .separator-right { border-right: 2px solid var(--dark-blue); }
         
         #view-month .block-c-top { height: 60%; }
-        #view-month .block-c-bottom-month { height: 40%; display: flex; gap: 12px; padding-top: 20px; }
+        #view-month .block-c-bottom-month { height: 40%; display: flex; flex-direction: row; gap: 12px; padding-top: 20px; }
         #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: 500; padding: 10px; text-align: center; }
         #view-month .plan-indicator .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
         #view-month .block-p { display: flex; flex-direction: column; }
-        #view-month .block-p-upper-month { flex-shrink: 0; }
+        #view-month .block-p-upper-month { flex-shrink: 0; margin-bottom: 0; }
         #view-month .block-p-lower-month { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
         
         .dynamics-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; width: 100%; height: 100%; }
@@ -144,10 +144,10 @@
                     </div>
                 </div>
                 <div class="block-c">
-                    <div class="block-c-top">
+                     <div class="block-c-top">
                         <p id="os-text-month">Загрузка обратной связи...</p>
                     </div>
-                    <div class="block-c-bottom-month">
+                     <div class="block-c-bottom-month">
                         <div class="plan-indicator"><div>Выполнение плана по трафику (прогноз):</div><div id="plan-trafic-prognoz-value" class="value">...</div></div>
                         <div class="plan-indicator"><div>Выполнение плана по лидам (прогноз):</div><div id="plan-lid-prognoz-value" class="value">...</div></div>
                     </div>
@@ -403,7 +403,7 @@
                 if (monthError) throw monthError;
                 populatePositionTableDay(dayData);
                 populatePositionTableMonth(monthData);
-            } catch (error) { console.error(error); }
+            } catch (error) { console.error("Ошибка при загрузке данных по должности:", error); }
         }
 
         function populatePositionTableDay(data) {
@@ -476,7 +476,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Инициализация
             const darkBlueColor = getComputedStyle(document.documentElement).getPropertyValue('--dark-blue').trim();
             const chartOptions = { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false }, tooltip: { enabled: false } } };
             const chartDataTemplate = { labels: ['Процент трафика', 'Остаток'], datasets: [{ data: [0, 100], backgroundColor: [ darkBlueColor, '#E9ECEF' ], borderColor: 'transparent' }] };
@@ -485,7 +484,6 @@
             const ctxMonth = document.getElementById('doughnutChartMonth').getContext('2d');
             doughnutChartMonth = new Chart(ctxMonth, { type: 'doughnut', data: JSON.parse(JSON.stringify(chartDataTemplate)), options: chartOptions });
             
-            // Получаем элементы
             const btnDay = document.getElementById('btn-day');
             const btnMonth = document.getElementById('btn-month');
             const btnPosition = document.getElementById('btn-position');
@@ -500,7 +498,6 @@
             const allButtons = [btnDay, btnMonth, btnPosition, btnDynamics];
             const allViews = [viewDay, viewMonth, viewPosition, viewDynamics];
 
-            // Функция переключения
             function switchView(viewToShow, buttonToActivate) {
                 allViews.forEach(view => view.classList.remove('active'));
                 allButtons.forEach(button => button.classList.remove('active'));
@@ -528,13 +525,11 @@
                 }
             }
 
-            // Привязываем события
             btnDay.addEventListener('click', () => { switchView(viewDay, btnDay); });
             btnMonth.addEventListener('click', () => { switchView(viewMonth, btnMonth); });
             btnPosition.addEventListener('click', () => { switchView(viewPosition, btnPosition); });
             btnDynamics.addEventListener('click', () => { switchView(viewDynamics, btnDynamics); });
 
-            // Первый запуск
             fetchDashboardData('TMday');
         });
     </script>
