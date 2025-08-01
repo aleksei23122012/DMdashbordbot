@@ -61,15 +61,17 @@
         .separator-right { border-right: 2px solid var(--dark-blue); }
         
         #view-month .block-c-top { height: 60%; }
-        #view-month .block-c-bottom-month { height: 40%; display: flex; flex-direction: row; gap: 12px; padding-top: 20px; }
-        #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: 500; padding: 10px; text-align: center; }
-        #view-month .plan-indicator .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+        #view-month .block-c-bottom-month { height: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 12px; padding-top: 20px; justify-content: center; }
+        #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 13px; font-weight: 500; padding: 8px; text-align: center; }
+        #view-month .plan-indicator .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
         #view-month .block-p { display: flex; flex-direction: column; }
         #view-month .block-p-upper-month { flex-shrink: 0; }
         #view-month .block-p-lower-month { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
         
         .dynamics-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; width: 100%; height: 100%; }
         .dynamics-block { justify-content: center; align-items: center; font-size: 24px; color: var(--text-secondary); }
+        
+        .data-table tr.current-user-row { background-color: var(--light-blue) !important; font-weight: 600; }
 
         @media (max-width: 1024px) {
             #view-day, #view-month, #view-position, #view-dynamics { flex-direction: column; height: auto; }
@@ -91,7 +93,7 @@
                 <button id="btn-dynamics">Динамика</button>
             </div>
             <div class="user-info-container">
-                <span id="position-name" style="font-weight: 600; color: var(--text-secondary);"></span>
+                <span id="context-name" style="font-weight: 600; color: var(--text-secondary);"></span>
                 <span id="operator-name">Загрузка...</span>
             </div>
         </div>
@@ -122,10 +124,23 @@
                     </div>
                 </div>
                 <div class="block-p">
-                    <table class="data-table">
-                        <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
-                        <tbody id="tags-table-body-day"></tbody>
-                    </table>
+                    <div class="block-p-upper-day">
+                         <table class="data-table">
+                            <thead><tr><th>Показатели</th><th>Твои</th><th class="indicator-col"></th><th>Средние</th></tr></thead>
+                            <tbody>
+                                <tr><td>Количество звонков</td><td id="day-user-kz">...</td><td id="day-ind-kz" class="indicator-col"></td><td id="day-srav-kz">...</td></tr>
+                                <tr><td>Количество лидов</td><td id="day-user-lid">...</td><td id="day-ind-lid" class="indicator-col"></td><td id="day-srav-lid">...</td></tr>
+                                <tr><td>Время на лид</td><td id="day-user-time">...</td><td id="day-ind-time" class="indicator-col"></td><td id="day-srav-time">...</td></tr>
+                                <tr><td>Трафик</td><td id="day-user-trafic">...</td><td id="day-ind-trafic" class="indicator-col"></td><td id="day-srav-trafic">...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="block-p-lower-day">
+                        <table class="data-table">
+                            <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
+                            <tbody id="tags-table-body-day"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -140,10 +155,10 @@
                     </div>
                 </div>
                 <div class="block-c">
-                    <div class="block-c-top">
+                     <div class="block-c-top">
                         <p id="os-text-month">Загрузка обратной связи...</p>
                     </div>
-                    <div class="block-c-bottom-month">
+                     <div class="block-c-bottom-month">
                         <div class="plan-indicator"><div>Выполнение плана по трафику (прогноз):</div><div id="plan-trafic-prognoz-value" class="value">...</div></div>
                         <div class="plan-indicator"><div>Выполнение плана по лидам (прогноз):</div><div id="plan-lid-prognoz-value" class="value">...</div></div>
                     </div>
@@ -218,30 +233,27 @@
     <!-- Встроенный JavaScript -->
     <script>
         // --- БЛОК С ТЕСТОВЫМИ ДАННЫМИ (ЗАГЛУШКИ) ---
-        function generateRandomTime(maxHours = 4) {
-            return `${String(Math.floor(Math.random() * maxHours)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`;
-        }
+        const CURRENT_USER_NAME = "Алексей Ли"; 
+
+        function generateRandomTime(maxHours = 4) { return `${String(Math.floor(Math.random() * maxHours)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`; }
 
         function getTestData(tableName) {
             if (tableName === 'TMday') {
                 return {
-                    operator: 'Алексей Ли', dolg: 'Ведущий ТМ', team: 'Команда X', cat: Math.floor(Math.random() * 5) + 1,
-                    trafic: generateRandomTime(), kz: Math.floor(Math.random() * 200) + 100, lid: Math.floor(Math.random() * 20) + 5,
-                    avg_time_lid: `00:${String(Math.floor(Math.random()*20)+10).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`,
-                    per_trafic: Math.random(),
+                    operator: CURRENT_USER_NAME, dolg: 'Ведущий ТМ', team: 'Команда X', cat: Math.floor(Math.random() * 5) + 1,
+                    trafic: generateRandomTime(), kz: 300, lid: 10, avg_time_lid: '00:20:20', per_trafic: 0.85,
                     OS: "Сильное отставание по трафику. Обрати внимание, что среднее у твоих коллег к этому времени – ..., а у топ 1 и вовсе ... . Поднажми!\nБольше количество звонков. Это отлично!\nМало лидов.",
-                    t_net: Math.floor(Math.random() * 50), t_neinteres: Math.floor(Math.random() * 50), t_buisnes: Math.floor(Math.random() * 50),
-                    t_old: Math.floor(Math.random() * 50), t_woman: Math.floor(Math.random() * 50), t_idiot: Math.floor(Math.random() * 30), t_sbros: Math.floor(Math.random() * 30)
+                    t_net: 41, t_neinteres: 45, t_buisnes: 45, t_old: 43, t_woman: 41, t_idiot: 35, t_sbros: 31
                 };
             }
             if (tableName === 'TMmonth') {
                 return {
-                    operator: 'Алексей Ли', dolg: 'Ведущий ТМ', team: 'Команда X', trafic: '99:00:00', per_trafic: 0.9,
+                    operator: CURRENT_USER_NAME, dolg: 'Ведущий ТМ', team: 'Команда X', trafic: '99:00:00', per_trafic: 0.9,
                     kz: 999, lid: 99, avg_time_lid: '00:09:09', OS: 'За месяц ты показал хороший результат. Прогноз по трафику выполнен на 169%. Так держать!',
                     per_trafic_prognoz: 1.69, per_lid_prognoz: 0.61
                 };
             }
-            if (tableName === 'AVGmonth') {
+            if (tableName === 'AVGmonth' || tableName === 'AVGday') {
                 return { kz: 800, lid: 90, avg_time_lid: '00:18:00', trafic: '90:00:00' };
             }
             if (tableName === 'Teamday' || tableName === 'Teammon') {
@@ -249,7 +261,7 @@
                     { operator: 'Анастасия Захарова', lid: 27, trafic: '03:24:06', per_trafic: 0.84, kz: 1300, avg_time_lid: '00:07:52', per_lid: 1.08, plan_trafic: '03:54:54', plan_lid: 17, avg_time_post: '00:01:10' },
                     { operator: 'Динар Фанисович', lid: 23, trafic: '02:30:23', per_trafic: 0.96, kz: 2500, avg_time_lid: '00:10:34', per_lid: 0.92, plan_trafic: '04:00:00', plan_lid: 12, avg_time_post: '00:01:20'  },
                     { operator: 'Елена Кузьменок', lid: 20, trafic: '01:54:55', per_trafic: 0.62, kz: 2000, avg_time_lid: '00:07:46', per_lid: 0.80, plan_trafic: '03:20:20', plan_lid: 10, avg_time_post: '00:01:30'  },
-                    { operator: 'Алёшенька', lid: 15, trafic: '01:00:23', per_trafic: 0.55, kz: 1000, avg_time_lid: '00:08:12', per_lid: 0.60, plan_trafic: '04:00:00', plan_lid: 15, avg_time_post: '00:01:40'  }
+                    { operator: CURRENT_USER_NAME, lid: 18, trafic: '02:15:30', per_trafic: 0.75, kz: 350, avg_time_lid: '00:19:45', per_lid: 0.88, plan_trafic: '03:45:00', plan_lid: 20, avg_time_post: '00:01:25'  }
                 ];
             }
             return null;
@@ -260,17 +272,19 @@
         let currentUserPosition = "Ведущий ТМ";
 
         const TAG_MAP = {"t_net": "Теги не проставлены", "t_avtootvet": "Автоответчик", "t_lid": "Лид", "t_neinteres": "Не интересно", "t_finorg": "Фин. орг.", "t_perezvon": "Перезвонить позже", "t_woman": "Женщина", "t_sbros": "Сброс", "t_nomany": "Нет денег", "t_buisnes": "Есть бизнес", "t_mat": "Ругается", "t_idiot": "Неадекват", "t_deti": "Дети", "t_old": "Пенсионер", "t_bankrot": "Банкрот", "t_duble": "Дубль"};
-        const CAT_IMAGE_MAP = {1: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat1.png', 2: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat2.png', 3: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat3.png', 4: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat4.png', 5: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat5.png'};
+        const CAT_IMAGE_MAP = {1: '...', 2: '...', 3: '...', 4: '...', 5: '...'};
         const DEFAULT_CAT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s';
 
-        // --- ПОЛНЫЕ ФУНКЦИИ-ПОМОЩНИКИ ---
+        // --- ФУНКЦИИ-ПОМОЩНИКИ ---
         function updateTagsTable(tbodyId, data) {
             const tbody = document.getElementById(tbodyId);
             if (!tbody || !data) return;
             tbody.innerHTML = ''; 
             const tagsArray = [];
             for (const key in TAG_MAP) {
-                tagsArray.push({ key: key, name: TAG_MAP[key], count: data[key] || 0 });
+                if (key.startsWith('t_')) {
+                    tagsArray.push({ key: key, name: TAG_MAP[key], count: data[key] || 0 });
+                }
             }
             tagsArray.sort((a, b) => b.count - a.count);
             tagsArray.forEach(tag => {
@@ -301,7 +315,7 @@
             if (isTime) {
                 userIsBetter = timeToSeconds(userValue) < timeToSeconds(avgValue);
             } else {
-                userIsBetter = parseFloat(userValue) > parseFloat(avgValue);
+                userIsBetter = parseFloat(String(userValue).replace(/ /g, '')) > parseFloat(String(avgValue).replace(/ /g, ''));
             }
             if (userIsBetter) {
                 element.textContent = '>';
@@ -323,8 +337,7 @@
             const values = Array.from(cells).map(cell => {
                 const text = cell.textContent;
                 if (text.includes(':')) {
-                    const parts = text.split(':').map(Number);
-                    return (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0);
+                    return timeToSeconds(text);
                 }
                 return parseFloat(text.replace('%', ''));
             });
@@ -344,16 +357,17 @@
             });
         }
         
-        // --- ГЛАВНЫЕ ФУНКЦИИ (используют тестовые данные) ---
+        // --- ГЛАВНЫЕ ФУНКЦИИ ---
         async function fetchDashboardData(tableName) {
             await new Promise(resolve => setTimeout(resolve, 300));
             
             if (tableName === 'TMday') {
                 const data = getTestData('TMday');
-                if (data) {
+                const avgData = getTestData('AVGday');
+                if (data && avgData) {
                     currentUserPosition = data.dolg;
                     document.getElementById('operator-name').textContent = data.operator;
-                    document.getElementById('position-name').textContent = data.dolg;
+                    document.getElementById('context-name').textContent = data.team;
                     document.getElementById('trafic-value').textContent = data.trafic;
                     document.getElementById('kz-bar').textContent = `Количество звонков - ${data.kz}`;
                     document.getElementById('lid-bar').textContent = `Количество лидов - ${data.lid}`;
@@ -362,6 +376,22 @@
                     updateTagsTable('tags-table-body-day', data);
                     updateDoughnutChart(doughnutChart, data.per_trafic * 100);
                     document.getElementById('cat-image-day').src = CAT_IMAGE_MAP[data.cat] || DEFAULT_CAT_IMAGE;
+                    
+                    document.getElementById('day-user-kz').textContent = data.kz;
+                    document.getElementById('day-srav-kz').textContent = avgData.kz;
+                    setComparisonIndicator('day-ind-kz', data.kz, avgData.kz);
+                    
+                    document.getElementById('day-user-lid').textContent = data.lid;
+                    document.getElementById('day-srav-lid').textContent = avgData.lid;
+                    setComparisonIndicator('day-ind-lid', data.lid, avgData.lid);
+                    
+                    document.getElementById('day-user-time').textContent = data.avg_time_lid;
+                    document.getElementById('day-srav-time').textContent = avgData.avg_time_lid;
+                    setComparisonIndicator('day-ind-time', data.avg_time_lid, avgData.avg_time_lid, true);
+
+                    document.getElementById('day-user-trafic').textContent = data.trafic;
+                    document.getElementById('day-srav-trafic').textContent = avgData.trafic;
+                    setComparisonIndicator('day-ind-trafic', data.trafic, avgData.trafic, true);
                 }
             } else if (tableName === 'TMmonth') {
                 const userData = getTestData('TMmonth');
@@ -370,7 +400,8 @@
                 if (userData && avgData && tagsData) {
                     currentUserPosition = userData.dolg;
                     document.getElementById('operator-name').textContent = userData.operator;
-                    document.getElementById('position-name').textContent = userData.dolg;
+                    const monthName = new Date().toLocaleString('ru-RU', { month: 'long' });
+                    document.getElementById('context-name').textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
                     document.getElementById('trafic-value-month').textContent = userData.trafic;
                     updateDoughnutChart(doughnutChartMonth, userData.per_trafic * 100);
                     document.getElementById('kz-bar-month').textContent = `Количество звонков - ${userData.kz}`;
@@ -381,16 +412,19 @@
                     document.getElementById('plan-lid-prognoz-value').textContent = `${Math.round(userData.per_lid_prognoz * 100)}%`;
                     updateTagsTable('tags-table-body-month', tagsData);
                     document.getElementById('month-user-kz').textContent = userData.kz;
-                    document.getElementById('month-user-lid').textContent = userData.lid;
-                    document.getElementById('month-user-time').textContent = userData.avg_time_lid;
-                    document.getElementById('month-user-trafic').textContent = userData.trafic;
                     document.getElementById('month-srav-kz').textContent = avgData.kz;
-                    document.getElementById('month-srav-lid').textContent = avgData.lid;
-                    document.getElementById('month-srav-time').textContent = avgData.avg_time_lid;
-                    document.getElementById('month-srav-trafic').textContent = avgData.trafic;
                     setComparisonIndicator('month-ind-kz', userData.kz, avgData.kz);
+                    
+                    document.getElementById('month-user-lid').textContent = userData.lid;
+                    document.getElementById('month-srav-lid').textContent = avgData.lid;
                     setComparisonIndicator('month-ind-lid', userData.lid, avgData.lid);
+
+                    document.getElementById('month-user-time').textContent = userData.avg_time_lid;
+                    document.getElementById('month-srav-time').textContent = avgData.avg_time_lid;
                     setComparisonIndicator('month-ind-time', userData.avg_time_lid, avgData.avg_time_lid, true);
+                    
+                    document.getElementById('month-user-trafic').textContent = userData.trafic;
+                    document.getElementById('month-srav-trafic').textContent = avgData.trafic;
                     setComparisonIndicator('month-ind-trafic', userData.trafic, avgData.trafic, true);
                 }
             }
@@ -398,7 +432,7 @@
 
         async function fetchPositionData(position) {
             await new Promise(resolve => setTimeout(resolve, 300));
-            document.getElementById('position-name').textContent = position;
+            document.getElementById('context-name').textContent = position;
             const dayData = getTestData('Teamday');
             const monthData = getTestData('Teammon');
             populatePositionTableDay(dayData);
@@ -411,6 +445,7 @@
             tbody.innerHTML = '';
             data.forEach(op => {
                 const row = document.createElement('tr');
+                if (op.operator === CURRENT_USER_NAME) { row.classList.add('current-user-row'); }
                 row.innerHTML = `
                     <td class="separator-right">${op.operator}</td><td>${op.trafic || 'N/A'}</td>
                     <td class="td-gradient-traffic-day">${(op.per_trafic * 100).toFixed(0)}%</td>
@@ -431,6 +466,7 @@
             tbody.innerHTML = '';
             data.forEach(op => {
                 const row = document.createElement('tr');
+                if (op.operator === CURRENT_USER_NAME) { row.classList.add('current-user-row'); }
                 row.innerHTML = `
                     <td class="separator-right">${op.operator}</td><td>${op.trafic || 'N/A'}</td>
                     <td class="td-gradient-traffic-month">${(op.per_trafic * 100).toFixed(0)}%</td>
@@ -465,7 +501,7 @@
             const viewPosition = document.getElementById('view-position');
             const viewDynamics = document.getElementById('view-dynamics');
             const operatorNameEl = document.getElementById('operator-name');
-            const positionNameEl = document.getElementById('position-name');
+            const contextNameEl = document.getElementById('context-name');
 
             const allButtons = [btnDay, btnMonth, btnPosition, btnDynamics];
             const allViews = [viewDay, viewMonth, viewPosition, viewDynamics];
@@ -478,21 +514,18 @@
                 
                 if (viewToShow.id === 'view-position') {
                     operatorNameEl.style.display = 'none';
-                    positionNameEl.style.display = 'inline';
-                    positionNameEl.style.fontWeight = '700';
-                    positionNameEl.style.fontSize = '22px';
-                    positionNameEl.style.color = 'var(--text-primary)';
+                    contextNameEl.style.display = 'inline';
                     fetchPositionData(currentUserPosition);
                 } else {
                     operatorNameEl.style.display = 'inline';
-                    positionNameEl.style.display = 'inline';
-                    positionNameEl.style.fontWeight = '600';
-                    positionNameEl.style.fontSize = 'inherit';
-                    positionNameEl.style.color = 'var(--text-secondary)';
+                    contextNameEl.style.display = 'inline';
                     
                     if (viewToShow.id !== 'view-dynamics') {
                         const tableName = viewToShow.id === 'view-day' ? 'TMday' : 'TMmonth';
                         fetchDashboardData(tableName);
+                    } else {
+                        operatorNameEl.textContent = CURRENT_USER_NAME;
+                        contextNameEl.textContent = "Динамика";
                     }
                 }
             }
