@@ -17,6 +17,7 @@
             --light-yellow: #FFF6E5; --bg-color: #F5F7FA; --card-color: #FFFFFF;
             --text-primary: #1D232A; --text-secondary: #6C757D; --border-color: #E9ECEF;
             --light-red: #FFE3E3; --indicator-green: #28a745; --indicator-red: #dc3545;
+            /* Цвета для графика теперь также используются напрямую в JS */
             --chart-red: #e53935; --chart-blue: #1e88e5;
         }
         body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow-x: hidden; }
@@ -78,7 +79,6 @@
         .chart-container { flex-grow: 1; position: relative; }
 
         #block-np { padding: 0; background-color: transparent; box-shadow: none; }
-        /* ИЗМЕНЕНИЕ: Стиль легенды */
         .legend-container {
             flex-shrink: 0;
             height: auto;
@@ -317,7 +317,6 @@
         function timeToSeconds(timeStr) { if (!timeStr || typeof timeStr !== 'string') return 0; const parts = timeStr.split(':'); if (parts.length !== 3) return 0; return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10); }
         function applyRelativeGradient(selector, isReversed = false) { const cells = document.querySelectorAll(selector); if (cells.length === 0) return; const values = Array.from(cells).map(cell => { const text = cell.textContent; if (text.includes(':')) { return timeToSeconds(text); } return parseFloat(text.replace('%', '')); }); const min = Math.min(...values); const max = Math.max(...values); const range = max - min; cells.forEach((cell, index) => { const value = values[index]; let normalized = 0.5; if (range > 0) normalized = (value - min) / range; if (isReversed) normalized = 1 - normalized; const hue = normalized * 120; cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`; cell.style.color = `hsl(${hue}, 80%, 25%)`; cell.style.fontWeight = '600'; cell.style.borderRadius = '4px'; }); }
         
-        // ИЗМЕНЕНИЕ: Обновленная функция для создания графика с кастомным тултипом
         function createOrUpdateLineChart(labels, yourData, avgData) {
             const ctx = document.getElementById('traffic-line-chart').getContext('2d');
             const data = {
@@ -326,25 +325,27 @@
                     {
                         label: 'Средние значения',
                         data: avgData,
-                        borderColor: 'var(--chart-blue)',
-                        backgroundColor: 'var(--chart-blue)',
+                        // ИЗМЕНЕНИЕ: Жестко заданный цвет линии
+                        borderColor: '#1e88e5', 
+                        backgroundColor: '#1e88e5',
                         borderWidth: 4,
                         tension: 0.4,
                         pointRadius: 5,
                         pointBackgroundColor: 'white',
-                        pointBorderColor: 'var(--chart-blue)',
+                        pointBorderColor: '#1e88e5',
                         pointBorderWidth: 2
                     },
                     {
                         label: 'Твои значения',
                         data: yourData,
-                        borderColor: 'var(--chart-red)',
-                        backgroundColor: 'var(--chart-red)',
+                        // ИЗМЕНЕНИЕ: Жестко заданный цвет линии
+                        borderColor: '#e53935', 
+                        backgroundColor: '#e53935',
                         borderWidth: 4,
                         tension: 0.4,
                         pointRadius: 5,
                         pointBackgroundColor: 'white',
-                        pointBorderColor: 'var(--chart-red)',
+                        pointBorderColor: '#e53935',
                         pointBorderWidth: 2
                     }
                 ]
@@ -580,7 +581,6 @@
                         const monthFormatter = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' });
                         const now = new Date();
                         
-                        // ИЗМЕНЕНИЕ: Генерация лейблов с датой для текущего месяца
                         for (let i = 5; i >= 0; i--) {
                             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
                             if (i === 0) {
