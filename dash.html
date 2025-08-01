@@ -29,7 +29,11 @@
         .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; }
         .view { display: none; }
         .view.active { display: flex; }
-        #view-day, #view-month, #view-position, #view-dynamics { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
+        
+        /* !!! ГЛАВНОЕ ИСПРАВЛЕНИЕ: #view-dynamics вынесен отдельно !!! */
+        #view-day, #view-month, #view-position { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
+        #view-dynamics { height: calc(90vh - 24px); }
+
         .block-l { width: 400px; flex-shrink: 0; }
         .block-c { flex-grow: 1; }
         .block-p { width: 400px; flex-shrink: 0; }
