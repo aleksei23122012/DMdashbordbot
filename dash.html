@@ -413,7 +413,7 @@
             applyRelativeGradient('.td-gradient-time-month', true);
         }
         
-        // --- ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ ---
+                // --- ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ ---
         document.addEventListener('DOMContentLoaded', () => {
             const darkBlueColor = getComputedStyle(document.documentElement).getPropertyValue('--dark-blue').trim();
             const chartOptions = { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false }, tooltip: { enabled: false } } };
@@ -473,8 +473,13 @@
                         const firstMonth = new Date(now.getFullYear(), now.getMonth() - 5, 1);
                         const lastMonth = new Date(now.getFullYear(), now.getMonth(), 1);
                         contextNameEl.textContent = `${monthFormatter.format(firstMonth)} – ${monthFormatter.format(lastMonth)}`;
-                        createOrUpdateLineChart(labels, yourTrafficData, avgTrafficData);
                         document.getElementById('dynamics-os-text').textContent = "В этом месяце твой трафик немного ниже среднего. Попробуй увеличить количество активных диалогов.";
+                        
+                        // !!! ГЛАВНОЕ ИСПРАВЛЕНИЕ ЗДЕСЬ !!!
+                        setTimeout(() => {
+                            createOrUpdateLineChart(labels, yourTrafficData, avgTrafficData);
+                        }, 1); 
+
                     } else {
                         const tableName = viewToShow.id === 'view-day' ? 'TMday' : 'TMmonth';
                         fetchDashboardData(tableName);
