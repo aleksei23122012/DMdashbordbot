@@ -1,266 +1,98 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Дашборд для Telegram Web App</title>
-    <!-- Подключение библиотеки для создания диаграмм -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        /* --- Общие стили --- */
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f0f2f5;
-            color: #333;
-            overflow: hidden; /* Убираем прокрутку всей страницы */
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Бот отработки возражений</title>
+<style>
+  /* Общие стили для тела документа */
+  body, html {
+    height: 100%;
+    margin: 0;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
 
-        /* --- Контейнеры и блоки --- */
-        .dashboard-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh; /* 100% высоты окна */
-        }
+  /* Стили для верхнего блока (БЛОК В) */
+  .top-block {
+    height: 50px; /* Узкая высота */
+    padding: 10px;
+    background-color: #f0f0f0; /* Светло-серый фон */
+    display: flex;
+    align-items: center;
+  }
 
-        .main-content {
-            display: flex;
-            flex-grow: 1; /* Занимает все оставшееся место */
-            height: 90vh; /* 9/10 от высоты страницы */
-        }
+  /* Стили для поля ввода текста */
+  .top-block input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc; /* Серая рамка */
+    border-radius: 5px; /* Скругленные углы */
+  }
 
-        /* --- БЛОК В (Верхний блок) --- */
-        .block-v {
-            height: 10vh; /* 1/10 от высоты страницы */
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 24px;
-            background-color: #ffffff;
-            border-bottom: 1px solid #e0e0e0;
-            box-sizing: border-box;
-        }
+  /* Стили для нижнего блока (БЛОК Н) */
+  .bottom-block {
+    flex-grow: 1; /* Занимает все оставшееся пространство */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 колонки одинаковой ширины */
+    grid-template-rows: repeat(3, 1fr); /* 3 ряда одинаковой высоты */
+    gap: 10px; /* Промежуток между кнопками */
+    padding: 10px;
+    box-sizing: border-box;
+  }
 
-        .header-buttons button {
-            margin-right: 12px;
-            padding: 8px 16px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            cursor: pointer;
-            font-size: 14px;
-        }
+  /* Стили для кнопок */
+  .bottom-block button {
+    width: 100%;
+    height: 100%;
+    font-size: 16px;
+    background-color: #007bff; /* Синий фон */
+    color: white; /* Белый текст */
+    border: none;
+    border-radius: 5px; /* Скругленные углы */
+    cursor: pointer; /* Указатель при наведении */
+    transition: background-color 0.3s; /* Плавный переход цвета фона */
+  }
 
-        .header-buttons button:hover {
-            background-color: #e9ecef;
-        }
-        
-        .user-info {
-            font-weight: 500;
-        }
-
-        /* --- БЛОКИ Л, С, П --- */
-        .block-l, .block-c, .block-p {
-            flex: 1; /* Заставляет блоки делить ширину поровну */
-            padding: 20px;
-            box-sizing: border-box;
-            border-right: 1px solid #e0e0e0;
-            display: flex;
-            flex-direction: column; /* Делаем дочерние элементы колонкой */
-        }
-
-        .block-p {
-            border-right: none;
-        }
-
-        /* --- БЛОК Л (Левый) --- */
-        .block-l-top, .block-l-bottom {
-            height: 50%; /* Делит блок Л пополам */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .block-l-bottom {
-            gap: 15px; /* Пространство между полосами */
-        }
-
-        .horizontal-bar {
-            height: 25px;
-            width: 100%;
-            background-color: #007bff;
-            border-radius: 5px;
-            opacity: 0.7;
-        }
-
-        #doughnutChartContainer {
-            position: relative;
-            height: 100%;
-            width: 100%;
-        }
-
-        /* --- БЛОК С (Центральный) --- */
-        .block-c-top {
-            height: 75%; /* 3/4 высоты блока С */
-            overflow-y: auto; /* Добавляем прокрутку, если текст не помещается */
-        }
-        
-        .block-c-top p {
-            margin-top: 0;
-            line-height: 1.6;
-        }
-
-        .block-c-bottom {
-            height: 25%; /* 1/4 высоты блока С */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding-top: 15px;
-        }
-        
-        .cat-image {
-            max-width: 100%;
-            max-height: 100%;
-            height: auto;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        /* --- БЛОК П (Правый) --- */
-        .block-p {
-            overflow-y: auto; /* Прокрутка для таблицы, если она не помещается */
-        }
-
-        .block-p table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .block-p th, .block-p td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        .block-p th {
-            background-color: #f2f2f2;
-            position: sticky;
-            top: 0; /* "Приклеиваем" заголовок при прокрутке */
-        }
-    </style>
+  /* Изменение цвета кнопки при наведении */
+  .bottom-block button:hover {
+    background-color: #0056b3; /* Темно-синий фон при наведении */
+  }
+</style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- ==================== БЛОК В ==================== -->
-        <div class="block-v">
-            <div class="header-buttons">
-                <button>День</button>
-                <button>Месяц</button>
-                <button>Динамика</button>
-            </div>
-            <div class="user-info">
-                Иван Иванов
-            </div>
-        </div>
-        
-        <div class="main-content">
-            <!-- ==================== БЛОК Л ==================== -->
-            <div class="block-l">
-                <div class="block-l-top">
-                    <div id="doughnutChartContainer">
-                         <canvas id="doughnutChart"></canvas>
-                    </div>
-                </div>
-                <div class="block-l-bottom">
-                    <div class="horizontal-bar"></div>
-                    <div class="horizontal-bar"></div>
-                    <div class="horizontal-bar"></div>
-                </div>
-            </div>
 
-            <!-- ==================== БЛОК С ==================== -->
-            <div class="block-c">
-                <div class="block-c-top">
-                    <p>
-                        Напиши код на языке html для создания дашборда в Telegram Web App.
-                        Структура дашборда: страница дашборда разделена на следующие блоки:
-                        1) БЛОК В - верхняя часть страницы, размер 1/10 от страницы;
-                        2) БЛОК Л - левая часть страницы, разделена на верхнюю и нижнюю половины;
-                        3) БЛОК С - средняя часть страницы, разделена на верхнюю и нижнюю часть (верхняя часть занимает 3/4 блока);
-                        4) БЛОК П - правая часть страницы;
-                        5) БЛОК Л, БЛОК С и БЛОК П - одинаковой ширины, не заступает на БЛОК В.
-                        
-                        Наполнение для дашборда:
-                        1) в БЛОК В слева вставь три кнопки одинакового размера, с надписями "День", "Месяц" и "Динамика". Кнопки расположены по горизонтали. В правой части БЛОК В добавь надпись "Иван Иванов".
-                        2) в верхнюю половину БЛОК Л вставь кольцевую диаграмму.
-                        3) в нижнюю половину БЛОК Л вставь три горизонтальные полосы.
-                        4) в верхнюю часть БЛОК С текстом добавь описание этого промта.
-                        5) в нижнюю часть БЛОК С добавь маленькую картинку кота из интернета.
-                        6) в БЛОК П добавь таблицу. Таблица состоит из 10 строк и 2 колонок, в первой колонке фрукты, во второй колонке цифры.
-                    </p>
-                </div>
-                <div class="block-c-bottom">
-                    <img src="https://placekitten.com/g/150/100" alt="Милый кот" class="cat-image">
-                </div>
-            </div>
+<!-- Верхний блок (БЛОК В) с полем для ввода текста -->
+<div class="top-block">
+  <input type="text" placeholder="Введите ваше возражение...">
+</div>
 
-            <!-- ==================== БЛОК П ==================== -->
-            <div class="block-p">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Фрукт</th>
-                            <th>Количество</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Яблоко</td><td>42</td></tr>
-                        <tr><td>Банан</td><td>78</td></tr>
-                        <tr><td>Апельсин</td><td>21</td></tr>
-                        <tr><td>Груша</td><td>15</td></tr>
-                        <tr><td>Виноград</td><td>95</td></tr>
-                        <tr><td>Киви</td><td>33</td></tr>
-                        <tr><td>Манго</td><td>12</td></tr>
-                        <tr><td>Ананас</td><td>7</td></tr>
-                        <tr><td>Персик</td><td>54</td></tr>
-                        <tr><td>Слива</td><td>61</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+<!-- Нижний блок (БЛОК Н) с кнопками -->
+<div class="bottom-block">
+  <button id="btn1">Не интересно</button>
+  <button id="btn2">2</button>
+  <button id="btn3">Нет денег</button>
+  <button id="btn4">4</button>
+  <button id="btn5">5</button>
+  <button id="btn6">6</button>
+  <button id="btn7">7</button>
+  <button id="btn8">Не готов ближайшее время</button>
+  <button id="btn9">9</button>
+</div>
 
-    <!-- JavaScript для инициализации диаграммы -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const ctx = document.getElementById('doughnutChart').getContext('2d');
-            const doughnutChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Продажи', 'Возвраты', 'Новые клиенты'],
-                    datasets: [{
-                        label: 'Статистика',
-                        data: [300, 50, 100],
-                        backgroundColor: [
-                            'rgb(54, 162, 235)',
-                            'rgb(255, 99, 132)',
-                            'rgb(255, 205, 86)'
-                        ],
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        }
-                    }
-                }
-            });
-        });
-    </script>
+<script>
+  // JavaScript пока не требуется для чисто визуального макета.
+  // В будущем здесь можно будет добавить логику для взаимодействия с Supabase.
+
+  // Пример: можно добавить обработчики событий для кнопок
+  document.querySelectorAll('.bottom-block button').forEach(button => {
+    button.addEventListener('click', () => {
+      console.log(`Нажата кнопка: ${button.textContent}`);
+      // Здесь будет код для получения данных из Supabase
+    });
+  });
+</script>
+
 </body>
 </html>
