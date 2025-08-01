@@ -26,7 +26,7 @@
         .header-buttons button.active { opacity: 1; }
         .user-info-container { display: flex; align-items: center; gap: 16px; text-align: right; }
         #operator-name { font-weight: 700; font-size: 22px; }
-        .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; overflow: hidden; /* Предотвращает случайный скролл */ }
+        .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; overflow: hidden; }
         .view { display: none; }
         .view.active { display: flex; }
         #view-day, #view-month, #view-position, #view-dynamics { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
@@ -74,13 +74,26 @@
         #view-dynamics { height: calc(90vh - 24px); }
         .dynamics-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; width: 100%; height: 100%; }
         .dynamics-block { justify-content: center; align-items: center; font-size: 24px; color: var(--text-secondary); }
-        /* ИСПРАВЛЕНИЕ: Специфичные стили для блока с графиком */
         #block-vl { justify-content: flex-start; align-items: stretch; }
-        /* ИСПРАВЛЕНИЕ: Новый класс для контейнера canvas */
         .chart-container { flex-grow: 1; position: relative; }
 
         #block-np { padding: 0; background-color: transparent; box-shadow: none; }
-        .legend-container { flex-shrink: 0; height: 60px; padding: 10px 20px; display: flex; justify-content: center; align-items: center; gap: 20px; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 12px;}
+        /* ИЗМЕНЕНИЕ: Стиль легенды */
+        .legend-container {
+            flex-shrink: 0;
+            height: auto;
+            width: 100%;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            margin-bottom: 12px;
+            box-sizing: border-box;
+        }
         .legend-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500;}
         .legend-color-box { width: 15px; height: 15px; border-radius: 4px; }
         #dynamics-os-block { flex-grow: 1; padding: 20px; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
@@ -237,7 +250,6 @@
                 <div class="dynamics-grid">
                     <div class="dynamics-block" id="block-vl">
                         <h3 class="block-title">Трафик</h3>
-                        <!-- ИСПРАВЛЕНИЕ: Добавлен div-обертка для canvas -->
                         <div class="chart-container">
                             <canvas id="traffic-line-chart"></canvas>
                         </div>
@@ -304,7 +316,102 @@
         function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) { const element = document.getElementById(elementId); if (!element || userValue === null || avgValue === null) { if (element) element.textContent = ''; return; }; let userIsBetter; if (isTime) { userIsBetter = timeToSeconds(userValue) < timeToSeconds(avgValue); } else { userIsBetter = parseFloat(String(userValue).replace(/ /g, '')) > parseFloat(String(avgValue).replace(/ /g, '')); } if (userIsBetter) { element.textContent = '>'; element.className = 'indicator-col indicator-green'; } else { element.textContent = '<'; element.className = 'indicator-col indicator-red'; } }
         function timeToSeconds(timeStr) { if (!timeStr || typeof timeStr !== 'string') return 0; const parts = timeStr.split(':'); if (parts.length !== 3) return 0; return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10); }
         function applyRelativeGradient(selector, isReversed = false) { const cells = document.querySelectorAll(selector); if (cells.length === 0) return; const values = Array.from(cells).map(cell => { const text = cell.textContent; if (text.includes(':')) { return timeToSeconds(text); } return parseFloat(text.replace('%', '')); }); const min = Math.min(...values); const max = Math.max(...values); const range = max - min; cells.forEach((cell, index) => { const value = values[index]; let normalized = 0.5; if (range > 0) normalized = (value - min) / range; if (isReversed) normalized = 1 - normalized; const hue = normalized * 120; cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`; cell.style.color = `hsl(${hue}, 80%, 25%)`; cell.style.fontWeight = '600'; cell.style.borderRadius = '4px'; }); }
-        function createOrUpdateLineChart(labels, yourData, avgData) { const ctx = document.getElementById('traffic-line-chart').getContext('2d'); const data = { labels: labels, datasets: [ { label: 'Средние значения', data: avgData, borderColor: 'var(--chart-blue)', backgroundColor: 'var(--chart-blue)', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: 'var(--chart-blue)', pointBorderWidth: 2 }, { label: 'Твои значения', data: yourData, borderColor: 'var(--chart-red)', backgroundColor: 'var(--chart-red)', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: 'var(--chart-red)', pointBorderWidth: 2 } ] }; if (trafficLineChart) { trafficLineChart.data = data; trafficLineChart.update(); } else { trafficLineChart = new Chart(ctx, { type: 'line', data: data, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return value + 'ч'; } } } } } }); } }
+        
+        // ИЗМЕНЕНИЕ: Обновленная функция для создания графика с кастомным тултипом
+        function createOrUpdateLineChart(labels, yourData, avgData) {
+            const ctx = document.getElementById('traffic-line-chart').getContext('2d');
+            const data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Средние значения',
+                        data: avgData,
+                        borderColor: 'var(--chart-blue)',
+                        backgroundColor: 'var(--chart-blue)',
+                        borderWidth: 4,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: 'white',
+                        pointBorderColor: 'var(--chart-blue)',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Твои значения',
+                        data: yourData,
+                        borderColor: 'var(--chart-red)',
+                        backgroundColor: 'var(--chart-red)',
+                        borderWidth: 4,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: 'white',
+                        pointBorderColor: 'var(--chart-red)',
+                        pointBorderWidth: 2
+                    }
+                ]
+            };
+
+            const options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                        titleColor: '#FFFFFF',
+                        bodyColor: '#FFFFFF',
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        borderColor: 'rgba(0,0,0,0)',
+                        borderWidth: 0,
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const label = tooltipItems[0].label;
+                                const monthPart = label.split(' ')[1] || label;
+                                return monthPart.charAt(0).toUpperCase() + monthPart.slice(1);
+                            },
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + 'ч';
+                            }
+                        }
+                    }
+                }
+            };
+
+            if (trafficLineChart) {
+                trafficLineChart.data = data;
+                trafficLineChart.options = options;
+                trafficLineChart.update();
+            } else {
+                trafficLineChart = new Chart(ctx, { type: 'line', data: data, options: options });
+            }
+        }
         
         // --- ГЛАВНЫЕ ФУНКЦИИ ---
         async function fetchDashboardData(tableName) {
@@ -472,12 +579,21 @@
                         const avgTrafficData = [];
                         const monthFormatter = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' });
                         const now = new Date();
+                        
+                        // ИЗМЕНЕНИЕ: Генерация лейблов с датой для текущего месяца
                         for (let i = 5; i >= 0; i--) {
                             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                            labels.push(date.toLocaleString('ru-RU', { month: 'short' }).replace('.', ''));
+                            if (i === 0) {
+                                const day = now.getDate();
+                                const monthShort = date.toLocaleString('ru-RU', { month: 'short' }).replace('.', '');
+                                labels.push(`${day} ${monthShort}`);
+                            } else {
+                                labels.push(date.toLocaleString('ru-RU', { month: 'short' }).replace('.', ''));
+                            }
                             yourTrafficData.push(Math.floor(Math.random() * 80) + 10);
                             avgTrafficData.push(Math.floor(Math.random() * 80) + 15);
                         }
+
                         const firstMonth = new Date(now.getFullYear(), now.getMonth() - 5, 1);
                         const lastMonth = new Date(now.getFullYear(), now.getMonth(), 1);
                         contextNameEl.textContent = `${monthFormatter.format(firstMonth)} – ${monthFormatter.format(lastMonth)}`;
