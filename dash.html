@@ -29,11 +29,7 @@
         .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; }
         .view { display: none; }
         .view.active { display: flex; }
-        
-        /* !!! ГЛАВНОЕ ИСПРАВЛЕНИЕ: #view-dynamics вынесен отдельно !!! */
-        #view-day, #view-month, #view-position { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
-        #view-dynamics { height: calc(90vh - 24px); }
-
+        #view-day, #view-month, #view-position, #view-dynamics { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
         .block-l { width: 400px; flex-shrink: 0; }
         .block-c { flex-grow: 1; }
         .block-p { width: 400px; flex-shrink: 0; }
@@ -75,6 +71,7 @@
         .block-p-upper-day { flex-shrink: 0; }
         .block-p-lower-day { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
         
+        #view-dynamics { height: calc(90vh - 24px); }
         .dynamics-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; width: 100%; height: 100%; }
         .dynamics-block { justify-content: center; align-items: center; font-size: 24px; color: var(--text-secondary); }
         #block-np { padding: 0; background-color: transparent; box-shadow: none; }
@@ -258,7 +255,9 @@
         // --- БЛОК С ТЕСТОВЫМИ ДАННЫМИ (ЗАГЛУШКИ) ---
         const CURRENT_USER_NAME = "Алексей Ли"; 
 
-        function generateRandomTime(maxHours = 4) { return `${String(Math.floor(Math.random() * maxHours)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`; }
+        function generateRandomTime(maxHours = 4) {
+            return `${String(Math.floor(Math.random() * maxHours)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`;
+        }
 
         function getTestData(tableName) {
             if (tableName === 'TMday') {
@@ -286,103 +285,22 @@
         // --- ИНИЦИАЛИЗАЦИЯ И КОНСТАНТЫ ---
         let doughnutChart, doughnutChartMonth, trafficLineChart;
         let currentUserPosition = "Ведущий ТМ";
-
         const TAG_MAP = {"t_net": "Теги не проставлены", "t_avtootvet": "Автоответчик", "t_lid": "Лид", "t_neinteres": "Не интересно", "t_finorg": "Фин. орг.", "t_perezvon": "Перезвонить позже", "t_woman": "Женщина", "t_sbros": "Сброс", "t_nomany": "Нет денег", "t_buisnes": "Есть бизнес", "t_mat": "Ругается", "t_idiot": "Неадекват", "t_deti": "Дети", "t_old": "Пенсионер", "t_bankrot": "Банкрот", "t_duble": "Дубль"};
         const CAT_IMAGE_MAP = {1: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat1.png', 2: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat2.png', 3: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat3.png', 4: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat4.png', 5: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat5.png'};
         const DEFAULT_CAT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s';
 
         // --- ФУНКЦИИ-ПОМОЩНИКИ ---
-        function updateTagsTable(tbodyId, data) {
-            const tbody = document.getElementById(tbodyId);
-            if (!tbody || !data) return;
-            tbody.innerHTML = ''; 
-            const tagsArray = [];
-            for (const key in TAG_MAP) {
-                if (key.startsWith('t_')) {
-                    tagsArray.push({ key: key, name: TAG_MAP[key], count: data[key] || 0 });
-                }
-            }
-            tagsArray.sort((a, b) => b.count - a.count);
-            tagsArray.forEach(tag => {
-                if (tag.count > 0) {
-                    const row = document.createElement('tr');
-                    if (tag.key === 't_net') { row.classList.add('highlight-red'); }
-                    row.innerHTML = `<td>${tag.name}</td><td>${tag.count}</td>`;
-                    tbody.appendChild(row);
-                }
-            });
-        }
-        function updateDoughnutChart(chartInstance, percentage = 0) {
-            if (!chartInstance) return;
-            const validPercentage = Math.max(0, Math.min(100, percentage));
-            chartInstance.data.datasets[0].data = [validPercentage, 100 - validPercentage];
-            chartInstance.update();
-        }
-        function formatNumber(num) {
-            if (num === null || num === undefined) return 'N/A';
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-        }
-        function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) {
-            const element = document.getElementById(elementId);
-            if (!element || userValue === null || avgValue === null) {
-                if (element) element.textContent = ''; return;
-            };
-            let userIsBetter;
-            if (isTime) {
-                userIsBetter = timeToSeconds(userValue) < timeToSeconds(avgValue);
-            } else {
-                userIsBetter = parseFloat(String(userValue).replace(/ /g, '')) > parseFloat(String(avgValue).replace(/ /g, ''));
-            }
-            if (userIsBetter) {
-                element.textContent = '>';
-                element.className = 'indicator-col indicator-green';
-            } else {
-                element.textContent = '<';
-                element.className = 'indicator-col indicator-red';
-            }
-        }
-        function timeToSeconds(timeStr) {
-            if (!timeStr || typeof timeStr !== 'string') return 0;
-            const parts = timeStr.split(':');
-            if (parts.length !== 3) return 0;
-            return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10);
-        }
-        function applyRelativeGradient(selector, isReversed = false) {
-            const cells = document.querySelectorAll(selector);
-            if (cells.length === 0) return;
-            const values = Array.from(cells).map(cell => {
-                const text = cell.textContent;
-                if (text.includes(':')) {
-                    return timeToSeconds(text);
-                }
-                return parseFloat(text.replace('%', ''));
-            });
-            const min = Math.min(...values);
-            const max = Math.max(...values);
-            const range = max - min;
-            cells.forEach((cell, index) => {
-                const value = values[index];
-                let normalized = 0.5;
-                if (range > 0) normalized = (value - min) / range;
-                if (isReversed) normalized = 1 - normalized;
-                const hue = normalized * 120;
-                cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`;
-                cell.style.color = `hsl(${hue}, 80%, 25%)`;
-                cell.style.fontWeight = '600';
-                cell.style.borderRadius = '4px';
-            });
-        }
-        function createOrUpdateLineChart(labels, yourData, avgData) {
-            const ctx = document.getElementById('traffic-line-chart').getContext('2d');
-            const data = { labels: labels, datasets: [ { label: 'Средние значения', data: avgData, borderColor: 'var(--chart-blue)', backgroundColor: 'var(--chart-blue)', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: 'var(--chart-blue)', pointBorderWidth: 2 }, { label: 'Твои значения', data: yourData, borderColor: 'var(--chart-red)', backgroundColor: 'var(--chart-red)', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: 'var(--chart-red)', pointBorderWidth: 2 } ] };
-            if (trafficLineChart) { trafficLineChart.data = data; trafficLineChart.update(); } 
-            else { trafficLineChart = new Chart(ctx, { type: 'line', data: data, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return value + 'ч'; } } } } } }); }
-        }
+        function updateTagsTable(tbodyId, data) { const tbody = document.getElementById(tbodyId); if (!tbody || !data) return; tbody.innerHTML = '';  const tagsArray = []; for (const key in TAG_MAP) { if (key.startsWith('t_')) { tagsArray.push({ key: key, name: TAG_MAP[key], count: data[key] || 0 }); } } tagsArray.sort((a, b) => b.count - a.count); tagsArray.forEach(tag => { if (tag.count > 0) { const row = document.createElement('tr'); if (tag.key === 't_net') { row.classList.add('highlight-red'); } row.innerHTML = `<td>${tag.name}</td><td>${tag.count}</td>`; tbody.appendChild(row); } }); }
+        function updateDoughnutChart(chartInstance, percentage = 0) { if (!chartInstance) return; const validPercentage = Math.max(0, Math.min(100, percentage)); chartInstance.data.datasets[0].data = [validPercentage, 100 - validPercentage]; chartInstance.update(); }
+        function formatNumber(num) { if (num === null || num === undefined) return 'N/A'; return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+        function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) { const element = document.getElementById(elementId); if (!element || userValue === null || avgValue === null) { if (element) element.textContent = ''; return; }; let userIsBetter; if (isTime) { userIsBetter = timeToSeconds(userValue) < timeToSeconds(avgValue); } else { userIsBetter = parseFloat(String(userValue).replace(/ /g, '')) > parseFloat(String(avgValue).replace(/ /g, '')); } if (userIsBetter) { element.textContent = '>'; element.className = 'indicator-col indicator-green'; } else { element.textContent = '<'; element.className = 'indicator-col indicator-red'; } }
+        function timeToSeconds(timeStr) { if (!timeStr || typeof timeStr !== 'string') return 0; const parts = timeStr.split(':'); if (parts.length !== 3) return 0; return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10); }
+        function applyRelativeGradient(selector, isReversed = false) { const cells = document.querySelectorAll(selector); if (cells.length === 0) return; const values = Array.from(cells).map(cell => { const text = cell.textContent; if (text.includes(':')) { return timeToSeconds(text); } return parseFloat(text.replace('%', '')); }); const min = Math.min(...values); const max = Math.max(...values); const range = max - min; cells.forEach((cell, index) => { const value = values[index]; let normalized = 0.5; if (range > 0) normalized = (value - min) / range; if (isReversed) normalized = 1 - normalized; const hue = normalized * 120; cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`; cell.style.color = `hsl(${hue}, 80%, 25%)`; cell.style.fontWeight = '600'; cell.style.borderRadius = '4px'; }); }
+        function createOrUpdateLineChart(labels, yourData, avgData) { const ctx = document.getElementById('traffic-line-chart').getContext('2d'); const data = { labels: labels, datasets: [ { label: 'Средние значения', data: avgData, borderColor: 'var(--chart-blue)', backgroundColor: 'var(--chart-blue)', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: 'var(--chart-blue)', pointBorderWidth: 2 }, { label: 'Твои значения', data: yourData, borderColor: 'var(--chart-red)', backgroundColor: 'var(--chart-red)', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: 'var(--chart-red)', pointBorderWidth: 2 } ] }; if (trafficLineChart) { trafficLineChart.data = data; trafficLineChart.update(); } else { trafficLineChart = new Chart(ctx, { type: 'line', data: data, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return value + 'ч'; } } } } } }); } }
         
         // --- ГЛАВНЫЕ ФУНКЦИИ ---
         async function fetchDashboardData(tableName) {
             await new Promise(resolve => setTimeout(resolve, 300));
-            
             if (tableName === 'TMday') {
                 const data = getTestData('TMday');
                 const avgData = getTestData('AVGday');
@@ -398,19 +316,15 @@
                     updateTagsTable('tags-table-body-day', data);
                     updateDoughnutChart(doughnutChart, data.per_trafic * 100);
                     document.getElementById('cat-image-day').src = CAT_IMAGE_MAP[data.cat] || DEFAULT_CAT_IMAGE;
-                    
                     document.getElementById('day-user-kz').textContent = data.kz;
                     document.getElementById('day-srav-kz').textContent = avgData.kz;
                     setComparisonIndicator('day-ind-kz', data.kz, avgData.kz);
-                    
                     document.getElementById('day-user-lid').textContent = data.lid;
                     document.getElementById('day-srav-lid').textContent = avgData.lid;
                     setComparisonIndicator('day-ind-lid', data.lid, avgData.lid);
-                    
                     document.getElementById('day-user-time').textContent = data.avg_time_lid;
                     document.getElementById('day-srav-time').textContent = avgData.avg_time_lid;
                     setComparisonIndicator('day-ind-time', data.avg_time_lid, avgData.avg_time_lid, true);
-
                     document.getElementById('day-user-trafic').textContent = data.trafic;
                     document.getElementById('day-srav-trafic').textContent = avgData.trafic;
                     setComparisonIndicator('day-ind-trafic', data.trafic, avgData.trafic, true);
@@ -436,22 +350,18 @@
                     document.getElementById('month-user-kz').textContent = userData.kz;
                     document.getElementById('month-srav-kz').textContent = avgData.kz;
                     setComparisonIndicator('month-ind-kz', userData.kz, avgData.kz);
-                    
                     document.getElementById('month-user-lid').textContent = userData.lid;
                     document.getElementById('month-srav-lid').textContent = avgData.lid;
                     setComparisonIndicator('month-ind-lid', userData.lid, avgData.lid);
-
                     document.getElementById('month-user-time').textContent = userData.avg_time_lid;
                     document.getElementById('month-srav-time').textContent = avgData.avg_time_lid;
                     setComparisonIndicator('month-ind-time', userData.avg_time_lid, avgData.avg_time_lid, true);
-                    
                     document.getElementById('month-user-trafic').textContent = userData.trafic;
                     document.getElementById('month-srav-trafic').textContent = avgData.trafic;
                     setComparisonIndicator('month-ind-trafic', userData.trafic, avgData.trafic, true);
                 }
             }
         }
-
         async function fetchPositionData(position) {
             await new Promise(resolve => setTimeout(resolve, 300));
             document.getElementById('context-name').textContent = position;
@@ -460,7 +370,6 @@
             populatePositionTableDay(dayData);
             populatePositionTableMonth(monthData);
         }
-
         function populatePositionTableDay(data) {
             const tbody = document.getElementById('position-data-body-day');
             data.sort((a, b) => (b.lid || 0) - (a.lid || 0));
@@ -548,10 +457,7 @@
                     contextNameEl.style.fontSize = 'inherit';
                     contextNameEl.style.color = 'var(--text-secondary)';
                     
-                    if (viewToShow.id !== 'view-dynamics') {
-                        const tableName = viewToShow.id === 'view-day' ? 'TMday' : 'TMmonth';
-                        fetchDashboardData(tableName);
-                    } else {
+                    if (viewToShow.id === 'view-dynamics') {
                         operatorNameEl.textContent = CURRENT_USER_NAME;
                         const labels = [];
                         const yourTrafficData = [];
@@ -560,7 +466,7 @@
                         const now = new Date();
                         for (let i = 5; i >= 0; i--) {
                             const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                            labels.push(date.toLocaleString('ru-RU', { month: 'short' }));
+                            labels.push(date.toLocaleString('ru-RU', { month: 'short' }).replace('.', ''));
                             yourTrafficData.push(Math.floor(Math.random() * 80) + 10);
                             avgTrafficData.push(Math.floor(Math.random() * 80) + 15);
                         }
@@ -569,6 +475,9 @@
                         contextNameEl.textContent = `${monthFormatter.format(firstMonth)} – ${monthFormatter.format(lastMonth)}`;
                         createOrUpdateLineChart(labels, yourTrafficData, avgTrafficData);
                         document.getElementById('dynamics-os-text').textContent = "В этом месяце твой трафик немного ниже среднего. Попробуй увеличить количество активных диалогов.";
+                    } else {
+                        const tableName = viewToShow.id === 'view-day' ? 'TMday' : 'TMmonth';
+                        fetchDashboardData(tableName);
                     }
                 }
             }
