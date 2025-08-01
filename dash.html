@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Дашборд (Отладка)</title>
-    
-    <!-- Внешние скрипты и шрифты -->
+    <title>Дашборд</title>
+    <!-- Подключаем все необходимые скрипты и шрифты -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Встроенный CSS -->
+    <!-- Встроенный CSS (оригинальный) -->
     <style>
         :root {
             --primary-blue: #007AFF; --dark-blue: #0056b3; --light-blue: #EAF5FF;
@@ -27,16 +26,16 @@
         .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; flex-shrink: 0; }
         .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--dark-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s, opacity 0.2s; opacity: 0.6; }
         .header-buttons button.active { opacity: 1; }
-        .user-info-container { display: flex; align-items: center; gap: 16px; text-align: right; }
+        .user-info-container { display: flex; align-items: center; gap: 16px; }
         #operator-name { font-weight: 700; font-size: 22px; }
         .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; }
         .view { display: none; }
         .view.active { display: flex; }
-        #view-day, #view-month, #view-position, #view-dynamics { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
+        #view-day, #view-month, #view-team { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
         .block-l { width: 400px; flex-shrink: 0; }
         .block-c { flex-grow: 1; }
         .block-p { width: 400px; flex-shrink: 0; }
-        .block-l, .block-c, .block-p, .block-team-custom, .dynamics-block { padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
+        .block-l, .block-c, .block-p, .block-team-custom { padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
         .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; }
         .chart-center-text { position: absolute; text-align: center; pointer-events: none; }
         .chart-center-text .title { font-size: 18px; color: var(--text-secondary); }
@@ -48,6 +47,7 @@
         .bar-leads { background-color: var(--light-yellow); color: var(--primary-yellow); width: 80%; }
         .bar-time { background-color: var(--light-green); color: var(--primary-green); width: 60%; }
         .block-c-top { height: 75%; overflow-y: auto; background-color: #F8F9FA; padding: 16px; border-radius: 8px; font-size: 15px; line-height: 1.6; }
+        #view-month .block-c-top { height: 100%; }
         .block-c-top p { margin: 0; white-space: pre-line; }
         .block-c-bottom { height: 25%; display: flex; justify-content: center; align-items: center; padding-top: 20px; }
         .cat-image { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: cover; }
@@ -59,49 +59,52 @@
         .data-table th { background-color: var(--dark-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: -21px; text-align: center;}
         .data-table tr.highlight-red { background-color: var(--light-red); }
         .block-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+        #view-month .block-p-upper { height: 40%; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: 500; padding: 10px; text-align: center; }
+        #view-month .plan-indicator .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+        #view-month .block-p-lower { height: 60%; overflow-y: auto; }
         .indicator-col { width: 30px; text-align: center; font-size: 18px; font-weight: bold; }
         .indicator-green { color: var(--indicator-green); }
         .indicator-red { color: var(--indicator-red); }
         .separator-right { border-right: 2px solid var(--dark-blue); }
         
-        #view-month .block-c-top { height: 60%; }
-        #view-month .block-c-bottom-month { height: 40%; display: flex; gap: 12px; padding-top: 20px; }
-        #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: 500; padding: 10px; text-align: center; }
-        #view-month .plan-indicator .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
-        #view-month .block-p { display: flex; flex-direction: column; }
-        #view-month .block-p-upper-month { flex-shrink: 0; }
-        #view-month .block-p-lower-month { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
-        
-        .dynamics-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; width: 100%; height: 100%; }
-        .dynamics-block { justify-content: center; align-items: center; font-size: 24px; color: var(--text-secondary); }
-
         @media (max-width: 1024px) {
-            #view-day, #view-month, #view-position, #view-dynamics { flex-direction: column; height: auto; }
-            .dynamics-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
-            .block-l, .block-c, .block-p, .block-team-custom { min-height: auto; }
-            .block-v { height: auto; padding: 12px; flex-wrap: wrap; gap: 10px; }
-            #operator-name { font-size: 18px; }
+            #view-day, #view-month, #view-team { 
+                flex-direction: column; 
+                height: auto; 
+            }
+            .block-l, .block-c, .block-p, .block-team-custom { 
+                min-height: auto;
+            }
+            .block-v {
+                height: auto;
+                padding: 12px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            #operator-name {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Блок В -->
+        <!-- Блок В (оригинальный) -->
         <div class="block-v">
             <div class="header-buttons">
                 <button id="btn-day" class="active">День</button>
                 <button id="btn-month">Месяц</button>
-                <button id="btn-position">Должность</button>
-                <button id="btn-dynamics">Динамика</button>
+                <button id="btn-team">Команда</button>
             </div>
             <div class="user-info-container">
-                <span id="position-name" style="font-weight: 600; color: var(--text-secondary);"></span>
+                <span id="team-name" style="font-weight: 600; color: var(--text-secondary);"></span>
                 <span id="operator-name">Загрузка...</span>
             </div>
         </div>
         
         <div class="content-area">
-            <!-- Вид "День" -->
+            <!-- Вид "День" (оригинальный) -->
             <div id="view-day" class="view active">
                  <div class="block-l">
                     <div class="block-l-top">
@@ -128,53 +131,54 @@
                 <div class="block-p">
                     <table class="data-table">
                         <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
-                        <tbody id="tags-table-body-day"></tbody>
+                        <tbody id="tags-table-body"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Вид "Месяц" -->
+            <!-- Вид "Месяц" (оригинальный) -->
             <div id="view-month" class="view">
                 <div class="block-l">
                     <div class="block-l-top">
-                        <div class="chart-center-text"><div class="title">Трафик (Месяц)</div><div class="value" id="trafic-value-month">...</div></div><canvas id="doughnutChartMonth"></canvas>
+                        <div class="chart-center-text">
+                            <div class="title">Трафик (Месяц)</div>
+                            <div class="value" id="trafic-value-month">...</div>
+                        </div>
+                        <canvas id="doughnutChartMonth"></canvas>
                     </div>
                     <div class="block-l-bottom">
-                        <div class="horizontal-bar bar-calls" id="kz-bar-month">...</div><div class="horizontal-bar bar-leads" id="lid-bar-month">...</div><div class="horizontal-bar bar-time" id="avg-time-lid-bar-month">...</div>
+                        <div class="horizontal-bar bar-calls" id="kz-bar-month">...</div>
+                        <div class="horizontal-bar bar-leads" id="lid-bar-month">...</div>
+                        <div class="horizontal-bar bar-time" id="avg-time-lid-bar-month">...</div>
                     </div>
                 </div>
                 <div class="block-c">
                     <div class="block-c-top">
                         <p id="os-text-month">Загрузка обратной связи...</p>
                     </div>
-                    <div class="block-c-bottom-month">
+                </div>
+                <div class="block-p">
+                     <div class="block-p-upper">
                         <div class="plan-indicator"><div>Выполнение плана по трафику (прогноз):</div><div id="plan-trafic-prognoz-value" class="value">...</div></div>
                         <div class="plan-indicator"><div>Выполнение плана по лидам (прогноз):</div><div id="plan-lid-prognoz-value" class="value">...</div></div>
                     </div>
-                </div>
-                <div class="block-p">
-                    <div class="block-p-upper-month">
-                         <table class="data-table">
+                    <div class="block-p-lower">
+                        <table class="data-table">
                             <thead><tr><th>Показатели</th><th>Твои</th><th class="indicator-col"></th><th>Средние</th></tr></thead>
                             <tbody>
                                 <tr><td>Количество звонков</td><td id="month-user-kz">...</td><td id="month-ind-kz" class="indicator-col"></td><td id="month-srav-kz">...</td></tr>
                                 <tr><td>Количество лидов</td><td id="month-user-lid">...</td><td id="month-ind-lid" class="indicator-col"></td><td id="month-srav-lid">...</td></tr>
                                 <tr><td>Время на лид</td><td id="month-user-time">...</td><td id="month-ind-time" class="indicator-col"></td><td id="month-srav-time">...</td></tr>
                                 <tr><td>Трафик</td><td id="month-user-trafic">...</td><td id="month-ind-trafic" class="indicator-col"></td><td id="month-srav-trafic">...</td></tr>
+                                <tr><td>Чек</td><td id="month-user-check">...</td><td id="month-ind-check" class="indicator-col"></td><td id="month-srav-check">...</td></tr>
                             </tbody>
-                        </table>
-                    </div>
-                    <div class="block-p-lower-month">
-                        <table class="data-table">
-                            <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
-                            <tbody id="tags-table-body-month"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Вид "Должность" -->
-            <div id="view-position" class="view">
+            <!-- Вид "Команда" (оригинальный) -->
+            <div id="view-team" class="view">
                 <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
                     <h3 class="block-title">День</h3>
                     <table class="data-table">
@@ -185,12 +189,17 @@
                                 <th colspan="2">План</th>
                             </tr>
                             <tr>
-                                <th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th>
-                                <th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th>
-                                <th>План по<br>трафику</th><th>План по<br>лидам</th>
+                                <th>Трафик</th>
+                                <th>Вып.<br>трафика</th>
+                                <th>Кол-во<br>звонков</th>
+                                <th>Лиды</th>
+                                <th>Время на<br>лид</th>
+                                <th class="separator-right">Вып.<br>лидов</th>
+                                <th>План по<br>трафику</th>
+                                <th>План по<br>лидам</th>
                             </tr>
                         </thead>
-                        <tbody id="position-data-body-day"></tbody>
+                        <tbody id="team-data-body-day"></tbody>
                     </table>
                 </div>
                 <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
@@ -199,35 +208,32 @@
                         <thead>
                             <tr>
                                 <th class="separator-right">Оператор</th>
-                                <th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th>
-                                <th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th>
+                                <th>Трафик</th>
+                                <th>Вып.<br>трафика</th>
+                                <th>Кол-во<br>звонков</th>
+                                <th>Лиды</th>
+                                <th>Время на<br>лид</th>
+                                <th class="separator-right">Вып.<br>лидов</th>
                                 <th>Ср. время<br>поствызова</th>
+                                <th>Чек</th>
                             </tr>
                         </thead>
-                        <tbody id="position-data-body-month"></tbody>
+                        <tbody id="team-data-body-month"></tbody>
                     </table>
-                </div>
-            </div>
-            
-            <!-- Вид "Динамика" -->
-            <div id="view-dynamics" class="view">
-                <div class="dynamics-grid">
-                    <div class="dynamics-block">БЛОК ВЛ</div><div class="dynamics-block">БЛОК ВП</div>
-                    <div class="dynamics-block">БЛОК НЛ</div><div class="dynamics-block">БЛОК НП</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Встроенный JavaScript с отладкой -->
+    <!-- Встроенный JavaScript (с одним исправлением) -->
     <script>
         const supabaseUrl = 'https://yhjrhnglgtenxwncrrnf.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzIСNiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI';
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         let doughnutChart;
         let doughnutChartMonth;
-        let currentUserPosition = null;
+        let currentTeamName = null;
 
         const TAG_MAP = {
             t_net: "Теги не проставлены", t_avtootvet: "Автоответчик", t_lid: "Лид",
@@ -238,7 +244,7 @@
             t_duble: "Дубль"
         };
         const TAG_COLUMNS = Object.keys(TAG_MAP).join(',');
-        
+
         const CAT_IMAGE_MAP = {
             1: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat1.png',
             2: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat2.png',
@@ -248,8 +254,8 @@
         };
         const DEFAULT_CAT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s';
 
-        function updateTagsTable(tbodyId, data) {
-            const tbody = document.getElementById(tbodyId);
+        function updateTagsTable(data) {
+            const tbody = document.getElementById('tags-table-body');
             if (!tbody || !data) return;
             tbody.innerHTML = ''; 
             const tagsArray = [];
@@ -282,14 +288,17 @@
         function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) {
             const element = document.getElementById(elementId);
             if (!element || userValue === null || avgValue === null) {
-                if (element) element.textContent = ''; return;
+                if (element) element.textContent = '';
+                return;
             };
+            
             let userIsBetter;
             if (isTime) {
                 userIsBetter = timeToSeconds(userValue) < timeToSeconds(avgValue);
             } else {
                 userIsBetter = parseFloat(userValue) > parseFloat(avgValue);
             }
+
             if (userIsBetter) {
                 element.textContent = '>';
                 element.className = 'indicator-col indicator-green';
@@ -298,7 +307,7 @@
                 element.className = 'indicator-col indicator-red';
             }
         }
-
+        
         function timeToSeconds(timeStr) {
             if (!timeStr || typeof timeStr !== 'string') return 0;
             const parts = timeStr.split(':');
@@ -308,149 +317,199 @@
 
         async function fetchDashboardData(tableName) {
             let userIdentifier = null;
+            let userIdentifierForDisplay = 'Неизвестный';
+
             if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
-                const user = window.Telegram.WebApp.initDataUnsafe.user;
-                if (user) userIdentifier = user.username ? String(user.username) : String(user.id);
+                const tgWebApp = window.Telegram.WebApp;
+                tgWebApp.ready();
+                const user = tgWebApp.initDataUnsafe.user;
+                
+                // !!! ГЛАВНОЕ ИСПРАВЛЕНИЕ !!!
+                // Используем ТОЛЬКО username, как и записано у вас в базе.
+                if (user && user.username) {
+                    userIdentifier = user.username;
+                    userIdentifierForDisplay = `@${user.username}`;
+                } else if (user) {
+                    // Если username нет, для отладки покажем ID, но запрос не пойдет
+                    userIdentifierForDisplay = `ID: ${user.id}`;
+                }
             }
+            
             if (!userIdentifier) {
                 document.getElementById('operator-name').textContent = 'Пользователь не определен';
                 return;
             }
             
             document.getElementById('operator-name').textContent = 'Загрузка...';
-            document.getElementById('position-name').textContent = '';
+            document.getElementById('team-name').textContent = '';
 
             if (tableName === 'TMday') {
                 try {
-                    const { data, error } = await supabaseClient.from('TMday').select(`operator, dolg, team, cat, trafic, kz, lid, avg_time_lid, per_trafic, OS, ${TAG_COLUMNS}`).eq('tg', userIdentifier).single();
+                    const { data, error } = await supabaseClient.from(tableName).select(`operator, team, cat, trafic, kz, lid, avg_time_lid, per_trafic, OS, ${TAG_COLUMNS}`).eq('tg', userIdentifier).single();
                     if (error) throw error;
+                    
                     if (data) {
-                        currentUserPosition = data.dolg;
-                        document.getElementById('operator-name').textContent = data.operator ?? '';
-                        document.getElementById('position-name').textContent = data.dolg ?? '';
+                        currentTeamName = data.team;
+                        document.getElementById('operator-name').textContent = data.operator ?? 'Имя не найдено';
+                        document.getElementById('team-name').textContent = data.team ?? '';
                         document.getElementById('trafic-value').textContent = data.trafic ?? '00:00:00';
                         document.getElementById('kz-bar').textContent = `Количество звонков - ${data.kz ?? 0}`;
                         document.getElementById('lid-bar').textContent = `Количество лидов - ${data.lid ?? 0}`;
                         document.getElementById('avg-time-lid-bar').textContent = `Время на лид - ${data.avg_time_lid ?? '00:00:00'}`;
-                        document.getElementById('os-text').textContent = data.OS ?? 'Обратная связь отсутствует.';
-                        updateTagsTable('tags-table-body-day', data);
-                        updateDoughnutChart(doughnutChart, (parseFloat(data.per_trafic) || 0) * 100);
-                        document.getElementById('cat-image-day').src = CAT_IMAGE_MAP[data.cat] || DEFAULT_CAT_IMAGE;
+                        document.getElementById('os-text').textContent = data.OS ?? 'Обратная связь от оператора отсутствует.';
+                        updateTagsTable(data);
+                        const trafficPercentage = (parseFloat(data.per_trafic) || 0) * 100;
+                        updateDoughnutChart(doughnutChart, trafficPercentage);
+
+                        const catImageElement = document.getElementById('cat-image-day');
+                        const catNumber = data.cat;
+                        catImageElement.src = CAT_IMAGE_MAP[catNumber] || DEFAULT_CAT_IMAGE;
+
                     } else {
-                        document.getElementById('operator-name').textContent = 'Данные не найдены';
+                         document.getElementById('operator-name').textContent = 'Пользователь не найден';
+                         document.getElementById('os-text').textContent = `Данные за день для '${userIdentifierForDisplay}' не найдены.`;
                     }
-                } catch (error) { 
+                } catch (error) {
                     document.getElementById('operator-name').textContent = 'Ошибка загрузки';
-                    console.error("Ошибка 'TMday':", error); 
+                    document.getElementById('os-text').textContent = `Ошибка при загрузке данных 'TMday'. Проверьте RLS и имя пользователя в базе.`;
+                    console.error(`Ошибка при загрузке данных 'TMday':`, error.message);
                 }
             } else if (tableName === 'TMmonth') {
                 try {
-                    const { data: userData, error: userError } = await supabaseClient.from('TMmonth').select('operator, dolg, team, trafic, per_trafic, kz, lid, avg_time_lid, OS, per_trafic_prognoz, per_lid_prognoz').eq('tg', userIdentifier).single();
-                    if (userError) throw userError;
+                    const { data: userData, error: userError } = await supabaseClient
+                        .from('TMmonth')
+                        .select('operator, team, trafic, per_trafic, kz, lid, avg_time_lid, OS, per_trafic_prognoz, per_lid_prognoz, check')
+                        .eq('tg', userIdentifier)
+                        .single();
                     
-                    const { data: avgData, error: avgError } = await supabaseClient.from('AVGmonth').select('kz, lid, avg_time_lid, trafic').single();
+                    if (userError) throw userError;
+
+                    const { data: avgData, error: avgError } = await supabaseClient
+                        .from('AVGmonth')
+                        .select('kz, lid, avg_time_lid, trafic, check')
+                        .single();
+
                     if (avgError) throw avgError;
 
                     if (userData) {
-                        currentUserPosition = userData.dolg;
-                        document.getElementById('operator-name').textContent = userData.operator ?? '';
-                        document.getElementById('position-name').textContent = userData.dolg ?? '';
+                        currentTeamName = userData.team;
+                        document.getElementById('operator-name').textContent = userData.operator ?? 'Имя не найдено';
+                        document.getElementById('team-name').textContent = userData.team ?? '';
+                        
                         document.getElementById('trafic-value-month').textContent = userData.trafic ?? 'N/A';
-                        updateDoughnutChart(doughnutChartMonth, (parseFloat(userData.per_trafic) || 0) * 100);
+                        const trafficPercentageMonth = (parseFloat(userData.per_trafic) || 0) * 100;
+                        updateDoughnutChart(doughnutChartMonth, trafficPercentageMonth);
                         document.getElementById('kz-bar-month').textContent = `Количество звонков - ${userData.kz ?? 'N/A'}`;
                         document.getElementById('lid-bar-month').textContent = `Количество лидов - ${userData.lid ?? 'N/A'}`;
                         document.getElementById('avg-time-lid-bar-month').textContent = `Время на лид - ${userData.avg_time_lid ?? 'N/A'}`;
                         document.getElementById('os-text-month').textContent = userData.OS ?? 'Обратная связь за месяц отсутствует.';
-                        document.getElementById('plan-trafic-prognoz-value').textContent = `${Math.round((parseFloat(userData.per_trafic_prognoz) || 0) * 100)}%`;
-                        document.getElementById('plan-lid-prognoz-value').textContent = `${Math.round((parseFloat(userData.per_lid_prognoz) || 0) * 100)}%`;
-
-                        const { data: tagsData } = await supabaseClient.from('TMday').select(TAG_COLUMNS).eq('tg', userIdentifier).single();
-                        if (tagsData) {
-                            updateTagsTable('tags-table-body-month', tagsData);
-                        }
+                        
+                        const traficPrognoz = (parseFloat(userData.per_trafic_prognoz) || 0) * 100;
+                        const lidPrognoz = (parseFloat(userData.per_lid_prognoz) || 0) * 100;
+                        document.getElementById('plan-trafic-prognoz-value').textContent = `${Math.round(traficPrognoz)}%`;
+                        document.getElementById('plan-lid-prognoz-value').textContent = `${Math.round(lidPrognoz)}%`;
 
                         if(avgData){
                             document.getElementById('month-user-kz').textContent = userData.kz ?? 'N/A';
                             document.getElementById('month-user-lid').textContent = userData.lid ?? 'N/A';
                             document.getElementById('month-user-time').textContent = userData.avg_time_lid ?? 'N/A';
                             document.getElementById('month-user-trafic').textContent = userData.trafic ?? 'N/A';
+                            document.getElementById('month-user-check').textContent = formatNumber(userData.check);
+
                             document.getElementById('month-srav-kz').textContent = avgData.kz ?? 'N/A';
                             document.getElementById('month-srav-lid').textContent = avgData.lid ?? 'N/A';
                             document.getElementById('month-srav-time').textContent = avgData.avg_time_lid ?? 'N/A';
                             document.getElementById('month-srav-trafic').textContent = avgData.trafic ?? 'N/A';
+                            document.getElementById('month-srav-check').textContent = formatNumber(avgData.check);
+                            
                             setComparisonIndicator('month-ind-kz', userData.kz, avgData.kz);
                             setComparisonIndicator('month-ind-lid', userData.lid, avgData.lid);
                             setComparisonIndicator('month-ind-time', userData.avg_time_lid, avgData.avg_time_lid, true);
                             setComparisonIndicator('month-ind-trafic', userData.trafic, avgData.trafic, true);
+                            setComparisonIndicator('month-ind-check', userData.check, avgData.check);
                         }
                     } else {
-                        document.getElementById('operator-name').textContent = 'Данные не найдены';
+                        document.getElementById('operator-name').textContent = 'Пользователь не найден';
                     }
-                } catch (error) { 
-                     document.getElementById('operator-name').textContent = 'Ошибка загрузки';
-                     console.error("Ошибка 'TMmonth':", error); 
+                } catch (error) {
+                    document.getElementById('operator-name').textContent = 'Ошибка загрузки';
+                    document.getElementById('os-text-month').textContent = `Данные для '${userIdentifierForDisplay}' не найдены. Проверьте RLS.`;
+                    console.error(`Ошибка при загрузке данных для 'TMmonth':`, error.message);
                 }
             }
         }
 
-        async function fetchPositionData(position) {
-            if (!position) {
-                alert("Не удалось определить должность. Сначала откройте вкладку 'День' или 'Месяц'.");
+        async function fetchTeamData(teamName) {
+            if (!teamName) {
+                alert("Не удалось определить команду. Пожалуйста, сначала откройте вкладку 'День' или 'Месяц'.");
                 return;
             }
-            document.getElementById('position-name').textContent = position;
+             document.getElementById('team-name').textContent = teamName;
             try {
-                const { data: dayData, error: dayError } = await supabaseClient.from('Teamday').select('*').eq('dolg', position);
+                const { data: dayData, error: dayError } = await supabaseClient.from('Teamday').select('*').eq('team', teamName);
                 if (dayError) throw dayError;
-                const { data: monthData, error: monthError } = await supabaseClient.from('Teammon').select('*').eq('dolg', position);
+                const { data: monthData, error: monthError } = await supabaseClient.from('Teammon').select('*').eq('team', teamName);
                 if (monthError) throw monthError;
-                populatePositionTableDay(dayData);
-                populatePositionTableMonth(monthData);
-            } catch (error) { console.error("Ошибка при загрузке данных по должности:", error); }
+                populateTeamTableDay(dayData);
+                populateTeamTableMonth(monthData);
+            } catch (error) {
+                console.error("Ошибка при загрузке данных команды:", error.message);
+                alert("Не удалось загрузить данные команды. Проверьте RLS для таблиц Teamday и Teammon.");
+            }
         }
 
-        function populatePositionTableDay(data) {
-            const tbody = document.getElementById('position-data-body-day');
-            data.sort((a, b) => (b.lid || 0) - (a.lid || 0));
+        function populateTeamTableDay(data) {
+            const tbody = document.getElementById('team-data-body-day');
             tbody.innerHTML = '';
             data.forEach(op => {
                 const row = document.createElement('tr');
+                row.dataset.traffic = timeToSeconds(op.trafic);
+                row.dataset.leads = op.lid;
                 row.innerHTML = `
-                    <td class="separator-right">${op.operator}</td><td>${op.trafic || 'N/A'}</td>
+                    <td class="separator-right">${op.operator}</td>
+                    <td>${op.trafic || 'N/A'}</td>
                     <td class="td-gradient-traffic-day">${(op.per_trafic * 100).toFixed(0)}%</td>
-                    <td>${op.kz || 0}</td><td>${op.lid || 0}</td>
+                    <td>${op.kz || 0}</td>
+                    <td>${op.lid || 0}</td>
                     <td class="td-gradient-time-day">${op.avg_time_lid || 'N/A'}</td>
                     <td class="td-gradient-leads-day separator-right">${(op.per_lid * 100).toFixed(0)}%</td>
-                    <td>${op.plan_trafic || 'N/A'}</td><td>${op.plan_lid || 0}</td>
+                    <td>${op.plan_trafic || 'N/A'}</td>
+                    <td>${op.plan_lid || 0}</td>
                 `;
                 tbody.appendChild(row);
             });
+            sortTableByLeadsAndTraffic('team-data-body-day');
             applyRelativeGradient('.td-gradient-traffic-day');
             applyRelativeGradient('.td-gradient-leads-day');
             applyRelativeGradient('.td-gradient-time-day', true);
         }
 
-        function populatePositionTableMonth(data) {
-            const tbody = document.getElementById('position-data-body-month');
-            data.sort((a, b) => (b.lid || 0) - (a.lid || 0));
+        function populateTeamTableMonth(data) {
+            const tbody = document.getElementById('team-data-body-month');
             tbody.innerHTML = '';
             data.forEach(op => {
                 const row = document.createElement('tr');
+                row.dataset.traffic = timeToSeconds(op.trafic);
+                row.dataset.leads = op.lid;
                 row.innerHTML = `
-                    <td class="separator-right">${op.operator}</td><td>${op.trafic || 'N/A'}</td>
+                    <td class="separator-right">${op.operator}</td>
+                    <td>${op.trafic || 'N/A'}</td>
                     <td class="td-gradient-traffic-month">${(op.per_trafic * 100).toFixed(0)}%</td>
-                    <td>${op.kz || 0}</td><td>${op.lid || 0}</td>
+                    <td>${op.kz || 0}</td>
+                    <td>${op.lid || 0}</td>
                     <td class="td-gradient-time-month">${op.avg_time_lid || 'N/A'}</td>
                     <td class="td-gradient-leads-month separator-right">${(op.per_lid * 100).toFixed(0)}%</td>
                     <td>${op.avg_time_post || 'N/A'}</td>
+                    <td>${formatNumber(op.check) || 'N/A'}</td>
                 `;
                 tbody.appendChild(row);
             });
+            sortTableByLeadsAndTraffic('team-data-body-month');
             applyRelativeGradient('.td-gradient-traffic-month');
             applyRelativeGradient('.td-gradient-leads-month');
             applyRelativeGradient('.td-gradient-time-month', true);
         }
-        
+
         function applyRelativeGradient(selector, isReversed = false) {
             const cells = document.querySelectorAll(selector);
             if (cells.length === 0) return;
@@ -468,14 +527,36 @@
             cells.forEach((cell, index) => {
                 const value = values[index];
                 let normalized = 0.5;
-                if (range > 0) normalized = (value - min) / range;
-                if (isReversed) normalized = 1 - normalized;
+                if (range > 0) {
+                    normalized = (value - min) / range;
+                }
+                if (isReversed) {
+                    normalized = 1 - normalized;
+                }
                 const hue = normalized * 120;
                 cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`;
                 cell.style.color = `hsl(${hue}, 80%, 25%)`;
                 cell.style.fontWeight = '600';
                 cell.style.borderRadius = '4px';
             });
+        }
+
+        function sortTableByLeadsAndTraffic(tbodyId) {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.sort((a, b) => {
+                const leadsA = parseInt(a.dataset.leads, 10);
+                const leadsB = parseInt(b.dataset.leads, 10);
+                const trafficA = parseInt(a.dataset.traffic, 10);
+                const trafficB = parseInt(b.dataset.traffic, 10);
+                if (leadsA !== leadsB) {
+                    return leadsB - leadsA;
+                }
+                return trafficB - trafficA;
+            });
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -489,17 +570,16 @@
             
             const btnDay = document.getElementById('btn-day');
             const btnMonth = document.getElementById('btn-month');
-            const btnPosition = document.getElementById('btn-position');
-            const btnDynamics = document.getElementById('btn-dynamics');
+            const btnTeam = document.getElementById('btn-team');
             const viewDay = document.getElementById('view-day');
             const viewMonth = document.getElementById('view-month');
-            const viewPosition = document.getElementById('view-position');
-            const viewDynamics = document.getElementById('view-dynamics');
+            const viewTeam = document.getElementById('view-team');
+            
             const operatorNameEl = document.getElementById('operator-name');
-            const positionNameEl = document.getElementById('position-name');
+            const teamNameEl = document.getElementById('team-name');
 
-            const allButtons = [btnDay, btnMonth, btnPosition, btnDynamics];
-            const allViews = [viewDay, viewMonth, viewPosition, viewDynamics];
+            const allButtons = [btnDay, btnMonth, btnTeam];
+            const allViews = [viewDay, viewMonth, viewTeam];
 
             function switchView(viewToShow, buttonToActivate) {
                 allViews.forEach(view => view.classList.remove('active'));
@@ -507,31 +587,26 @@
                 viewToShow.classList.add('active');
                 buttonToActivate.classList.add('active');
                 
-                if (viewToShow.id === 'view-position') {
+                if (viewToShow.id === 'view-team') {
                     operatorNameEl.style.display = 'none';
-                    positionNameEl.style.display = 'inline';
-                    positionNameEl.style.fontWeight = '700';
-                    positionNameEl.style.fontSize = '22px';
-                    positionNameEl.style.color = 'var(--text-primary)';
-                    fetchPositionData(currentUserPosition);
+                    teamNameEl.style.fontWeight = '700';
+                    teamNameEl.style.fontSize = '22px';
+                    teamNameEl.style.color = 'var(--text-primary)';
+                    fetchTeamData(currentTeamName);
                 } else {
                     operatorNameEl.style.display = 'inline';
-                    positionNameEl.style.display = 'inline';
-                    positionNameEl.style.fontWeight = '600';
-                    positionNameEl.style.fontSize = 'inherit';
-                    positionNameEl.style.color = 'var(--text-secondary)';
+                    teamNameEl.style.fontWeight = '600';
+                    teamNameEl.style.fontSize = 'inherit';
+                    teamNameEl.style.color = 'var(--text-secondary)';
                     
-                    if (viewToShow.id !== 'view-dynamics') {
-                        const tableName = viewToShow.id === 'view-day' ? 'TMday' : 'TMmonth';
-                        fetchDashboardData(tableName);
-                    }
+                    const tableName = viewToShow.id === 'view-day' ? 'TMday' : 'TMmonth';
+                    fetchDashboardData(tableName);
                 }
             }
 
             btnDay.addEventListener('click', () => { switchView(viewDay, btnDay); });
             btnMonth.addEventListener('click', () => { switchView(viewMonth, btnMonth); });
-            btnPosition.addEventListener('click', () => { switchView(viewPosition, btnPosition); });
-            btnDynamics.addEventListener('click', () => { switchView(viewDynamics, btnDynamics); });
+            btnTeam.addEventListener('click', () => { switchView(viewTeam, btnTeam); });
 
             fetchDashboardData('TMday');
         });
