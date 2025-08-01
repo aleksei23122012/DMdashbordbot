@@ -1,41 +1,656 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Тестовый Дашборд v2</title> <!-- ИЗМЕНЕНИЕ ТУТ -->
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style> 
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            padding: 20px; 
-            color: var(--tg-theme-text-color); 
-            background-color: var(--tg-theme-bg-color);
-        } 
-        hr { border-color: var(--tg-theme-hint-color); }
+    <title>Дашборд (Тестовые данные)</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #007AFF; --dark-blue: #0056b3; --light-blue: #EAF5FF;
+            --primary-green: #34C759; --light-green: #E3F8E9; --primary-yellow: #FF9500;
+            --light-yellow: #FFF6E5; --bg-color: #F5F7FA; --card-color: #FFFFFF;
+            --text-primary: #1D232A; --text-secondary: #6C757D; --border-color: #E9ECEF;
+            --light-red: #FFE3E3; --indicator-green: #28a745; --indicator-red: #dc3545;
+            --chart-red: #e53935; --chart-blue: #1e88e5;
+        }
+        body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow-x: hidden; }
+        .dashboard-container { display: flex; flex-direction: column; min-height: 100vh; }
+        .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; flex-shrink: 0; }
+        .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--dark-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s, opacity 0.2s; opacity: 0.6; }
+        .header-buttons button.active { opacity: 1; }
+        .user-info-container { display: flex; align-items: center; gap: 16px; text-align: right; }
+        #operator-name { font-weight: 700; font-size: 22px; }
+        .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; overflow: hidden; }
+        .view { display: none; }
+        .view.active { display: flex; }
+        #view-day, #view-month, #view-position, #view-dynamics { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
+        .block-l { width: 400px; flex-shrink: 0; }
+        .block-c { flex-grow: 1; }
+        .block-p { width: 400px; flex-shrink: 0; }
+        .block-l, .block-c, .block-p, .block-team-custom, .dynamics-block { padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
+        .block-l-top { height: 50%; position: relative; display: flex; justify-content: center; align-items: center; }
+        .chart-center-text { position: absolute; text-align: center; pointer-events: none; }
+        .chart-center-text .title { font-size: 18px; color: var(--text-secondary); }
+        .chart-center-text .value { font-size: 30px; font-weight: 700; }
+        .block-l-bottom { height: 50%; display: flex; flex-direction: column; justify-content: center; gap: 16px; }
+        .horizontal-bar { height: 45px; border-radius: 10px; display: flex; align-items: center; padding-left: 15px; font-size: 16px; font-weight: 500; transition: transform 0.2s ease; }
+        .horizontal-bar:hover { transform: scale(1.02); }
+        .bar-calls { background-color: var(--light-blue); color: var(--primary-blue); width: 100%; }
+        .bar-leads { background-color: var(--light-yellow); color: var(--primary-yellow); width: 80%; }
+        .bar-time { background-color: var(--light-green); color: var(--primary-green); width: 60%; }
+        .block-c-top { height: 75%; overflow-y: auto; background-color: #F8F9FA; padding: 16px; border-radius: 8px; font-size: 15px; line-height: 1.6; }
+        .block-c-top p { margin: 0; white-space: pre-line; }
+        .block-c-bottom { height: 25%; display: flex; justify-content: center; align-items: center; padding-top: 20px; }
+        .cat-image { max-width: 100%; max-height: 100%; border-radius: 8px; object-fit: cover; }
+        .block-p { display: flex; flex-direction: column; }
+        .data-table { width: 100%; border-collapse: collapse; } 
+        .data-table th, .data-table td { border-bottom: 1px solid var(--border-color); padding: 8px; text-align: left; vertical-align: middle; }
+        .data-table td { font-size: 14px; text-align: center;}
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table th { background-color: var(--dark-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: -21px; text-align: center;}
+        .data-table tr.highlight-red { background-color: var(--light-red); }
+        .data-table tr.current-user-row { background-color: var(--light-blue) !important; font-weight: 600; }
+        .block-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+        .indicator-col { width: 30px; text-align: center; font-size: 18px; font-weight: bold; }
+        .indicator-green { color: var(--indicator-green); }
+        .indicator-red { color: var(--indicator-red); }
+        .separator-right { border-right: 2px solid var(--dark-blue); }
+        
+        #view-month .block-c-top { height: 60%; }
+        #view-month .block-c-bottom-month { height: auto; flex-grow: 1; flex-direction: row; display: flex; gap: 12px; align-items: center; justify-content: center; padding-top: 20px;}
+        #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 13px; font-weight: 500; padding: 8px; text-align: center; height: 100%; max-height: 100px;}
+        #view-month .plan-indicator .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+        #view-month .block-p-upper-month { flex-shrink: 0; }
+        #view-month .block-p-lower-month { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
+        .block-p-upper-day { flex-shrink: 0; }
+        .block-p-lower-day { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
+        
+        #view-dynamics { height: calc(90vh - 24px); }
+        .dynamics-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; width: 100%; height: 100%; }
+        .dynamics-block { justify-content: flex-start; align-items: stretch; font-size: 24px; color: var(--text-secondary); }
+        .chart-container { flex-grow: 1; position: relative; }
+
+        #block-np { padding: 0; background-color: transparent; box-shadow: none; align-items: stretch; }
+        .legend-container {
+            flex-shrink: 0;
+            height: auto;
+            width: 100%;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            background-color: var(--card-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+            margin-bottom: 12px;
+            box-sizing: border-box;
+        }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500;}
+        .legend-color-box { width: 15px; height: 15px; border-radius: 4px; }
+        #dynamics-os-block { flex-grow: 1; padding: 20px; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+
+        @media (max-width: 1024px) {
+            #view-day, #view-month, #view-position, #view-dynamics { flex-direction: column; height: auto; }
+            .dynamics-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+            .block-l, .block-c, .block-p, .block-team-custom { min-height: auto; }
+            .block-v { height: auto; padding: 12px; flex-wrap: wrap; gap: 10px; }
+            #operator-name { font-size: 18px; }
+        }
     </style>
 </head>
 <body>
+    <div class="dashboard-container">
+        <!-- Блок В -->
+        <div class="block-v">
+            <div class="header-buttons">
+                <button id="btn-day" class="active">День</button>
+                <button id="btn-month">Месяц</button>
+                <button id="btn-position">Рейтинг</button>
+                <button id="btn-dynamics">Динамика</button>
+            </div>
+            <div class="user-info-container">
+                <span id="context-name" style="font-weight: 600; color: var(--text-secondary);"></span>
+                <span id="operator-name">Загрузка...</span>
+            </div>
+        </div>
+        
+        <div class="content-area">
+            <!-- Вид "День" -->
+            <div id="view-day" class="view active">
+                 <div class="block-l">
+                    <div class="block-l-top">
+                        <div class="chart-center-text">
+                            <div class="title">Трафик</div>
+                            <div class="value" id="trafic-value">...</div>
+                        </div>
+                        <canvas id="doughnutChart"></canvas>
+                    </div>
+                    <div class="block-l-bottom">
+                        <div class="horizontal-bar bar-calls" id="kz-bar"></div>
+                        <div class="horizontal-bar bar-leads" id="lid-bar"></div>
+                        <div class="horizontal-bar bar-time" id="avg-time-lid-bar"></div>
+                    </div>
+                </div>
+                <div class="block-c">
+                    <div class="block-c-top">
+                        <p id="os-text">Загрузка обратной связи...</p>
+                    </div>
+                    <div class="block-c-bottom">
+                        <img id="cat-image-day" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s" alt="Кот" class="cat-image">
+                    </div>
+                </div>
+                <div class="block-p">
+                    <div class="block-p-upper-day">
+                         <table class="data-table">
+                            <thead><tr><th>Показатели</th><th>Твои</th><th class="indicator-col"></th><th>Средние</th></tr></thead>
+                            <tbody>
+                                <tr><td>Количество звонков</td><td id="day-user-kz">...</td><td id="day-ind-kz" class="indicator-col"></td><td id="day-srav-kz">...</td></tr>
+                                <tr><td>Количество лидов</td><td id="day-user-lid">...</td><td id="day-ind-lid" class="indicator-col"></td><td id="day-srav-lid">...</td></tr>
+                                <tr><td>Время на лид</td><td id="day-user-time">...</td><td id="day-ind-time" class="indicator-col"></td><td id="day-srav-time">...</td></tr>
+                                <tr><td>Трафик</td><td id="day-user-trafic">...</td><td id="day-ind-trafic" class="indicator-col"></td><td id="day-srav-trafic">...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="block-p-lower-day">
+                        <table class="data-table">
+                            <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
+                            <tbody id="tags-table-body-day"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-    <h1>Тестовый Дашборд (Версия 2)</h1> <!-- И ИЗМЕНЕНИЕ ТУТ -->
-    <p>Если вы видите эту страницу, значит, кнопка "Дашборд" работает.</p>
-    <hr>
-    <h3>Ваш Telegram ID: <b id="user-id">определяется...</b></h3>
-    <hr>
-    <p>Это доказывает, что бот знает, кто нажал на кнопку.</p>
+            <!-- Вид "Месяц" -->
+            <div id="view-month" class="view">
+                <div class="block-l">
+                    <div class="block-l-top">
+                        <div class="chart-center-text"><div class="title">Трафик (Месяц)</div><div class="value" id="trafic-value-month">...</div></div><canvas id="doughnutChartMonth"></canvas>
+                    </div>
+                    <div class="block-l-bottom">
+                        <div class="horizontal-bar bar-calls" id="kz-bar-month">...</div><div class="horizontal-bar bar-leads" id="lid-bar-month">...</div><div class="horizontal-bar bar-time" id="avg-time-lid-bar-month">...</div>
+                    </div>
+                </div>
+                <div class="block-c">
+                     <div class="block-c-top">
+                        <p id="os-text-month">Загрузка обратной связи...</p>
+                    </div>
+                     <div class="block-c-bottom-month">
+                        <div class="plan-indicator"><div>Выполнение плана по трафику (прогноз):</div><div id="plan-trafic-prognoz-value" class="value">...</div></div>
+                        <div class="plan-indicator"><div>Выполнение плана по лидам (прогноз):</div><div id="plan-lid-prognoz-value" class="value">...</div></div>
+                    </div>
+                </div>
+                <div class="block-p">
+                    <div class="block-p-upper-month">
+                         <table class="data-table">
+                            <thead><tr><th>Показатели</th><th>Твои</th><th class="indicator-col"></th><th>Средние</th></tr></thead>
+                            <tbody>
+                                <tr><td>Количество звонков</td><td id="month-user-kz">...</td><td id="month-ind-kz" class="indicator-col"></td><td id="month-srav-kz">...</td></tr>
+                                <tr><td>Количество лидов</td><td id="month-user-lid">...</td><td id="month-ind-lid" class="indicator-col"></td><td id="month-srav-lid">...</td></tr>
+                                <tr><td>Время на лид</td><td id="month-user-time">...</td><td id="month-ind-time" class="indicator-col"></td><td id="month-srav-time">...</td></tr>
+                                <tr><td>Трафик</td><td id="month-user-trafic">...</td><td id="month-ind-trafic" class="indicator-col"></td><td id="month-srav-trafic">...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="block-p-lower-month">
+                        <table class="data-table">
+                            <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
+                            <tbody id="tags-table-body-month"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+            <!-- Вид "Должность" -->
+            <div id="view-position" class="view">
+                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
+                    <h3 class="block-title">День</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="separator-right" style="vertical-align: middle; width: 200px;">Оператор</th>
+                                <th colspan="6" class="separator-right">Показатели</th>
+                                <th colspan="2">План</th>
+                            </tr>
+                            <tr>
+                                <th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th>
+                                <th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th>
+                                <th>План по<br>трафику</th><th>План по<br>лидам</th>
+                            </tr>
+                        </thead>
+                        <tbody id="position-data-body-day"></tbody>
+                    </table>
+                </div>
+                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
+                    <h3 class="block-title">Месяц</h3>
+                     <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="separator-right">Оператор</th>
+                                <th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th>
+                                <th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th>
+                                <th>Ср. время<br>поствызова</th>
+                            </tr>
+                        </thead>
+                        <tbody id="position-data-body-month"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Вид "Динамика" -->
+            <div id="view-dynamics" class="view">
+                <div class="dynamics-grid">
+                    <div class="dynamics-block" id="block-vl">
+                        <h3 class="block-title">Трафик</h3>
+                        <div class="chart-container">
+                            <canvas id="traffic-line-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="dynamics-block" id="block-vp">
+                        <h3 class="block-title">Лиды</h3>
+                        <div class="chart-container">
+                            <canvas id="leads-line-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="dynamics-block" id="block-nl">
+                        <h3 class="block-title">Время на лид</h3>
+                        <div class="chart-container">
+                            <canvas id="time-per-lead-line-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="dynamics-block" id="block-np">
+                        <div class="legend-container">
+                            <div class="legend-item"><div class="legend-color-box" style="background-color: var(--chart-blue);"></div><span>Средние значения</span></div>
+                            <div class="legend-item"><div class="legend-color-box" style="background-color: var(--chart-red);"></div><span>Твои значения</span></div>
+                        </div>
+                        <div id="dynamics-os-block" class="block-c-top">
+                           <p id="dynamics-os-text">Загрузка обратной связи...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Встроенный JavaScript -->
     <script>
-        window.addEventListener('load', function() {
-            if (window.Telegram && window.Telegram.WebApp) {
-                const tg = window.Telegram.WebApp;
-                tg.ready();
-                if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                    document.getElementById('user-id').textContent = tg.initDataUnsafe.user.id; 
-                } else {
-                    document.getElementById('user-id').textContent = 'не удалось определить ID.';
-                }
-            } else {
-                 document.getElementById('user-id').textContent = 'откройте эту страницу через бота в Telegram.';
+        // --- БЛОК С ТЕСТОВЫМИ ДАННЫМИ (ЗАГЛУШКИ) ---
+        const CURRENT_USER_NAME = "Алексей Ли"; 
+
+        function generateRandomTime(maxHours = 4) {
+            return `${String(Math.floor(Math.random() * maxHours)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}`;
+        }
+
+        function getTestData(tableName) {
+            if (tableName === 'TMday') {
+                // ИЗМЕНЕНИЕ: Теперь `dolg` содержит сокращение, как в реальной БД
+                return {
+                    operator: CURRENT_USER_NAME, dolg: 'ВТМ', team: 'Команда X', cat: Math.floor(Math.random() * 5) + 1,
+                    trafic: generateRandomTime(), kz: 300, lid: 10, avg_time_lid: '00:20:20', per_trafic: 0.85,
+                    OS: "Сильное отставание по трафику. Обрати внимание, что среднее у твоих коллег к этому времени – ..., а у топ 1 и вовсе ... . Поднажми!\nБольше количество звонков. Это отлично!\nМало лидов.",
+                    t_net: 41, t_neinteres: 45, t_buisnes: 45, t_old: 43, t_woman: 41, t_idiot: 35, t_sbros: 31
+                };
             }
+            if (tableName === 'TMmonth') { 
+                return { 
+                    operator: CURRENT_USER_NAME, dolg: 'ВТМ', team: 'Команда X', trafic: '99:00:00', per_trafic: 0.9, kz: 999, lid: 99, avg_time_lid: '00:09:09', 
+                    OS: 'За месяц ты показал хороший результат. Прогноз по трафику выполнен на 169%. Так держать!', per_trafic_prognoz: 1.69, per_lid_prognoz: 0.61 
+                }; 
+            }
+            if (tableName === 'AVGday') { return { kz: 250, lid: 8, avg_time_lid: '00:25:00', trafic: '03:30:00' }; }
+            if (tableName === 'AVGmonth') { return { kz: 800, lid: 90, avg_time_lid: '00:18:00', trafic: '90:00:00' }; }
+            if (tableName === 'Teamday' || tableName === 'Teammon') {
+                return [
+                    { operator: 'Анастасия Захарова', lid: 27, trafic: '03:24:06', per_trafic: 0.84, kz: 1300, avg_time_lid: '00:07:52', per_lid: 1.08, plan_trafic: '03:54:54', plan_lid: 17, avg_time_post: '00:01:10' },
+                    { operator: 'Динар Фанисович', lid: 23, trafic: '02:30:23', per_trafic: 0.96, kz: 2500, avg_time_lid: '00:10:34', per_lid: 0.92, plan_trafic: '04:00:00', plan_lid: 12, avg_time_post: '00:01:20'  },
+                    { operator: 'Елена Кузьменок', lid: 20, trafic: '01:54:55', per_trafic: 0.62, kz: 2000, avg_time_lid: '00:07:46', per_lid: 0.80, plan_trafic: '03:20:20', plan_lid: 10, avg_time_post: '00:01:30'  },
+                    { operator: CURRENT_USER_NAME, lid: 18, trafic: '02:15:30', per_trafic: 0.75, kz: 350, avg_time_lid: '00:19:45', per_lid: 0.88, plan_trafic: '03:45:00', plan_lid: 20, avg_time_post: '00:01:25'  }
+                ];
+            }
+            return null;
+        }
+
+        // --- ИНИЦИАЛИЗАЦИЯ И КОНСТАНТЫ ---
+        let doughnutChart, doughnutChartMonth, trafficLineChart, leadsLineChart, timePerLeadLineChart;
+        let currentUserPosition = ""; // Будет заполнено из данных
+        const TAG_MAP = {"t_net": "Теги не проставлены", "t_avtootvet": "Автоответчик", "t_lid": "Лид", "t_neinteres": "Не интересно", "t_finorg": "Фин. орг.", "t_perezvon": "Перезвонить позже", "t_woman": "Женщина", "t_sbros": "Сброс", "t_nomany": "Нет денег", "t_buisnes": "Есть бизнес", "t_mat": "Ругается", "t_idiot": "Неадекват", "t_deti": "Дети", "t_old": "Пенсионер", "t_bankrot": "Банкрот", "t_duble": "Дубль"};
+        const CAT_IMAGE_MAP = {1: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat1.png', 2: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat2.png', 3: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat3.png', 4: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat4.png', 5: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat5.png'};
+        const DEFAULT_CAT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s';
+
+        // --- ФУНКЦИИ-ПОМОЩНИКИ ---
+        function updateTagsTable(tbodyId, data) { const tbody = document.getElementById(tbodyId); if (!tbody || !data) return; tbody.innerHTML = '';  const tagsArray = []; for (const key in TAG_MAP) { if (key.startsWith('t_')) { tagsArray.push({ key: key, name: TAG_MAP[key], count: data[key] || 0 }); } } tagsArray.sort((a, b) => b.count - a.count); tagsArray.forEach(tag => { if (tag.count > 0) { const row = document.createElement('tr'); if (tag.key === 't_net') { row.classList.add('highlight-red'); } row.innerHTML = `<td>${tag.name}</td><td>${tag.count}</td>`; tbody.appendChild(row); } }); }
+        function updateDoughnutChart(chartInstance, percentage = 0) { if (!chartInstance) return; const validPercentage = Math.max(0, Math.min(100, percentage)); chartInstance.data.datasets[0].data = [validPercentage, 100 - validPercentage]; chartInstance.update(); }
+        function formatNumber(num) { if (num === null || num === undefined) return 'N/A'; return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+        function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) { const element = document.getElementById(elementId); if (!element || userValue === null || avgValue === null) { if (element) element.textContent = ''; return; }; let userIsBetter; if (isTime) { userIsBetter = timeToSeconds(userValue) < timeToSeconds(avgValue); } else { userIsBetter = parseFloat(String(userValue).replace(/ /g, '')) > parseFloat(String(avgValue).replace(/ /g, '')); } if (userIsBetter) { element.textContent = '>'; element.className = 'indicator-col indicator-green'; } else { element.textContent = '<'; element.className = 'indicator-col indicator-red'; } }
+        function timeToSeconds(timeStr) { if (!timeStr || typeof timeStr !== 'string') return 0; const parts = timeStr.split(':'); if (parts.length !== 3) return 0; return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10); }
+        function applyRelativeGradient(selector, isReversed = false) { const cells = document.querySelectorAll(selector); if (cells.length === 0) return; const values = Array.from(cells).map(cell => { const text = cell.textContent; if (text.includes(':')) { return timeToSeconds(text); } return parseFloat(text.replace('%', '')); }); const min = Math.min(...values); const max = Math.max(...values); const range = max - min; cells.forEach((cell, index) => { const value = values[index]; let normalized = 0.5; if (range > 0) normalized = (value - min) / range; if (isReversed) normalized = 1 - normalized; const hue = normalized * 120; cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`; cell.style.color = `hsl(${hue}, 80%, 25%)`; cell.style.fontWeight = '600'; cell.style.borderRadius = '4px'; }); }
+        
+        function createOrUpdateLineChart(canvasId, chartInstance, labels, yourData, avgData, yAxisFormatter) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const data = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Средние значения',
+                        data: avgData,
+                        borderColor: '#1e88e5', 
+                        backgroundColor: '#1e88e5',
+                        borderWidth: 4,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: 'white',
+                        pointBorderColor: '#1e88e5',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Твои значения',
+                        data: yourData,
+                        borderColor: '#e53935', 
+                        backgroundColor: '#e53935',
+                        borderWidth: 4,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: 'white',
+                        pointBorderColor: '#e53935',
+                        pointBorderWidth: 2
+                    }
+                ]
+            };
+
+            const options = {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+                        titleColor: '#FFFFFF',
+                        bodyColor: '#FFFFFF',
+                        titleFont: { size: 14, weight: 'bold' },
+                        bodyFont: { size: 12 },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        borderColor: 'rgba(0,0,0,0)',
+                        borderWidth: 0,
+                        callbacks: {
+                            labelColor: function(context) {
+                                return {
+                                    borderColor: context.dataset.borderColor,
+                                    backgroundColor: context.dataset.borderColor,
+                                    borderWidth: 2,
+                                    borderRadius: 2,
+                                };
+                            },
+                            title: function(tooltipItems) {
+                                const label = tooltipItems[0].label;
+                                const monthPart = label.split(' ')[1] || label;
+                                return monthPart.charAt(0).toUpperCase() + monthPart.slice(1);
+                            },
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += yAxisFormatter(context.parsed.y).replace(' ','');
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: yAxisFormatter
+                        }
+                    }
+                }
+            };
+            
+            if (chartInstance) {
+                chartInstance.data = data;
+                chartInstance.options = options;
+                chartInstance.update();
+                return chartInstance;
+            } else {
+                return new Chart(ctx, { type: 'line', data: data, options: options });
+            }
+        }
+        
+        // --- ГЛАВНЫЕ ФУНКЦИИ ---
+        async function fetchDashboardData(tableName) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            if (tableName === 'TMday') {
+                const data = getTestData('TMday');
+                const avgData = getTestData('AVGday');
+                if (data && avgData) {
+                    currentUserPosition = data.dolg;
+                    
+                    // ИЗМЕНЕНИЕ: Напрямую используем `dolg` для названия кнопки
+                    if(data.dolg) {
+                        document.getElementById('btn-position').textContent = `Все ${data.dolg}`;
+                    }
+
+                    document.getElementById('operator-name').textContent = data.operator;
+                    document.getElementById('context-name').textContent = data.team;
+                    document.getElementById('trafic-value').textContent = data.trafic;
+                    document.getElementById('kz-bar').textContent = `Количество звонков - ${data.kz}`;
+                    document.getElementById('lid-bar').textContent = `Количество лидов - ${data.lid}`;
+                    document.getElementById('avg-time-lid-bar').textContent = `Время на лид - ${data.avg_time_lid}`;
+                    document.getElementById('os-text').textContent = data.OS;
+                    updateTagsTable('tags-table-body-day', data);
+                    updateDoughnutChart(doughnutChart, data.per_trafic * 100);
+                    document.getElementById('cat-image-day').src = CAT_IMAGE_MAP[data.cat] || DEFAULT_CAT_IMAGE;
+                    document.getElementById('day-user-kz').textContent = data.kz;
+                    document.getElementById('day-srav-kz').textContent = avgData.kz;
+                    setComparisonIndicator('day-ind-kz', data.kz, avgData.kz);
+                    document.getElementById('day-user-lid').textContent = data.lid;
+                    document.getElementById('day-srav-lid').textContent = avgData.lid;
+                    setComparisonIndicator('day-ind-lid', data.lid, avgData.lid);
+                    document.getElementById('day-user-time').textContent = data.avg_time_lid;
+                    document.getElementById('day-srav-time').textContent = avgData.avg_time_lid;
+                    setComparisonIndicator('day-ind-time', data.avg_time_lid, avgData.avg_time_lid, true);
+                    document.getElementById('day-user-trafic').textContent = data.trafic;
+                    document.getElementById('day-srav-trafic').textContent = avgData.trafic;
+                    setComparisonIndicator('day-ind-trafic', data.trafic, avgData.trafic, true);
+                }
+            } else if (tableName === 'TMmonth') {
+                const userData = getTestData('TMmonth');
+                const avgData = getTestData('AVGmonth');
+                const tagsData = getTestData('TMday');
+                if (userData && avgData && tagsData) {
+                    currentUserPosition = userData.dolg;
+                    document.getElementById('operator-name').textContent = userData.operator;
+                    const monthName = new Date().toLocaleString('ru-RU', { month: 'long' });
+                    document.getElementById('context-name').textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+                    document.getElementById('trafic-value-month').textContent = userData.trafic;
+                    updateDoughnutChart(doughnutChartMonth, userData.per_trafic * 100);
+                    document.getElementById('kz-bar-month').textContent = `Количество звонков - ${userData.kz}`;
+                    document.getElementById('lid-bar-month').textContent = `Количество лидов - ${userData.lid}`;
+                    document.getElementById('avg-time-lid-bar-month').textContent = `Время на лид - ${userData.avg_time_lid}`;
+                    document.getElementById('os-text-month').textContent = userData.OS;
+                    document.getElementById('plan-trafic-prognoz-value').textContent = `${Math.round(userData.per_trafic_prognoz * 100)}%`;
+                    document.getElementById('plan-lid-prognoz-value').textContent = `${Math.round(userData.per_lid_prognoz * 100)}%`;
+                    updateTagsTable('tags-table-body-month', tagsData);
+                    document.getElementById('month-user-kz').textContent = userData.kz;
+                    document.getElementById('month-srav-kz').textContent = avgData.kz;
+                    setComparisonIndicator('month-ind-kz', userData.kz, avgData.kz);
+                    document.getElementById('month-user-lid').textContent = userData.lid;
+                    document.getElementById('month-srav-lid').textContent = avgData.lid;
+                    setComparisonIndicator('month-ind-lid', userData.lid, avgData.lid);
+                    document.getElementById('month-user-time').textContent = userData.avg_time_lid;
+                    document.getElementById('month-srav-time').textContent = avgData.avg_time_lid;
+                    setComparisonIndicator('month-ind-time', userData.avg_time_lid, avgData.avg_time_lid, true);
+                    document.getElementById('month-user-trafic').textContent = userData.trafic;
+                    document.getElementById('month-srav-trafic').textContent = avgData.trafic;
+                    setComparisonIndicator('month-ind-trafic', userData.trafic, avgData.trafic, true);
+                }
+            }
+        }
+        async function fetchPositionData(position) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            document.getElementById('context-name').textContent = position;
+            const dayData = getTestData('Teamday');
+            const monthData = getTestData('Teammon');
+            populatePositionTableDay(dayData);
+            populatePositionTableMonth(monthData);
+        }
+        function populatePositionTableDay(data) {
+            const tbody = document.getElementById('position-data-body-day');
+            data.sort((a, b) => (b.lid || 0) - (a.lid || 0));
+            tbody.innerHTML = '';
+            data.forEach(op => {
+                const row = document.createElement('tr');
+                if (op.operator === CURRENT_USER_NAME) { row.classList.add('current-user-row'); }
+                row.innerHTML = `
+                    <td class="separator-right">${op.operator}</td><td>${op.trafic || 'N/A'}</td>
+                    <td class="td-gradient-traffic-day">${(op.per_trafic * 100).toFixed(0)}%</td>
+                    <td>${op.kz || 0}</td><td>${op.lid || 0}</td>
+                    <td class="td-gradient-time-day">${op.avg_time_lid || 'N/A'}</td>
+                    <td class="td-gradient-leads-day separator-right">${(op.per_lid * 100).toFixed(0)}%</td>
+                    <td>${op.plan_trafic || 'N/A'}</td><td>${op.plan_lid || 0}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            applyRelativeGradient('.td-gradient-traffic-day');
+            applyRelativeGradient('.td-gradient-leads-day');
+            applyRelativeGradient('.td-gradient-time-day', true);
+        }
+        function populatePositionTableMonth(data) {
+            const tbody = document.getElementById('position-data-body-month');
+            data.sort((a, b) => (b.lid || 0) - (a.lid || 0));
+            tbody.innerHTML = '';
+            data.forEach(op => {
+                const row = document.createElement('tr');
+                if (op.operator === CURRENT_USER_NAME) { row.classList.add('current-user-row'); }
+                row.innerHTML = `
+                    <td class="separator-right">${op.operator}</td><td>${op.trafic || 'N/A'}</td>
+                    <td class="td-gradient-traffic-month">${(op.per_trafic * 100).toFixed(0)}%</td>
+                    <td>${op.kz || 0}</td><td>${op.lid || 0}</td>
+                    <td class="td-gradient-time-month">${op.avg_time_lid || 'N/A'}</td>
+                    <td class="td-gradient-leads-month separator-right">${(op.per_lid * 100).toFixed(0)}%</td>
+                    <td>${op.avg_time_post || 'N/A'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            applyRelativeGradient('.td-gradient-traffic-month');
+            applyRelativeGradient('.td-gradient-leads-month');
+            applyRelativeGradient('.td-gradient-time-month', true);
+        }
+        
+        // --- ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const darkBlueColor = getComputedStyle(document.documentElement).getPropertyValue('--dark-blue').trim();
+            const chartOptions = { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false }, tooltip: { enabled: false } } };
+            const chartDataTemplate = { labels: ['Процент трафика', 'Остаток'], datasets: [{ data: [0, 100], backgroundColor: [ darkBlueColor, '#E9ECEF' ], borderColor: 'transparent' }] };
+            const ctxDay = document.getElementById('doughnutChart').getContext('2d');
+            doughnutChart = new Chart(ctxDay, { type: 'doughnut', data: JSON.parse(JSON.stringify(chartDataTemplate)), options: chartOptions });
+            const ctxMonth = document.getElementById('doughnutChartMonth').getContext('2d');
+            doughnutChartMonth = new Chart(ctxMonth, { type: 'doughnut', data: JSON.parse(JSON.stringify(chartDataTemplate)), options: chartOptions });
+            
+            const btnDay = document.getElementById('btn-day');
+            const btnMonth = document.getElementById('btn-month');
+            const btnPosition = document.getElementById('btn-position');
+            const btnDynamics = document.getElementById('btn-dynamics');
+            const viewDay = document.getElementById('view-day');
+            const viewMonth = document.getElementById('view-month');
+            const viewPosition = document.getElementById('view-position');
+            const viewDynamics = document.getElementById('view-dynamics');
+            const operatorNameEl = document.getElementById('operator-name');
+            const contextNameEl = document.getElementById('context-name');
+
+            const allButtons = [btnDay, btnMonth, btnPosition, btnDynamics];
+            const allViews = [viewDay, viewMonth, viewPosition, viewDynamics];
+
+            function switchView(viewToShow, buttonToActivate) {
+                allViews.forEach(view => view.classList.remove('active'));
+                allButtons.forEach(button => button.classList.remove('active'));
+                viewToShow.classList.add('active');
+                buttonToActivate.classList.add('active');
+                
+                if (viewToShow.id === 'view-position') {
+                    operatorNameEl.style.display = 'none';
+                    contextNameEl.style.display = 'inline';
+                    contextNameEl.style.fontWeight = '700';
+                    contextNameEl.style.fontSize = '22px';
+                    contextNameEl.style.color = 'var(--text-primary)';
+                    fetchPositionData(currentUserPosition);
+                } else {
+                    operatorNameEl.style.display = 'inline';
+                    contextNameEl.style.display = 'inline';
+                    contextNameEl.style.fontWeight = '600';
+                    contextNameEl.style.fontSize = 'inherit';
+                    contextNameEl.style.color = 'var(--text-secondary)';
+                    
+                    if (viewToShow.id === 'view-dynamics') {
+                        operatorNameEl.textContent = CURRENT_USER_NAME;
+                        const labels = [];
+                        const yourTrafficData = [], avgTrafficData = [];
+                        const yourLeadsData = [], avgLeadsData = [];
+                        const yourTimeData = [], avgTimeData = [];
+
+                        const monthFormatter = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' });
+                        const now = new Date();
+                        
+                        for (let i = 5; i >= 0; i--) {
+                            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                            if (i === 0) {
+                                const day = now.getDate();
+                                const monthShort = date.toLocaleString('ru-RU', { month: 'short' }).replace('.', '');
+                                labels.push(`${day} ${monthShort}`);
+                            } else {
+                                labels.push(date.toLocaleString('ru-RU', { month: 'short' }).replace('.', ''));
+                            }
+                            yourTrafficData.push(Math.floor(Math.random() * 80) + 10);
+                            avgTrafficData.push(Math.floor(Math.random() * 80) + 15);
+                            yourLeadsData.push(Math.floor(Math.random() * 20) + 5);
+                            avgLeadsData.push(Math.floor(Math.random() * 20) + 8);
+                            yourTimeData.push(Math.floor(Math.random() * 300) + 60);
+                            avgTimeData.push(Math.floor(Math.random() * 300) + 90);
+                        }
+
+                        const firstMonth = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+                        const lastMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                        contextNameEl.textContent = `${monthFormatter.format(firstMonth)} – ${monthFormatter.format(lastMonth)}`;
+                        
+                        trafficLineChart = createOrUpdateLineChart('traffic-line-chart', trafficLineChart, labels, yourTrafficData, avgTrafficData, (val) => `${val} ч`);
+                        leadsLineChart = createOrUpdateLineChart('leads-line-chart', leadsLineChart, labels, yourLeadsData, avgLeadsData, (val) => `${val}`);
+                        timePerLeadLineChart = createOrUpdateLineChart('time-per-lead-line-chart', timePerLeadLineChart, labels, yourTimeData, avgTimeData, (val) => {
+                            const min = Math.floor(val / 60);
+                            const sec = val % 60;
+                            return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+                        });
+
+                        document.getElementById('dynamics-os-text').textContent = "В этом месяце твой трафик немного ниже среднего. Попробуй увеличить количество активных диалогов.";
+                    } else {
+                        const tableName = viewToShow.id === 'view-day' ? 'TMday' : 'TMmonth';
+                        fetchDashboardData(tableName);
+                    }
+                }
+            }
+
+            btnDay.addEventListener('click', () => { switchView(viewDay, btnDay); });
+            btnMonth.addEventListener('click', () => { switchView(viewMonth, btnMonth); });
+            btnPosition.addEventListener('click', () => { switchView(viewPosition, btnPosition); });
+            btnDynamics.addEventListener('click', () => { switchView(viewDynamics, btnDynamics); });
+
+            fetchDashboardData('TMday');
         });
     </script>
 </body>
