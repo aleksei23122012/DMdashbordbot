@@ -69,7 +69,7 @@
         #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 14px; font-weight: 500; padding: 10px; text-align: center; }
         #view-month .plan-indicator .value { font-size: 28px; font-weight: 700; margin-top: 4px; }
         #view-month .block-p { display: flex; flex-direction: column; }
-        #view-month .block-p-upper-month { flex-shrink: 0; margin-bottom: 0; }
+        #view-month .block-p-upper-month { flex-shrink: 0; }
         #view-month .block-p-lower-month { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
         
         .dynamics-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; width: 100%; height: 100%; }
@@ -144,10 +144,10 @@
                     </div>
                 </div>
                 <div class="block-c">
-                     <div class="block-c-top">
+                    <div class="block-c-top">
                         <p id="os-text-month">Загрузка обратной связи...</p>
                     </div>
-                     <div class="block-c-bottom-month">
+                    <div class="block-c-bottom-month">
                         <div class="plan-indicator"><div>Выполнение плана по трафику (прогноз):</div><div id="plan-trafic-prognoz-value" class="value">...</div></div>
                         <div class="plan-indicator"><div>Выполнение плана по лидам (прогноз):</div><div id="plan-lid-prognoz-value" class="value">...</div></div>
                     </div>
