@@ -222,122 +222,78 @@
     <!-- Встроенный JavaScript с отладкой -->
     <script>
         try {
-            alert("Шаг 0: Скрипт начал выполняться");
+            alert("Шаг 1: Скрипт начал выполняться");
 
-            document.addEventListener('DOMContentLoaded', () => {
-                alert("Шаг 1: DOM загружен, начинаю инициализацию.");
+            const supabaseUrl = 'https://yhjrhnglgtenxwncrrnf.supabase.co';
+            const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI';
+            
+            alert("Шаг 2: Константы определены");
+
+            if (typeof supabase === 'undefined') {
+                alert("ОШИБКА: Библиотека Supabase не загрузилась!");
+                throw new Error("Supabase lib not found");
+            }
+            const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+            alert("Шаг 3: Клиент Supabase создан");
+
+            let doughnutChart, doughnutChartMonth;
+            let currentTeamName = null;
+
+            // ... (все ваши константы TAG_MAP, CAT_IMAGE_MAP) ...
+
+            async function fetchDashboardData(tableName) {
+                alert("Шаг 4: Вход в fetchDashboardData");
                 
-                const supabaseUrl = 'https://yhjrhnglgtenxwncrrnf.supabase.co';
-                const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI';
+                let userIdentifier = null;
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                    const tgWebApp = window.Telegram.WebApp;
+                    tgWebApp.ready();
+                    const user = tgWebApp.initDataUnsafe.user;
+                    if (user) {
+                        userIdentifier = user.username ? String(user.username) : String(user.id);
+                        alert(`Шаг 5: Пользователь TG определен: ${userIdentifier}`);
+                    }
+                }
                 
-                if (typeof supabase === 'undefined') {
-                    alert("ОШИБКА: Библиотека Supabase не найдена!");
+                if (!userIdentifier) {
+                    alert("ОШИБКА: Пользователь TG НЕ определен");
+                    document.getElementById('operator-name').textContent = 'Пользователь не определен';
                     return;
                 }
-                alert("Шаг 2: Supabase найден. Создаю клиент.");
-                const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey, { autoRefreshToken: true, persistSession: true });
-                alert("Шаг 3: Клиент Supabase создан.");
-
-                let doughnutChart, doughnutChartMonth;
-                let currentUserPosition = null;
-
-                const TAG_MAP = {"t_net": "Теги не проставлены", "t_avtootvet": "Автоответчик", "t_lid": "Лид", "t_neinteres": "Не интересно", "t_finorg": "Фин. орг.", "t_perezvon": "Перезвонить позже", "t_woman": "Женщина", "t_sbros": "Сброс", "t_nomany": "Нет денег", "t_buisnes": "Есть бизнес", "t_mat": "Ругается", "t_idiot": "Неадекват", "t_deti": "Дети", "t_old": "Пенсионер", "t_bankrot": "Банкрот", "t_duble": "Дубль"};
-                const TAG_COLUMNS = Object.keys(TAG_MAP).join(',');
-                const CAT_IMAGE_MAP = {1: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat1.png', 2: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat2.png', 3: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat3.png', 4: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat4.png', 5: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat5.png'};
-                const DEFAULT_CAT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s';
-
-                function updateTagsTable(tbodyId, data) { /* ... */ }
-                function updateDoughnutChart(chartInstance, percentage = 0) { /* ... */ }
-                function formatNumber(num) { /* ... */ }
-                function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) { /* ... */ }
-                function timeToSeconds(timeStr) { /* ... */ }
-                function applyRelativeGradient(selector, isReversed = false) { /* ... */ }
-
-                async function fetchDashboardData(tableName) {
-                    alert(`Шаг 4: Запрос данных для ${tableName}`);
-                    let userIdentifier = null;
-                    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
-                        const user = window.Telegram.WebApp.initDataUnsafe.user;
-                        if (user) {
-                            userIdentifier = user.username ? String(user.username) : String(user.id);
-                            alert(`Шаг 5: ID пользователя определен: ${userIdentifier}`);
-                        }
-                    }
-                    if (!userIdentifier) {
-                        alert("ОШИБКА: Пользователь TG не определен!");
-                        document.getElementById('operator-name').textContent = 'Пользователь не определен';
-                        return;
-                    }
-
-                    alert(`Шаг 6: Отправляю запрос в Supabase для таблицы ${tableName}...`);
-                    try {
-                        const { data, error } = await supabaseClient.from(tableName).select('operator').eq('tg', userIdentifier).single();
-                        if (error) {
-                            alert(`ОШИБКА Supabase: ${error.message}`);
-                            throw error;
-                        }
-                        if (data) {
-                            alert(`УСПЕХ! Данные получены: ${data.operator}`);
-                            // Здесь будет полная логика
-                        } else {
-                            alert("Данные для вас не найдены в базе.");
-                        }
-                    } catch (e) {
-                         alert(`КРИТИЧЕСКАЯ ОШИБКА JS: ${e.message}`);
-                    }
-                }
                 
-                async function fetchPositionData(position) { /* ... */ }
-                function populatePositionTableDay(data) { /* ... */ }
-                function populatePositionTableMonth(data) { /* ... */ }
-
-                const btnDay = document.getElementById('btn-day');
-                const btnMonth = document.getElementById('btn-month');
-                const btnPosition = document.getElementById('btn-position');
-                const btnDynamics = document.getElementById('btn-dynamics');
-                const viewDay = document.getElementById('view-day');
-                const viewMonth = document.getElementById('view-month');
-                const viewPosition = document.getElementById('view-position');
-                const viewDynamics = document.getElementById('view-dynamics');
-                const operatorNameEl = document.getElementById('operator-name');
-                const positionNameEl = document.getElementById('position-name');
-                const allButtons = [btnDay, btnMonth, btnPosition, btnDynamics];
-                const allViews = [viewDay, viewMonth, viewPosition, viewDynamics];
-
-                function switchView(viewToShow, buttonToActivate) {
-                    allViews.forEach(view => view.classList.remove('active'));
-                    allButtons.forEach(button => button.classList.remove('active'));
-                    viewToShow.classList.add('active');
-                    buttonToActivate.classList.add('active');
+                alert(`Шаг 6: Отправляю запрос в Supabase для таблицы ${tableName}`);
+                try {
+                    const { data, error } = await supabaseClient
+                        .from(tableName)
+                        .select('operator, team') // Запрашиваем минимум данных для теста
+                        .eq('tg', userIdentifier)
+                        .single();
                     
-                    if (viewToShow.id === 'view-position') {
-                        operatorNameEl.style.display = 'none';
-                        positionNameEl.style.display = 'inline';
-                        positionNameEl.style.fontWeight = '700';
-                        positionNameEl.style.fontSize = '22px';
-                        positionNameEl.style.color = 'var(--text-primary)';
-                        fetchPositionData(currentUserPosition);
-                    } else {
-                        operatorNameEl.style.display = 'inline';
-                        positionNameEl.style.display = 'inline';
-                        positionNameEl.style.fontWeight = '600';
-                        positionNameEl.style.fontSize = 'inherit';
-                        positionNameEl.style.color = 'var(--text-secondary)';
-                        
-                        if (viewToShow.id !== 'view-dynamics') {
-                            const tableName = viewToShow.id === 'view-day' ? 'TMday' : 'TMmonth';
-                            fetchDashboardData(tableName);
-                        }
+                    alert("Шаг 7: Запрос в Supabase завершен");
+                    
+                    if (error) {
+                        alert(`ОШИБКА Supabase: ${error.message}`);
+                        throw error;
                     }
+                    
+                    if (data) {
+                        alert(`УСПЕХ! Данные получены. Оператор: ${data.operator}`);
+                        document.getElementById('operator-name').textContent = data.operator;
+                    } else {
+                        alert("Данные для вас не найдены в базе.");
+                    }
+                } catch(e) {
+                    alert(`КРИТИЧЕСКАЯ ОШИБКА JS: ${e.message}`);
                 }
+            }
 
-                btnDay.addEventListener('click', () => { switchView(viewDay, btnDay); });
-                btnMonth.addEventListener('click', () => { switchView(viewMonth, btnMonth); });
-                btnPosition.addEventListener('click', () => { switchView(viewPosition, btnPosition); });
-                btnDynamics.addEventListener('click', () => { switchView(viewDynamics, btnDynamics); });
-
+            // ... (остальные функции временно не трогаем) ...
+            
+            document.addEventListener('DOMContentLoaded', () => {
+                alert("Шаг 0: DOM загружен");
                 fetchDashboardData('TMday');
             });
+
         } catch (e) {
             alert(`ГЛОБАЛЬНАЯ ОШИБКА: ${e.message}`);
         }
