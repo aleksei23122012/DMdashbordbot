@@ -4,92 +4,165 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Бот отработки возражений</title>
+<!-- Подключаем шрифт, похожий на тот, что в вашем дашборде -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+
 <style>
-  /* Общие стили для тела документа */
+  :root {
+    /* Цветовая палитра, основанная на вашем дашборде */
+    --primary-blue: #0d6efd; /* Основной синий для кнопок */
+    --primary-blue-hover: #0b5ed7; /* Синий при наведении */
+    --light-gray-bg: #f8f9fa; /* Фон страницы */
+    --white-bg: #ffffff; /* Фон для карточек */
+    --text-color: #212529; /* Основной цвет текста */
+    --border-color: #dee2e6; /* Цвет рамок */
+    --shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Тень для карточек */
+  }
+
+  /* Общие стили */
   body, html {
     height: 100%;
     margin: 0;
-    font-family: sans-serif;
+    font-family: 'Inter', sans-serif; /* Применяем современный шрифт */
+    background-color: var(--light-gray-bg);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    box-sizing: border-box;
+  }
+
+  /* Основной контейнер, имитирующий окно приложения */
+  .app-container {
+    width: 100%;
+    max-width: 800px; /* Ограничим максимальную ширину для больших экранов */
+    height: 95vh;
+    max-height: 900px;
     display: flex;
     flex-direction: column;
+    background-color: var(--white-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden; /* Скрываем все, что выходит за пределы скругленных углов */
   }
 
   /* Стили для верхнего блока (БЛОК В) */
   .top-block {
-    height: 50px; /* Узкая высота */
-    padding: 10px;
-    background-color: #f0f0f0; /* Светло-серый фон */
-    display: flex;
-    align-items: center;
+    padding: 20px;
+    background-color: var(--white-bg);
+    border-bottom: 1px solid var(--border-color);
   }
 
   /* Стили для поля ввода текста */
   .top-block input[type="text"] {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc; /* Серая рамка */
-    border-radius: 5px; /* Скругленные углы */
+    padding: 12px 15px;
+    font-size: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px; /* Более скругленные углы */
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
+
+  .top-block input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25); /* Подсветка как в Bootstrap */
+  }
+
 
   /* Стили для нижнего блока (БЛОК Н) */
   .bottom-block {
-    flex-grow: 1; /* Занимает все оставшееся пространство */
+    flex-grow: 1;
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 колонки одинаковой ширины */
-    grid-template-rows: repeat(3, 1fr); /* 3 ряда одинаковой высоты */
-    gap: 10px; /* Промежуток между кнопками */
-    padding: 10px;
+    grid-template-columns: repeat(3, 1fr); /* 3 колонки */
+    grid-template-rows: repeat(3, 1fr);    /* 3 ряда */
+    gap: 15px; /* Увеличим промежуток */
+    padding: 20px;
     box-sizing: border-box;
+    background-color: var(--light-gray-bg);
   }
 
   /* Стили для кнопок */
   .bottom-block button {
     width: 100%;
     height: 100%;
-    font-size: 16px;
-    background-color: #007bff; /* Синий фон */
-    color: white; /* Белый текст */
+    font-size: 1em;
+    font-weight: 500;
+    background-color: var(--primary-blue);
+    color: white;
     border: none;
-    border-radius: 5px; /* Скругленные углы */
-    cursor: pointer; /* Указатель при наведении */
-    transition: background-color 0.3s; /* Плавный переход цвета фона */
+    border-radius: 8px; /* Единый стиль скругления */
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    box-sizing: border-box;
   }
 
-  /* Изменение цвета кнопки при наведении */
+  /* Эффекты при взаимодействии с кнопкой */
   .bottom-block button:hover {
-    background-color: #0056b3; /* Темно-синий фон при наведении */
+    background-color: var(--primary-blue-hover);
   }
+
+  .bottom-block button:active {
+    transform: scale(0.98); /* Легкое нажатие */
+  }
+
+  /* Убираем текст с пустых кнопок для чистоты вида */
+  .bottom-block button.empty {
+      background-color: var(--white-bg);
+      border: 1px dashed var(--border-color);
+      cursor: default;
+      color: var(--border-color);
+  }
+   .bottom-block button.empty:hover {
+       background-color: var(--white-bg);
+   }
+
+
 </style>
 </head>
 <body>
 
-<!-- Верхний блок (БЛОК В) с полем для ввода текста -->
-<div class="top-block">
-  <input type="text" placeholder="Введите ваше возражение...">
-</div>
+<div class="app-container">
+  <!-- Верхний блок (БЛОК В) с полем для ввода текста -->
+  <div class="top-block">
+    <input type="text" placeholder="Введите текст возражения...">
+  </div>
 
-<!-- Нижний блок (БЛОК Н) с кнопками -->
-<div class="bottom-block">
-  <button id="btn1">Не интересно</button>
-  <button id="btn2">2</button>
-  <button id="btn3">Нет денег</button>
-  <button id="btn4">4</button>
-  <button id="btn5">5</button>
-  <button id="btn6">6</button>
-  <button id="btn7">7</button>
-  <button id="btn8">Не готов ближайшее время</button>
-  <button id="btn9">9</button>
+  <!-- Нижний блок (БЛОК Н) с кнопками -->
+  <div class="bottom-block">
+    <button id="btn1">Не интересно</button>
+    <button id="btn2" class="empty">2</button>
+    <button id="btn3">Нет денег</button>
+    <button id="btn4" class="empty">4</button>
+    <button id="btn5" class="empty">5</button>
+    <button id="btn6" class="empty">6</button>
+    <button id="btn7" class="empty">7</button>
+    <button id="btn8">Не готов в ближайшее время</button>
+    <button id="btn9" class="empty">9</button>
+  </div>
 </div>
 
 <script>
-  // JavaScript пока не требуется для чисто визуального макета.
-  // В будущем здесь можно будет добавить логику для взаимодействия с Supabase.
-
-  // Пример: можно добавить обработчики событий для кнопок
+  // JavaScript для будущей интерактивности
   document.querySelectorAll('.bottom-block button').forEach(button => {
     button.addEventListener('click', () => {
-      console.log(`Нажата кнопка: ${button.textContent}`);
-      // Здесь будет код для получения данных из Supabase
+      // Проверяем, что кнопка не пустая, прежде чем выводить в консоль
+      if (!button.classList.contains('empty')) {
+        const buttonText = button.textContent;
+        console.log(`Нажата кнопка: ${buttonText}`);
+
+        // В будущем здесь будет ваш код для получения данных из Supabase
+        // Например: fetchDataFromSupabase(buttonText);
+      }
     });
   });
 </script>
