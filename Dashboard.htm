@@ -30,8 +30,8 @@
         #operator-name { font-weight: 700; font-size: 22px; }
         .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; overflow: hidden; }
         .view { display: none; }
-        .view.active { display: flex; }
-        #view-day, #view-month, #view-position, #view-dynamics { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
+        .view.active { display: flex; align-items: center; justify-content: center; } /* Центрируем контент по умолчанию */
+        #view-day.active, #view-month.active { flex-direction: row; gap: 12px; height: calc(90vh - 24px); justify-content: flex-start; } /* Возвращаем как было */
         .block-l { width: 400px; flex-shrink: 0; }
         .block-c { flex-grow: 1; }
         .block-p { width: 400px; flex-shrink: 0; }
@@ -73,34 +73,10 @@
         .block-p-upper-day { flex-shrink: 0; }
         .block-p-lower-day { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
         
-        #view-dynamics { height: calc(90vh - 24px); }
-        .dynamics-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; width: 100%; height: 100%; }
-        .dynamics-block { justify-content: flex-start; align-items: stretch; font-size: 24px; color: var(--text-secondary); }
-        .chart-container { flex-grow: 1; position: relative; }
-
-        #block-np { padding: 0; background-color: transparent; box-shadow: none; align-items: stretch; }
-        .legend-container {
-            flex-shrink: 0;
-            height: auto;
-            width: 100%;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 30px;
-            background-color: var(--card-color);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-            margin-bottom: 12px;
-            box-sizing: border-box;
-        }
-        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500;}
-        .legend-color-box { width: 15px; height: 15px; border-radius: 4px; }
-        #dynamics-os-block { flex-grow: 1; padding: 20px; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+        .placeholder-message { font-size: 22px; color: var(--text-secondary); }
 
         @media (max-width: 1024px) {
             #view-day, #view-month, #view-position, #view-dynamics { flex-direction: column; height: auto; }
-            .dynamics-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
             .block-l, .block-c, .block-p, .block-team-custom { min-height: auto; }
             .block-v { height: auto; padding: 12px; flex-wrap: wrap; gap: 10px; }
             #operator-name { font-size: 18px; }
@@ -109,7 +85,7 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Блок В -->
+        <!-- ... HTML-код шапки ... -->
         <div class="block-v">
             <div class="header-buttons">
                 <button id="btn-day" class="active">День</button>
@@ -122,7 +98,7 @@
                 <span id="operator-name">Загрузка...</span>
             </div>
         </div>
-        
+
         <div class="content-area">
             <!-- Вид "День" -->
             <div id="view-day" class="view active">
@@ -168,9 +144,9 @@
                     </div>
                 </div>
             </div>
-
             <!-- Вид "Месяц" -->
             <div id="view-month" class="view">
+                <!-- Содержимое такое же, как и раньше, но с новыми ID для уникальности -->
                 <div class="block-l">
                     <div class="block-l-top">
                         <div class="chart-center-text"><div class="title">Трафик (Месяц)</div><div class="value" id="trafic-value-month">...</div></div><canvas id="doughnutChartMonth"></canvas>
@@ -209,24 +185,27 @@
                 </div>
             </div>
             
-            <!-- Остальные виды пока без изменений -->
-            <div id="view-position" class="view">...</div>
-            <div id="view-dynamics" class="view">...</div>
+            <!-- Заглушки для пустых вкладок -->
+            <div id="view-position" class="view">
+                <h2 class="placeholder-message">Вкладка в разработке</h2>
+            </div>
+            <div id="view-dynamics" class="view">
+                 <h2 class="placeholder-message">Вкладка в разработке</h2>
+            </div>
         </div>
     </div>
 
     <script>
         // --- ПОДКЛЮЧЕНИЕ К SUPABASE ---
-        const SUPABASE_URL = 'https://yhjrhnglgtenxwncrrnf.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMwODA3MDksImV4cCI6MjA2ODY1NjcwOX0.0sSrzNrc08de6h9vWkDJxMBN4OTT2qsNhGhDvQ9VgbI';
+        const SUPABASE_URL = 'ВАШ_URL'; 
+        const SUPABASE_ANON_KEY = 'ВАШ_КЛЮЧ';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
         let doughnutChartDay, doughnutChartMonth;
-        let currentUserName = "Алексей Ли"; // Это имя нужно будет получать по логину Telegram
+        let currentUserName = "Алексей Ли"; 
         let currentUserPosition = ""; 
         
-        // ИЗМЕНЕНИЕ: Добавлен тег "Госслужащие"
         const TAG_MAP = {"t_net": "Теги не проставлены", "t_avtootvet": "Автоответчик", "t_lid": "Лид", "t_neinteres": "Не интересно", "t_finorg": "Фин. орг.", "t_perezvon": "Перезвонить позже", "t_woman": "Женщина", "t_sbros": "Сброс", "t_nomany": "Нет денег", "t_buisnes": "Есть бизнес", "t_mat": "Ругается", "t_idiot": "Неадекват", "t_deti": "Дети", "t_old": "Пенсионер", "t_bankrot": "Банкрот", "t_duble": "Дубль", "t_gos": "Госслужащие"};
         const CAT_IMAGE_MAP = {1: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat1.png', 2: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat2.png', 3: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat3.png', 4: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat4.png', 5: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat5.png'};
         const DEFAULT_CAT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s';
@@ -234,7 +213,7 @@
         // --- ФУНКЦИИ-ПОМОЩНИКИ ---
         function formatInterval(intervalStr) {
             if (!intervalStr) return "00:00:00";
-            return intervalStr.split('.')[0]; // Отсекаем миллисекунды
+            return intervalStr.split('.')[0]; 
         }
         
         function updateDoughnutChart(chartInstance, percentage = 0) { 
@@ -247,7 +226,7 @@
         function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) {
             const element = document.getElementById(elementId);
             if (!element || userValue === null || userValue === undefined || avgValue === null || avgValue === undefined) { 
-                if (element) element.textContent = ''; 
+                if (element) element.textContent = '---'; 
                 return; 
             }
             const userSeconds = isTime ? timeToSeconds(userValue) : parseFloat(userValue);
@@ -278,19 +257,24 @@
 
         function updateTagsTable(tbodyId, data) {
             const tbody = document.getElementById(tbodyId);
-            if (!tbody || !data) return;
+            if (!tbody || !data) { tbody.innerHTML = '<tr><td colspan="2">Нет данных</td></tr>'; return; }
             tbody.innerHTML = '';
             
             const tagsArray = [];
             for (const key in data) {
                 if (key.startsWith('t_') && key !== 't_os') {
-                    const tagName = TAG_MAP[key] || key; // Используем имя из карты или сам ключ
+                    const tagName = TAG_MAP[key] || key; 
                     tagsArray.push({ key: key, name: tagName, count: data[key] || 0 });
                 }
             }
             
             tagsArray.sort((a, b) => b.count - a.count);
             
+            if (tagsArray.length === 0) {
+                 tbody.innerHTML = '<tr><td colspan="2">Теги не найдены</td></tr>';
+                 return;
+            }
+
             tagsArray.forEach(tag => {
                 if (tag.count > 0) {
                     const row = document.createElement('tr');
@@ -302,36 +286,41 @@
                 }
             });
         }
+        
+        function clearDashboard(period) {
+             // ... можно добавить функцию очистки полей перед загрузкой ...
+        }
 
         // --- ГЛАВНАЯ ФУНКЦИЯ ЗАГРУЗКИ ДАННЫХ ---
         async function fetchDashboardData(period) {
             const userTable = period === 'day' ? 'TMday' : 'TMmonth';
             const avgTable = period === 'day' ? 'AVGday' : 'AVGmonth';
 
-            // !! ВАЖНО: .eq('operator', currentUserName) - это временная заглушка.
-            // В будущем здесь будет фильтр по ID пользователя из Telegram: .eq('telegram_id', userId)
-            const userRequest = supabaseClient.from(userTable).select('*').eq('operator', currentUserName).single();
-            const avgRequest = supabaseClient.from(avgTable).select('*').single(); // Предполагаем, что в AVG таблицах одна строка
+            const userRequest = supabaseClient.from(userTable).select('*').eq('operator', currentUserName).maybeSingle();
+            const avgRequest = supabaseClient.from(avgTable).select('*').maybeSingle();
 
             const [userResponse, avgResponse] = await Promise.all([userRequest, avgRequest]);
 
-            if (userResponse.error) {
-                console.error(`Ошибка при загрузке данных из ${userTable}:`, userResponse.error);
-                alert(`Не удалось загрузить данные пользователя из ${userTable}.`);
+            if (userResponse.error || avgResponse.error) {
+                console.error(`Ошибка Supabase:`, userResponse.error || avgResponse.error);
+                alert(`Произошла ошибка при загрузке данных. Подробности в консоли.`);
                 return;
             }
-             if (avgResponse.error) {
-                console.error(`Ошибка при загрузке данных из ${avgTable}:`, avgResponse.error);
-                alert(`Не удалось загрузить средние данные из ${avgTable}.`);
-                return;
-            }
-
+            
             const userData = userResponse.data;
             const avgData = avgResponse.data;
             
+            if (!userData) {
+                alert(`Данные для пользователя "${currentUserName}" не найдены в таблице ${userTable}.`);
+                return;
+            }
+             if (!avgData) {
+                alert(`Средние данные не найдены в таблице ${avgTable}.`);
+                return;
+            }
+
             // --- ОБЩИЕ ДАННЫЕ В ШАПКЕ ---
             document.getElementById('operator-name').textContent = userData.operator;
-            currentUserPosition = userData.dolg;
             if (userData.dolg) {
                 document.getElementById('btn-position').textContent = `Все ${userData.dolg}`;
             }
@@ -339,69 +328,54 @@
             // --- ЗАПОЛНЕНИЕ ВКЛАДКИ ---
             if (period === 'day') {
                 document.getElementById('context-name').textContent = userData.Team;
-
                 // Блок Л
                 document.getElementById('trafic-value-day').textContent = formatInterval(userData.trafic);
-                updateDoughnutChart(doughnutChartDay, userData.per_trafic * 100);
-                document.getElementById('kz-bar-day').textContent = `Количество звонков - ${userData.kz}`;
-                document.getElementById('lid-bar-day').textContent = `Количество лидов - ${userData.lid}`;
+                updateDoughnutChart(doughnutChartDay, (userData.per_trafic || 0) * 100);
+                document.getElementById('kz-bar-day').textContent = `Количество звонков - ${userData.kz || 0}`;
+                document.getElementById('lid-bar-day').textContent = `Количество лидов - ${userData.lid || 0}`;
                 document.getElementById('avg-time-lid-bar-day').textContent = `Время на лид - ${formatInterval(userData.avg_time_lid)}`;
-
                 // Блок С
                 document.getElementById('os-text-day').textContent = userData.OS || "Обратная связь отсутствует.";
                 document.getElementById('cat-image-day').src = CAT_IMAGE_MAP[userData.cat] || DEFAULT_CAT_IMAGE;
-
                 // Блок П
                 document.getElementById('day-user-kz').textContent = userData.kz;
                 document.getElementById('day-srav-kz').textContent = avgData.kz;
                 setComparisonIndicator('day-ind-kz', userData.kz, avgData.kz);
-
                 document.getElementById('day-user-lid').textContent = userData.lid;
                 document.getElementById('day-srav-lid').textContent = avgData.lid;
                 setComparisonIndicator('day-ind-lid', userData.lid, avgData.lid);
-
                 document.getElementById('day-user-time').textContent = formatInterval(userData.avg_time_lid);
                 document.getElementById('day-srav-time').textContent = formatInterval(avgData.avg_time_lid);
                 setComparisonIndicator('day-ind-time', userData.avg_time_lid, avgData.avg_time_lid, true);
-
                 document.getElementById('day-user-trafic').textContent = formatInterval(userData.trafic);
                 document.getElementById('day-srav-trafic').textContent = formatInterval(avgData.trafic);
                 setComparisonIndicator('day-ind-trafic', userData.trafic, avgData.trafic, true);
-                
                 updateTagsTable('tags-table-body-day', userData);
-
             } else if (period === 'month') {
                 document.getElementById('context-name').textContent = avgData.month || "Месяц";
-                
                 // Блок Л
                 document.getElementById('trafic-value-month').textContent = formatInterval(userData.trafic);
-                updateDoughnutChart(doughnutChartMonth, userData.per_trafic * 100);
-                document.getElementById('kz-bar-month').textContent = `Количество звонков - ${userData.kz}`;
-                document.getElementById('lid-bar-month').textContent = `Количество лидов - ${userData.lid}`;
+                updateDoughnutChart(doughnutChartMonth, (userData.per_trafic || 0) * 100);
+                document.getElementById('kz-bar-month').textContent = `Количество звонков - ${userData.kz || 0}`;
+                document.getElementById('lid-bar-month').textContent = `Количество лидов - ${userData.lid || 0}`;
                 document.getElementById('avg-time-lid-bar-month').textContent = `Время на лид - ${formatInterval(userData.avg_time_lid)}`;
-                
                 // Блок С
                 document.getElementById('os-text-month').textContent = userData.OS || "Обратная связь отсутствует.";
                 document.getElementById('plan-trafic-prognoz-value').textContent = `${Math.round((userData.per_trafic_prognoz || 0) * 100)}%`;
                 document.getElementById('plan-lid-prognoz-value').textContent = `${Math.round((userData.per_lid_prognoz || 0) * 100)}%`;
-
                 // Блок П
                 document.getElementById('month-user-kz').textContent = userData.kz;
                 document.getElementById('month-srav-kz').textContent = avgData.kz;
                 setComparisonIndicator('month-ind-kz', userData.kz, avgData.kz);
-                
                 document.getElementById('month-user-lid').textContent = userData.lid;
                 document.getElementById('month-srav-lid').textContent = avgData.lid;
                 setComparisonIndicator('month-ind-lid', userData.lid, avgData.lid);
-
                 document.getElementById('month-user-time').textContent = formatInterval(userData.avg_time_lid);
                 document.getElementById('month-srav-time').textContent = formatInterval(avgData.avg_time_lid);
                 setComparisonIndicator('month-ind-time', userData.avg_time_lid, avgData.avg_time_lid, true);
-
                 document.getElementById('month-user-trafic').textContent = formatInterval(userData.trafic);
                 document.getElementById('month-srav-trafic').textContent = formatInterval(avgData.trafic);
                 setComparisonIndicator('month-ind-trafic', userData.trafic, avgData.trafic, true);
-
                 updateTagsTable('tags-table-body-month', userData);
             }
         }
@@ -435,7 +409,6 @@
                 if (period === 'day' || period === 'month') {
                     fetchDashboardData(period);
                 }
-                // Добавить логику для других вкладок (position, dynamics) здесь
             }
 
             btnDay.addEventListener('click', () => { switchView('view-day', btnDay, 'day'); });
@@ -443,7 +416,6 @@
             btnPosition.addEventListener('click', () => { switchView('view-position', btnPosition); });
             btnDynamics.addEventListener('click', () => { switchView('view-dynamics', btnDynamics); });
 
-            // Первоначальная загрузка данных для вкладки "День"
             fetchDashboardData('day');
         });
     </script>
