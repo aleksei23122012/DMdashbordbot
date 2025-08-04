@@ -31,8 +31,8 @@
         .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; overflow: hidden; }
         .view { display: none; }
         .view.active { display: flex; }
-        #view-day.active, #view-month.active { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
-        .view:not(#view-day):not(#view-month) { align-items: center; justify-content: center; }
+        #view-day, #view-month, #view-position { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
+        .view:not(#view-day):not(#view-month):not(#view-position) { align-items: center; justify-content: center; }
         .block-l { width: 400px; flex-shrink: 0; }
         .block-c { flex-grow: 1; }
         .block-p { width: 400px; flex-shrink: 0; }
@@ -56,7 +56,7 @@
         .data-table th, .data-table td { border-bottom: 1px solid var(--border-color); padding: 8px; text-align: left; vertical-align: middle; }
         .data-table td { font-size: 14px; text-align: center;}
         .data-table tr:last-child td { border-bottom: none; }
-        .data-table th { background-color: var(--dark-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: -21px; text-align: center;}
+        .data-table th { background-color: var(--dark-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: -1px; text-align: center;} /* Изменено top на -1px для лучшего прилипания */
         .data-table tr.highlight-red { background-color: var(--light-red); }
         .data-table tr.current-user-row { background-color: var(--light-blue) !important; font-weight: 600; }
         .block-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; text-align: center; }
@@ -86,7 +86,7 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- ... HTML ... -->
+        <!-- Блок В -->
         <div class="block-v">
             <div class="header-buttons">
                 <button id="btn-day" class="active">День</button>
@@ -101,6 +101,7 @@
         </div>
 
         <div class="content-area">
+            <!-- Вид "День" -->
             <div id="view-day" class="view active">
                  <div class="block-l">
                     <div class="block-l-top">
@@ -144,6 +145,7 @@
                     </div>
                 </div>
             </div>
+            <!-- Вид "Месяц" -->
             <div id="view-month" class="view">
                 <div class="block-l">
                     <div class="block-l-top">
@@ -183,92 +185,217 @@
                 </div>
             </div>
             
-            <div id="view-position" class="view"><h2 class="placeholder-message">Вкладка в разработке</h2></div>
-            <div id="view-dynamics" class="view"><h2 class="placeholder-message">Вкладка в разработке</h2></div>
+            <!-- Вид "Все" (Рейтинг) -->
+            <div id="view-position" class="view">
+                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
+                    <h3 class="block-title">День</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="separator-right" style="vertical-align: middle; width: 200px;">Оператор</th>
+                                <th colspan="6" class="separator-right">Показатели</th>
+                                <th colspan="2">План</th>
+                            </tr>
+                            <tr>
+                                <th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th>
+                                <th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th>
+                                <th>План по<br>трафику</th><th>План по<br>лидам</th>
+                            </tr>
+                        </thead>
+                        <tbody id="position-data-body-day"></tbody>
+                    </table>
+                </div>
+                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
+                    <h3 class="block-title">Месяц</h3>
+                     <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="separator-right">Оператор</th>
+                                <th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th>
+                                <th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th>
+                                <th>Ср. время<br>поствызова</th>
+                            </tr>
+                        </thead>
+                        <tbody id="position-data-body-month"></tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Вид "Динамика" -->
+            <div id="view-dynamics" class="view">
+                 <h2 class="placeholder-message">Вкладка в разработке</h2>
+            </div>
         </div>
     </div>
 
     <script>
         // --- ПОДКЛЮЧЕНИЕ К SUPABASE ---
-        // ИЗМЕНЕНИЕ: Вставлены правильные данные для подключения
         const SUPABASE_URL = 'https://yhjrhnglgtenxwncrrnf.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzA4MDcwOSwiZXhwIjoyMDY4NjU2NzA5fQ.n-DaOFmspPq26s4QjmP-nQ7FoktOxmvq5JavTKdysBo';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
         let doughnutChartDay, doughnutChartMonth;
-        // ИЗМЕНЕНИЕ: Задаем TG ID пользователя, которого ищем
         let currentUserTgId = "Aleksei_Li_Radievich"; 
+        let currentUserName = "";
+        let currentUserPosition = "";
+        let currentUserTeam = "";
         
         const TAG_MAP = {"t_net": "Теги не проставлены", "t_avtootvet": "Автоответчик", "t_lid": "Лид", "t_neinteres": "Не интересно", "t_finorg": "Фин. орг.", "t_perezvon": "Перезвонить позже", "t_woman": "Женщина", "t_sbros": "Сброс", "t_nomany": "Нет денег", "t_buisnes": "Есть бизнес", "t_mat": "Ругается", "t_idiot": "Неадекват", "t_deti": "Дети", "t_old": "Пенсионер", "t_bankrot": "Банкрот", "t_duble": "Дубль", "t_gos": "Госслужащие"};
         const CAT_IMAGE_MAP = {1: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat1.png', 2: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat2.png', 3: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat3.png', 4: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat4.png', 5: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat5.png'};
         const DEFAULT_CAT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s';
         
         // --- ФУНКЦИИ-ПОМОЩНИКИ ---
-        function formatInterval(intervalStr) {
-            if (!intervalStr) return "00:00:00";
-            return intervalStr.split('.')[0]; 
-        }
+        function formatInterval(intervalStr) { if (!intervalStr) return "00:00:00"; return intervalStr.split('.')[0]; }
+        function updateDoughnutChart(chartInstance, percentage = 0) { if (!chartInstance) return; const validPercentage = Math.max(0, Math.min(100, percentage)); chartInstance.data.datasets[0].data = [validPercentage, 100 - validPercentage]; chartInstance.update(); }
+        function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) { const element = document.getElementById(elementId); if (!element || userValue === null || userValue === undefined || avgValue === null || avgValue === undefined) { if (element) element.textContent = '---'; return; } const userSeconds = isTime ? timeToSeconds(userValue) : parseFloat(userValue); const avgSeconds = isTime ? timeToSeconds(avgValue) : parseFloat(avgValue); let userIsBetter = isTime ? userSeconds < avgSeconds : userSeconds > avgSeconds; element.textContent = userIsBetter ? '>' : '<'; element.className = userIsBetter ? 'indicator-col indicator-green' : 'indicator-col indicator-red'; }
+        function timeToSeconds(timeStr) { if (!timeStr || typeof timeStr !== 'string') return 0; const parts = formatInterval(timeStr).split(':'); if (parts.length !== 3) return 0; return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10); }
+        function applyRelativeGradient(selector, isReversed = false) { const cells = document.querySelectorAll(selector); if (cells.length === 0) return; const values = Array.from(cells).map(cell => { const text = cell.textContent; if (text.includes(':')) { return timeToSeconds(text); } return parseFloat(text.replace('%', '')); }); const min = Math.min(...values); const max = Math.max(...values); if (min === max) return; const range = max - min; cells.forEach((cell, index) => { const value = values[index]; let normalized = (value - min) / range; if (isReversed) normalized = 1 - normalized; const hue = normalized * 120; cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`; cell.style.color = `hsl(${hue}, 80%, 25%)`; cell.style.fontWeight = '600'; cell.style.borderRadius = '4px'; }); }
+        function updateTagsTable(tbodyId, data) { const tbody = document.getElementById(tbodyId); if (!tbody || !data) { tbody.innerHTML = '<tr><td colspan="2">Нет данных</td></tr>'; return; } tbody.innerHTML = ''; const tagsArray = Object.keys(data).filter(key => key.startsWith('t_') && key !== 't_os').map(key => ({ key, name: TAG_MAP[key] || key, count: data[key] || 0 })).filter(tag => tag.count > 0).sort((a, b) => b.count - a.count); if (tagsArray.length === 0) { tbody.innerHTML = '<tr><td colspan="2">Теги не найдены</td></tr>'; return; } tagsArray.forEach(tag => { const row = document.createElement('tr'); if (tag.key === 't_net') row.classList.add('highlight-red'); row.innerHTML = `<td>${tag.name}</td><td>${tag.count}</td>`; tbody.appendChild(row); }); }
+
+        // --- ОСНОВНЫЕ ФУНКЦИИ ЗАГРУЗКИ ---
         
-        function updateDoughnutChart(chartInstance, percentage = 0) { 
-            if (!chartInstance) return;
-            const validPercentage = Math.max(0, Math.min(100, percentage));
-            chartInstance.data.datasets[0].data = [validPercentage, 100 - validPercentage]; 
-            chartInstance.update(); 
+        async function fetchDashboardData(period) {
+            // ... (предыдущий код для этой функции) ...
         }
 
-        function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) {
-            const element = document.getElementById(elementId);
-            if (!element || userValue === null || userValue === undefined || avgValue === null || avgValue === undefined) { 
-                if (element) element.textContent = '---'; 
-                return; 
+        async function fetchPositionData() {
+            if (!currentUserPosition) {
+                alert("Данные о текущем пользователе еще не загружены. Попробуйте снова.");
+                return;
             }
-            const userSeconds = isTime ? timeToSeconds(userValue) : parseFloat(userValue);
-            const avgSeconds = isTime ? timeToSeconds(avgValue) : parseFloat(avgValue);
+
+            let filterColumn, filterValue, headerText;
+
+            if (currentUserPosition === 'РГТМ') {
+                filterColumn = 'Team';
+                filterValue = currentUserTeam;
+                headerText = currentUserTeam;
+            } else {
+                filterColumn = 'dolg';
+                filterValue = currentUserPosition;
+                headerText = currentUserPosition;
+            }
             
-            let userIsBetter = isTime ? userSeconds < avgSeconds : userSeconds > avgSeconds; 
-            
-            element.textContent = userIsBetter ? '>' : '<'; 
-            element.className = userIsBetter ? 'indicator-col indicator-green' : 'indicator-col indicator-red';
-        }
-        
-        function timeToSeconds(timeStr) {
-            if (!timeStr || typeof timeStr !== 'string') return 0;
-            const parts = formatInterval(timeStr).split(':');
-            if (parts.length !== 3) return 0;
-            return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10);
+            document.getElementById('context-name').textContent = headerText;
+
+            const dayRequest = supabaseClient.from('TMday').select('*').eq(filterColumn, filterValue);
+            const monthRequest = supabaseClient.from('TMmonth').select('*').eq(filterColumn, filterValue);
+
+            const [dayResponse, monthResponse] = await Promise.all([dayRequest, monthRequest]);
+
+            if (dayResponse.error || monthResponse.error) {
+                console.error("Ошибка при загрузке рейтинга:", dayResponse.error || monthResponse.error);
+                alert("Не удалось загрузить данные для рейтинга.");
+                return;
+            }
+
+            populatePositionTableDay(dayResponse.data);
+            populatePositionTableMonth(monthResponse.data);
         }
 
-        function updateTagsTable(tbodyId, data) {
-            const tbody = document.getElementById(tbodyId);
-            if (!tbody || !data) { tbody.innerHTML = '<tr><td colspan="2">Нет данных</td></tr>'; return; }
+        function populatePositionTableDay(data) {
+            const tbody = document.getElementById('position-data-body-day');
             tbody.innerHTML = '';
-            
-            const tagsArray = Object.keys(data)
-                .filter(key => key.startsWith('t_') && key !== 't_os')
-                .map(key => ({ key, name: TAG_MAP[key] || key, count: data[key] || 0 }))
-                .filter(tag => tag.count > 0)
-                .sort((a, b) => b.count - a.count);
-            
-            if (tagsArray.length === 0) {
-                 tbody.innerHTML = '<tr><td colspan="2">Теги не найдены</td></tr>';
-                 return;
-            }
-
-            tagsArray.forEach(tag => {
+            data.sort((a, b) => (b.lid || 0) - (a.lid || 0));
+            data.forEach(op => {
                 const row = document.createElement('tr');
-                if (tag.key === 't_net') row.classList.add('highlight-red');
-                row.innerHTML = `<td>${tag.name}</td><td>${tag.count}</td>`;
+                if (op.operator === currentUserName) { row.classList.add('current-user-row'); }
+                row.innerHTML = `
+                    <td class="separator-right">${op.operator || '---'}</td>
+                    <td>${formatInterval(op.trafic)}</td>
+                    <td class="td-gradient-traffic-day">${Math.round((op.per_trafic || 0) * 100)}%</td>
+                    <td>${op.kz || 0}</td>
+                    <td>${op.lid || 0}</td>
+                    <td class="td-gradient-time-day">${formatInterval(op.avg_time_lid)}</td>
+                    <td class="td-gradient-leads-day separator-right">${Math.round((op.per_lid || 0) * 100)}%</td>
+                    <td>${formatInterval(op.plan_trafic)}</td>
+                    <td>${op.plan_lid || 0}</td>
+                `;
                 tbody.appendChild(row);
             });
+            applyRelativeGradient('.td-gradient-traffic-day');
+            applyRelativeGradient('.td-gradient-leads-day');
+            applyRelativeGradient('.td-gradient-time-day', true);
         }
 
-        // --- ГЛАВНАЯ ФУНКЦИЯ ЗАГРУЗКИ ДАННЫХ ---
+        function populatePositionTableMonth(data) {
+            const tbody = document.getElementById('position-data-body-month');
+            tbody.innerHTML = '';
+            data.sort((a, b) => (b.lid || 0) - (a.lid || 0));
+            data.forEach(op => {
+                const row = document.createElement('tr');
+                if (op.operator === currentUserName) { row.classList.add('current-user-row'); }
+                row.innerHTML = `
+                    <td class="separator-right">${op.operator || '---'}</td>
+                    <td>${formatInterval(op.trafic)}</td>
+                    <td class="td-gradient-traffic-month">${Math.round((op.per_trafic || 0) * 100)}%</td>
+                    <td>${op.kz || 0}</td>
+                    <td>${op.lid || 0}</td>
+                    <td class="td-gradient-time-month">${formatInterval(op.avg_time_lid)}</td>
+                    <td class="td-gradient-leads-month separator-right">${Math.round((op.per_lid || 0) * 100)}%</td>
+                    <td>${formatInterval(op.avg_time_post)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            applyRelativeGradient('.td-gradient-traffic-month');
+            applyRelativeGradient('.td-gradient-leads-month');
+            applyRelativeGradient('.td-gradient-time-month', true);
+        }
+
+        // --- ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const darkBlueColor = getComputedStyle(document.documentElement).getPropertyValue('--dark-blue').trim();
+            const chartOptions = { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false }, tooltip: { enabled: false } } };
+            const chartDataTemplate = { labels: ['Процент трафика', 'Остаток'], datasets: [{ data: [0, 100], backgroundColor: [ darkBlueColor, '#E9ECEF' ], borderColor: 'transparent' }] };
+            
+            doughnutChartDay = new Chart(document.getElementById('doughnutChartDay').getContext('2d'), { type: 'doughnut', data: JSON.parse(JSON.stringify(chartDataTemplate)), options: chartOptions });
+            doughnutChartMonth = new Chart(document.getElementById('doughnutChartMonth').getContext('2d'), { type: 'doughnut', data: JSON.parse(JSON.stringify(chartDataTemplate)), options: chartOptions });
+            
+            const btnDay = document.getElementById('btn-day');
+            const btnMonth = document.getElementById('btn-month');
+            const btnPosition = document.getElementById('btn-position');
+            const btnDynamics = document.getElementById('btn-dynamics');
+            const allViews = document.querySelectorAll('.view');
+            const allButtons = document.querySelectorAll('.header-buttons button');
+            const operatorNameEl = document.getElementById('operator-name');
+            const contextNameEl = document.getElementById('context-name');
+
+            function switchView(viewId, buttonToActivate, task) {
+                allViews.forEach(view => view.style.display = 'none');
+                allButtons.forEach(button => button.classList.remove('active'));
+                
+                const viewToShow = document.getElementById(viewId);
+                viewToShow.style.display = 'flex';
+                buttonToActivate.classList.add('active');
+                
+                if (task === 'day' || task === 'month') {
+                    operatorNameEl.style.display = 'inline';
+                    contextNameEl.style.fontWeight = '600';
+                    contextNameEl.style.fontSize = 'inherit';
+                    contextNameEl.style.color = 'var(--text-secondary)';
+                    fetchDashboardData(task);
+                } else if (task === 'position') {
+                    operatorNameEl.style.display = 'none';
+                    contextNameEl.style.fontWeight = '700';
+                    contextNameEl.style.fontSize = '22px';
+                    contextNameEl.style.color = 'var(--text-primary)';
+                    fetchPositionData();
+                }
+            }
+
+            btnDay.addEventListener('click', () => { switchView('view-day', btnDay, 'day'); });
+            btnMonth.addEventListener('click', () => { switchView('view-month', btnMonth, 'month'); });
+            btnPosition.addEventListener('click', () => { switchView('view-position', btnPosition, 'position'); });
+            btnDynamics.addEventListener('click', () => { switchView('view-dynamics', btnDynamics, 'dynamics'); });
+
+            fetchDashboardData('day');
+        });
+
+        // Полный код функции fetchDashboardData из предыдущего ответа
         async function fetchDashboardData(period) {
             const userTable = period === 'day' ? 'TMday' : 'TMmonth';
             const avgTable = period === 'day' ? 'AVGday' : 'AVGmonth';
             
-            // ИЗМЕНЕНИЕ: Ищем по `tg` и используем `maybeSingle()` для большей надежности
             const userRequest = supabaseClient.from(userTable).select('*').eq('tg', currentUserTgId).maybeSingle();
             const avgRequest = supabaseClient.from(avgTable).select('*').maybeSingle();
 
@@ -292,108 +419,77 @@
                 return;
             }
 
-            // --- ОБЩИЕ ДАННЫЕ В ШАПКЕ ---
-            document.getElementById('operator-name').textContent = userData.operator;
-            if (userData.dolg) {
-                document.getElementById('btn-position').textContent = `Все ${userData.dolg}`;
+            // Глобальное обновление данных о пользователе
+            currentUserName = userData.operator;
+            currentUserPosition = userData.dolg;
+            currentUserTeam = userData.Team;
+
+            document.getElementById('operator-name').textContent = currentUserName;
+            if (currentUserPosition) {
+                document.getElementById('btn-position').textContent = `Все ${currentUserPosition}`;
             }
 
-            // --- ЗАПОЛНЕНИЕ ВКЛАДКИ ---
             if (period === 'day') {
-                document.getElementById('context-name').textContent = userData.Team;
-                // Блок Л
+                // ИСПРАВЛЕНИЕ: Возвращаем установку названия команды
+                document.getElementById('context-name').textContent = currentUserTeam;
+
                 document.getElementById('trafic-value-day').textContent = formatInterval(userData.trafic);
                 updateDoughnutChart(doughnutChartDay, (userData.per_trafic || 0) * 100);
                 document.getElementById('kz-bar-day').textContent = `Количество звонков - ${userData.kz || 0}`;
                 document.getElementById('lid-bar-day').textContent = `Количество лидов - ${userData.lid || 0}`;
                 document.getElementById('avg-time-lid-bar-day').textContent = `Время на лид - ${formatInterval(userData.avg_time_lid)}`;
-                // Блок С
                 document.getElementById('os-text-day').textContent = userData.OS || "Обратная связь отсутствует.";
                 document.getElementById('cat-image-day').src = CAT_IMAGE_MAP[userData.cat] || DEFAULT_CAT_IMAGE;
-                // Блок П
+                
                 document.getElementById('day-user-kz').textContent = userData.kz;
                 document.getElementById('day-srav-kz').textContent = avgData.kz;
                 setComparisonIndicator('day-ind-kz', userData.kz, avgData.kz);
+
                 document.getElementById('day-user-lid').textContent = userData.lid;
                 document.getElementById('day-srav-lid').textContent = avgData.lid;
                 setComparisonIndicator('day-ind-lid', userData.lid, avgData.lid);
+
                 document.getElementById('day-user-time').textContent = formatInterval(userData.avg_time_lid);
                 document.getElementById('day-srav-time').textContent = formatInterval(avgData.avg_time_lid);
                 setComparisonIndicator('day-ind-time', userData.avg_time_lid, avgData.avg_time_lid, true);
+
                 document.getElementById('day-user-trafic').textContent = formatInterval(userData.trafic);
                 document.getElementById('day-srav-trafic').textContent = formatInterval(avgData.trafic);
                 setComparisonIndicator('day-ind-trafic', userData.trafic, avgData.trafic, true);
+                
                 updateTagsTable('tags-table-body-day', userData);
-
             } else if (period === 'month') {
                 document.getElementById('context-name').textContent = avgData.month || "Месяц";
-                // Блок Л
+                
                 document.getElementById('trafic-value-month').textContent = formatInterval(userData.trafic);
                 updateDoughnutChart(doughnutChartMonth, (userData.per_trafic || 0) * 100);
                 document.getElementById('kz-bar-month').textContent = `Количество звонков - ${userData.kz || 0}`;
                 document.getElementById('lid-bar-month').textContent = `Количество лидов - ${userData.lid || 0}`;
                 document.getElementById('avg-time-lid-bar-month').textContent = `Время на лид - ${formatInterval(userData.avg_time_lid)}`;
-                // Блок С
+                
                 document.getElementById('os-text-month').textContent = userData.OS || "Обратная связь отсутствует.";
                 document.getElementById('plan-trafic-prognoz-value').textContent = `${Math.round((userData.per_trafic_prognoz || 0) * 100)}%`;
                 document.getElementById('plan-lid-prognoz-value').textContent = `${Math.round((userData.per_lid_prognoz || 0) * 100)}%`;
-                // Блок П
+
                 document.getElementById('month-user-kz').textContent = userData.kz;
                 document.getElementById('month-srav-kz').textContent = avgData.kz;
                 setComparisonIndicator('month-ind-kz', userData.kz, avgData.kz);
+
                 document.getElementById('month-user-lid').textContent = userData.lid;
                 document.getElementById('month-srav-lid').textContent = avgData.lid;
                 setComparisonIndicator('month-ind-lid', userData.lid, avgData.lid);
+
                 document.getElementById('month-user-time').textContent = formatInterval(userData.avg_time_lid);
                 document.getElementById('month-srav-time').textContent = formatInterval(avgData.avg_time_lid);
                 setComparisonIndicator('month-ind-time', userData.avg_time_lid, avgData.avg_time_lid, true);
+
                 document.getElementById('month-user-trafic').textContent = formatInterval(userData.trafic);
                 document.getElementById('month-srav-trafic').textContent = formatInterval(avgData.trafic);
                 setComparisonIndicator('month-ind-trafic', userData.trafic, avgData.trafic, true);
+
                 updateTagsTable('tags-table-body-month', userData);
             }
         }
-        
-        // --- ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const darkBlueColor = getComputedStyle(document.documentElement).getPropertyValue('--dark-blue').trim();
-            const chartOptions = { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false }, tooltip: { enabled: false } } };
-            const chartDataTemplate = { labels: ['Процент трафика', 'Остаток'], datasets: [{ data: [0, 100], backgroundColor: [ darkBlueColor, '#E9ECEF' ], borderColor: 'transparent' }] };
-            
-            const ctxDay = document.getElementById('doughnutChartDay').getContext('2d');
-            doughnutChartDay = new Chart(ctxDay, { type: 'doughnut', data: JSON.parse(JSON.stringify(chartDataTemplate)), options: chartOptions });
-            
-            const ctxMonth = document.getElementById('doughnutChartMonth').getContext('2d');
-            doughnutChartMonth = new Chart(ctxMonth, { type: 'doughnut', data: JSON.parse(JSON.stringify(chartDataTemplate)), options: chartOptions });
-            
-            const btnDay = document.getElementById('btn-day');
-            const btnMonth = document.getElementById('btn-month');
-            const btnPosition = document.getElementById('btn-position');
-            const btnDynamics = document.getElementById('btn-dynamics');
-            const allViews = document.querySelectorAll('.view');
-            const allButtons = document.querySelectorAll('.header-buttons button');
-
-            function switchView(viewId, buttonToActivate, period) {
-                allViews.forEach(view => view.style.display = 'none');
-                allButtons.forEach(button => button.classList.remove('active'));
-                
-                const viewToShow = document.getElementById(viewId);
-                viewToShow.style.display = 'flex';
-                viewToShow.classList.add('active'); // Keep class for potential styling
-                buttonToActivate.classList.add('active');
-                
-                if (period === 'day' || period === 'month') {
-                    fetchDashboardData(period);
-                }
-            }
-
-            btnDay.addEventListener('click', () => { switchView('view-day', btnDay, 'day'); });
-            btnMonth.addEventListener('click', () => { switchView('view-month', btnMonth, 'month'); });
-            btnPosition.addEventListener('click', () => { switchView('view-position', btnPosition); });
-            btnDynamics.addEventListener('click', () => { switchView('view-dynamics', btnDynamics); });
-
-            fetchDashboardData('day');
-        });
     </script>
 </body>
 </html>
