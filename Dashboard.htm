@@ -31,8 +31,8 @@
         .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; overflow: hidden; }
         .view { display: none; }
         .view.active { display: flex; }
-        #view-day, #view-month, #view-position { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
-        .view:not(#view-day):not(#view-month):not(#view-position) { align-items: center; justify-content: center; }
+        #view-day, #view-month, #view-position, #view-dynamics { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
+        .view:not(#view-day):not(#view-month):not(#view-position):not(#view-dynamics) { align-items: center; justify-content: center; }
         .block-l { width: 400px; flex-shrink: 0; }
         .block-c { flex-grow: 1; }
         .block-p { width: 400px; flex-shrink: 0; }
@@ -56,7 +56,7 @@
         .data-table th, .data-table td { border-bottom: 1px solid var(--border-color); padding: 8px; text-align: left; vertical-align: middle; }
         .data-table td { font-size: 14px; text-align: center;}
         .data-table tr:last-child td { border-bottom: none; }
-        .data-table th { background-color: var(--dark-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: -1px; text-align: center;} /* Изменено top на -1px для лучшего прилипания */
+        .data-table th { background-color: var(--dark-blue); color: white; font-size: 14px; font-weight: 600; position: sticky; top: -1px; text-align: center;}
         .data-table tr.highlight-red { background-color: var(--light-red); }
         .data-table tr.current-user-row { background-color: var(--light-blue) !important; font-weight: 600; }
         .block-title { font-size: 20px; font-weight: 700; margin-bottom: 16px; text-align: center; }
@@ -64,7 +64,6 @@
         .indicator-green { color: var(--indicator-green); }
         .indicator-red { color: var(--indicator-red); }
         .separator-right { border-right: 2px solid var(--dark-blue); }
-        
         #view-month .block-c-top { height: 60%; }
         #view-month .block-c-bottom-month { height: auto; flex-grow: 1; flex-direction: row; display: flex; gap: 12px; align-items: center; justify-content: center; padding-top: 20px;}
         #view-month .plan-indicator { flex-grow: 1; background-color: var(--dark-blue); color: white; border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 13px; font-weight: 500; padding: 8px; text-align: center; height: 100%; max-height: 100px;}
@@ -73,20 +72,27 @@
         #view-month .block-p-lower-month { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
         .block-p-upper-day { flex-shrink: 0; }
         .block-p-lower-day { flex-grow: 1; overflow-y: auto; padding-top: 20px; }
-        
         .placeholder-message { font-size: 22px; color: var(--text-secondary); }
-
+        .dynamics-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; width: 100%; height: 100%; }
+        .dynamics-block { justify-content: flex-start; align-items: stretch; font-size: 24px; color: var(--text-secondary); }
+        .chart-container { flex-grow: 1; position: relative; }
+        #block-np { padding: 0; background-color: transparent; box-shadow: none; align-items: stretch; }
+        .legend-container { flex-shrink: 0; height: auto; width: 100%; padding: 12px 20px; display: flex; justify-content: center; align-items: center; gap: 30px; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); margin-bottom: 12px; box-sizing: border-box; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500;}
+        .legend-color-box { width: 15px; height: 15px; border-radius: 4px; }
+        #dynamics-os-block { flex-grow: 1; padding: 20px; background-color: var(--card-color); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+        
         @media (max-width: 1024px) {
             #view-day, #view-month, #view-position, #view-dynamics { flex-direction: column; height: auto; }
             .block-l, .block-c, .block-p, .block-team-custom { min-height: auto; }
             .block-v { height: auto; padding: 12px; flex-wrap: wrap; gap: 10px; }
             #operator-name { font-size: 18px; }
+            .dynamics-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
         }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- Блок В -->
         <div class="block-v">
             <div class="header-buttons">
                 <button id="btn-day" class="active">День</button>
@@ -101,14 +107,10 @@
         </div>
 
         <div class="content-area">
-            <!-- Вид "День" -->
             <div id="view-day" class="view active">
                  <div class="block-l">
                     <div class="block-l-top">
-                        <div class="chart-center-text">
-                            <div class="title">Трафик</div>
-                            <div class="value" id="trafic-value-day">...</div>
-                        </div>
+                        <div class="chart-center-text"><div class="title">Трафик</div><div class="value" id="trafic-value-day">...</div></div>
                         <canvas id="doughnutChartDay"></canvas>
                     </div>
                     <div class="block-l-bottom">
@@ -118,12 +120,8 @@
                     </div>
                 </div>
                 <div class="block-c">
-                    <div class="block-c-top">
-                        <p id="os-text-day">Загрузка обратной связи...</p>
-                    </div>
-                    <div class="block-c-bottom">
-                        <img id="cat-image-day" src="" alt="Кот" class="cat-image">
-                    </div>
+                    <div class="block-c-top"><p id="os-text-day">Загрузка обратной связи...</p></div>
+                    <div class="block-c-bottom"><img id="cat-image-day" src="" alt="Кот" class="cat-image"></div>
                 </div>
                 <div class="block-p">
                     <div class="block-p-upper-day">
@@ -138,14 +136,10 @@
                         </table>
                     </div>
                     <div class="block-p-lower-day">
-                        <table class="data-table">
-                            <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
-                            <tbody id="tags-table-body-day"></tbody>
-                        </table>
+                        <table class="data-table"><thead><tr><th>Теги</th><th>Кол-во</th></tr></thead><tbody id="tags-table-body-day"></tbody></table>
                     </div>
                 </div>
             </div>
-            <!-- Вид "Месяц" -->
             <div id="view-month" class="view">
                 <div class="block-l">
                     <div class="block-l-top">
@@ -156,9 +150,7 @@
                     </div>
                 </div>
                 <div class="block-c">
-                     <div class="block-c-top">
-                        <p id="os-text-month">Загрузка обратной связи...</p>
-                    </div>
+                     <div class="block-c-top"><p id="os-text-month">Загрузка обратной связи...</p></div>
                      <div class="block-c-bottom-month">
                         <div class="plan-indicator"><div>Выполнение плана по трафику (прогноз):</div><div id="plan-trafic-prognoz-value" class="value">...</div></div>
                         <div class="plan-indicator"><div>Выполнение плана по лидам (прогноз):</div><div id="plan-lid-prognoz-value" class="value">...</div></div>
@@ -177,29 +169,20 @@
                         </table>
                     </div>
                     <div class="block-p-lower-month">
-                        <table class="data-table">
-                            <thead><tr><th>Теги</th><th>Кол-во</th></tr></thead>
-                            <tbody id="tags-table-body-month"></tbody>
-                        </table>
+                        <table class="data-table"><thead><tr><th>Теги</th><th>Кол-во</th></tr></thead><tbody id="tags-table-body-month"></tbody></table>
                     </div>
                 </div>
             </div>
-            
-            <!-- Вид "Все" (Рейтинг) -->
             <div id="view-position" class="view">
                 <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
                     <h3 class="block-title">День</h3>
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th rowspan="2" class="separator-right" style="vertical-align: middle; width: 200px;">Оператор</th>
-                                <th colspan="6" class="separator-right">Показатели</th>
-                                <th colspan="2">План</th>
+                                <th rowspan="2" class="separator-right" style="vertical-align: middle; width: 200px;">Оператор</th><th colspan="6" class="separator-right">Показатели</th><th colspan="2">План</th>
                             </tr>
                             <tr>
-                                <th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th>
-                                <th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th>
-                                <th>План по<br>трафику</th><th>План по<br>лидам</th>
+                                <th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th><th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th><th>План по<br>трафику</th><th>План по<br>лидам</th>
                             </tr>
                         </thead>
                         <tbody id="position-data-body-day"></tbody>
@@ -210,19 +193,35 @@
                      <table class="data-table">
                         <thead>
                             <tr>
-                                <th class="separator-right">Оператор</th>
-                                <th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th>
-                                <th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th>
-                                <th>Ср. время<br>поствызова</th>
+                                <th class="separator-right">Оператор</th><th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th><th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th><th>Ср. время<br>поствызова</th>
                             </tr>
                         </thead>
                         <tbody id="position-data-body-month"></tbody>
                     </table>
                 </div>
             </div>
-            <!-- Вид "Динамика" -->
             <div id="view-dynamics" class="view">
-                 <h2 class="placeholder-message">Вкладка в разработке</h2>
+                <div class="dynamics-grid">
+                    <div class="dynamics-block" id="block-vl">
+                        <h3 class="block-title">Трафик</h3>
+                        <div class="chart-container"><canvas id="traffic-line-chart"></canvas></div>
+                    </div>
+                    <div class="dynamics-block" id="block-vp">
+                        <h3 class="block-title">Лиды</h3>
+                        <div class="chart-container"><canvas id="leads-line-chart"></canvas></div>
+                    </div>
+                    <div class="dynamics-block" id="block-nl">
+                        <h3 class="block-title">Время на лид</h3>
+                        <div class="chart-container"><canvas id="time-per-lead-line-chart"></canvas></div>
+                    </div>
+                    <div class="dynamics-block" id="block-np">
+                        <div class="legend-container">
+                            <div class="legend-item"><div class="legend-color-box" style="background-color: var(--chart-blue);"></div><span>Средние значения</span></div>
+                            <div class="legend-item"><div class="legend-color-box" style="background-color: var(--chart-red);"></div><span>Твои значения</span></div>
+                        </div>
+                        <div id="dynamics-os-block" class="block-c-top"><p id="dynamics-os-text">Загрузка обратной связи...</p></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -234,11 +233,9 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
-        let doughnutChartDay, doughnutChartMonth;
+        let doughnutChartDay, doughnutChartMonth, trafficLineChart, leadsLineChart, timePerLeadLineChart;
         let currentUserTgId = "Aleksei_Li_Radievich"; 
-        let currentUserName = "";
-        let currentUserPosition = "";
-        let currentUserTeam = "";
+        let currentUserName = "", currentUserPosition = "", currentUserTeam = "";
         
         const TAG_MAP = {"t_net": "Теги не проставлены", "t_avtootvet": "Автоответчик", "t_lid": "Лид", "t_neinteres": "Не интересно", "t_finorg": "Фин. орг.", "t_perezvon": "Перезвонить позже", "t_woman": "Женщина", "t_sbros": "Сброс", "t_nomany": "Нет денег", "t_buisnes": "Есть бизнес", "t_mat": "Ругается", "t_idiot": "Неадекват", "t_deti": "Дети", "t_old": "Пенсионер", "t_bankrot": "Банкрот", "t_duble": "Дубль", "t_gos": "Госслужащие"};
         const CAT_IMAGE_MAP = {1: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat1.png', 2: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat2.png', 3: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat3.png', 4: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat4.png', 5: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat5.png'};
@@ -252,22 +249,86 @@
         function applyRelativeGradient(selector, isReversed = false) { const cells = document.querySelectorAll(selector); if (cells.length === 0) return; const values = Array.from(cells).map(cell => { const text = cell.textContent; if (text.includes(':')) { return timeToSeconds(text); } return parseFloat(text.replace('%', '')); }); const min = Math.min(...values); const max = Math.max(...values); if (min === max) return; const range = max - min; cells.forEach((cell, index) => { const value = values[index]; let normalized = (value - min) / range; if (isReversed) normalized = 1 - normalized; const hue = normalized * 120; cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`; cell.style.color = `hsl(${hue}, 80%, 25%)`; cell.style.fontWeight = '600'; cell.style.borderRadius = '4px'; }); }
         function updateTagsTable(tbodyId, data) { const tbody = document.getElementById(tbodyId); if (!tbody || !data) { tbody.innerHTML = '<tr><td colspan="2">Нет данных</td></tr>'; return; } tbody.innerHTML = ''; const tagsArray = Object.keys(data).filter(key => key.startsWith('t_') && key !== 't_os').map(key => ({ key, name: TAG_MAP[key] || key, count: data[key] || 0 })).filter(tag => tag.count > 0).sort((a, b) => b.count - a.count); if (tagsArray.length === 0) { tbody.innerHTML = '<tr><td colspan="2">Теги не найдены</td></tr>'; return; } tagsArray.forEach(tag => { const row = document.createElement('tr'); if (tag.key === 't_net') row.classList.add('highlight-red'); row.innerHTML = `<td>${tag.name}</td><td>${tag.count}</td>`; tbody.appendChild(row); }); }
 
+        function createOrUpdateLineChart(canvasId, chartInstance, labels, yourData, avgData, yAxisFormatter) { const ctx = document.getElementById(canvasId).getContext('2d'); const data = { labels: labels, datasets: [ { label: 'Средние значения', data: avgData, borderColor: '#1e88e5', backgroundColor: '#1e88e5', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: '#1e88e5', pointBorderWidth: 2 }, { label: 'Твои значения', data: yourData, borderColor: '#e53935', backgroundColor: '#e53935', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: '#e53935', pointBorderWidth: 2 } ] }; const options = { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false, }, plugins: { legend: { display: false }, tooltip: { enabled: true, backgroundColor: 'rgba(0, 0, 0, 0.85)', titleColor: '#FFFFFF', bodyColor: '#FFFFFF', titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 12 }, padding: 12, cornerRadius: 8, displayColors: true, borderColor: 'rgba(0,0,0,0)', borderWidth: 0, callbacks: { labelColor: function(context) { return { borderColor: context.dataset.borderColor, backgroundColor: context.dataset.borderColor, borderWidth: 2, borderRadius: 2, }; }, title: function(tooltipItems) { const label = tooltipItems[0].label; const monthPart = label.split(' ')[1] || label; return monthPart.charAt(0).toUpperCase() + monthPart.slice(1); }, label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += yAxisFormatter(context.parsed.y).replace(' ',''); } return label; } } } }, scales: { y: { beginAtZero: true, ticks: { callback: yAxisFormatter } } } }; if (chartInstance) { chartInstance.data = data; chartInstance.options = options; chartInstance.update(); return chartInstance; } else { return new Chart(ctx, { type: 'line', data: data, options: options }); } }
+
         // --- ОСНОВНЫЕ ФУНКЦИИ ЗАГРУЗКИ ---
         
         async function fetchDashboardData(period) {
-            // ... (предыдущий код для этой функции) ...
+            const userTable = period === 'day' ? 'TMday' : 'TMmonth';
+            const avgTable = period === 'day' ? 'AVGday' : 'AVGmonth';
+            const userRequest = supabaseClient.from(userTable).select('*').eq('tg', currentUserTgId).maybeSingle();
+            const avgRequest = supabaseClient.from(avgTable).select('*').maybeSingle();
+            const [userResponse, avgResponse] = await Promise.all([userRequest, avgRequest]);
+            if (userResponse.error || avgResponse.error) { console.error(`Ошибка Supabase:`, userResponse.error || avgResponse.error); alert(`Произошла ошибка при загрузке данных. Подробности в консоли.`); return; }
+            const userData = userResponse.data;
+            const avgData = avgResponse.data;
+            if (!userData) { alert(`Данные для пользователя с tg ID "${currentUserTgId}" не найдены в таблице ${userTable}.`); return; }
+            if (!avgData) { alert(`Средние данные не найдены в таблице ${avgTable}.`); return; }
+
+            currentUserName = userData.operator;
+            currentUserPosition = userData.dolg;
+            currentUserTeam = userData.team;
+
+            document.getElementById('operator-name').textContent = currentUserName;
+            if (currentUserPosition) { document.getElementById('btn-position').textContent = `Все ${currentUserPosition}`; }
+
+            if (period === 'day') {
+                document.getElementById('context-name').textContent = currentUserTeam;
+                document.getElementById('trafic-value-day').textContent = formatInterval(userData.trafic);
+                updateDoughnutChart(doughnutChartDay, (userData.per_trafic || 0) * 100);
+                document.getElementById('kz-bar-day').textContent = `Количество звонков - ${userData.kz || 0}`;
+                document.getElementById('lid-bar-day').textContent = `Количество лидов - ${userData.lid || 0}`;
+                document.getElementById('avg-time-lid-bar-day').textContent = `Время на лид - ${formatInterval(userData.avg_time_lid)}`;
+                document.getElementById('os-text-day').textContent = userData.OS || "Обратная связь отсутствует.";
+                document.getElementById('cat-image-day').src = CAT_IMAGE_MAP[userData.cat] || DEFAULT_CAT_IMAGE;
+                document.getElementById('day-user-kz').textContent = userData.kz;
+                document.getElementById('day-srav-kz').textContent = avgData.kz;
+                setComparisonIndicator('day-ind-kz', userData.kz, avgData.kz);
+                document.getElementById('day-user-lid').textContent = userData.lid;
+                document.getElementById('day-srav-lid').textContent = avgData.lid;
+                setComparisonIndicator('day-ind-lid', userData.lid, avgData.lid);
+                document.getElementById('day-user-time').textContent = formatInterval(userData.avg_time_lid);
+                document.getElementById('day-srav-time').textContent = formatInterval(avgData.avg_time_lid);
+                setComparisonIndicator('day-ind-time', userData.avg_time_lid, avgData.avg_time_lid, true);
+                document.getElementById('day-user-trafic').textContent = formatInterval(userData.trafic);
+                document.getElementById('day-srav-trafic').textContent = formatInterval(avgData.trafic);
+                setComparisonIndicator('day-ind-trafic', userData.trafic, avgData.trafic, true);
+                updateTagsTable('tags-table-body-day', userData);
+            } else if (period === 'month') {
+                document.getElementById('context-name').textContent = avgData.month || "Месяц";
+                document.getElementById('trafic-value-month').textContent = formatInterval(userData.trafic);
+                updateDoughnutChart(doughnutChartMonth, (userData.per_trafic || 0) * 100);
+                document.getElementById('kz-bar-month').textContent = `Количество звонков - ${userData.kz || 0}`;
+                document.getElementById('lid-bar-month').textContent = `Количество лидов - ${userData.lid || 0}`;
+                document.getElementById('avg-time-lid-bar-month').textContent = `Время на лид - ${formatInterval(userData.avg_time_lid)}`;
+                document.getElementById('os-text-month').textContent = userData.OS || "Обратная связь отсутствует.";
+                document.getElementById('plan-trafic-prognoz-value').textContent = `${Math.round((userData.per_trafic_prognoz || 0) * 100)}%`;
+                document.getElementById('plan-lid-prognoz-value').textContent = `${Math.round((userData.per_lid_prognoz || 0) * 100)}%`;
+                document.getElementById('month-user-kz').textContent = userData.kz;
+                document.getElementById('month-srav-kz').textContent = avgData.kz;
+                setComparisonIndicator('month-ind-kz', userData.kz, avgData.kz);
+                document.getElementById('month-user-lid').textContent = userData.lid;
+                document.getElementById('month-srav-lid').textContent = avgData.lid;
+                setComparisonIndicator('month-ind-lid', userData.lid, avgData.lid);
+                document.getElementById('month-user-time').textContent = formatInterval(userData.avg_time_lid);
+                document.getElementById('month-srav-time').textContent = formatInterval(avgData.avg_time_lid);
+                setComparisonIndicator('month-ind-time', userData.avg_time_lid, avgData.avg_time_lid, true);
+                document.getElementById('month-user-trafic').textContent = formatInterval(userData.trafic);
+                document.getElementById('month-srav-trafic').textContent = formatInterval(avgData.trafic);
+                setComparisonIndicator('month-ind-trafic', userData.trafic, avgData.trafic, true);
+                updateTagsTable('tags-table-body-month', userData);
+            }
         }
 
         async function fetchPositionData() {
-            if (!currentUserPosition) {
-                alert("Данные о текущем пользователе еще не загружены. Попробуйте снова.");
-                return;
-            }
+            if (!currentUserPosition) { await fetchDashboardData('day'); }
+            if (!currentUserPosition) { alert("Не удалось загрузить данные пользователя для определения группы."); return; }
 
             let filterColumn, filterValue, headerText;
 
             if (currentUserPosition === 'РГТМ') {
-                filterColumn = 'Team';
+                if (!currentUserTeam) { alert("Не удалось определить команду для РГТМ."); return; }
+                filterColumn = 'team';
                 filterValue = currentUserTeam;
                 headerText = currentUserTeam;
             } else {
@@ -283,11 +344,7 @@
 
             const [dayResponse, monthResponse] = await Promise.all([dayRequest, monthRequest]);
 
-            if (dayResponse.error || monthResponse.error) {
-                console.error("Ошибка при загрузке рейтинга:", dayResponse.error || monthResponse.error);
-                alert("Не удалось загрузить данные для рейтинга.");
-                return;
-            }
+            if (dayResponse.error || monthResponse.error) { console.error("Ошибка при загрузке рейтинга:", dayResponse.error || monthResponse.error); alert("Не удалось загрузить данные для рейтинга."); return; }
 
             populatePositionTableDay(dayResponse.data);
             populatePositionTableMonth(monthResponse.data);
@@ -341,8 +398,32 @@
             applyRelativeGradient('.td-gradient-leads-month');
             applyRelativeGradient('.td-gradient-time-month', true);
         }
+        
+        function fetchDynamicsData() {
+            const labels = [];
+            const yourTrafficData = [], avgTrafficData = [];
+            const yourLeadsData = [], avgLeadsData = [];
+            const yourTimeData = [], avgTimeData = [];
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                if (i === 0) { const day = now.getDate(); const monthShort = date.toLocaleString('ru-RU', { month: 'short' }).replace('.', ''); labels.push(`${day} ${monthShort}`);
+                } else { labels.push(date.toLocaleString('ru-RU', { month: 'short' }).replace('.', '')); }
+                yourTrafficData.push(Math.floor(Math.random() * 80) + 10); avgTrafficData.push(Math.floor(Math.random() * 80) + 15);
+                yourLeadsData.push(Math.floor(Math.random() * 20) + 5); avgLeadsData.push(Math.floor(Math.random() * 20) + 8);
+                yourTimeData.push(Math.floor(Math.random() * 300) + 60); avgTimeData.push(Math.floor(Math.random() * 300) + 90);
+            }
+            const monthFormatter = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' });
+            const firstMonth = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+            const lastMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            document.getElementById('context-name').textContent = `${monthFormatter.format(firstMonth)} – ${monthFormatter.format(lastMonth)}`;
+            trafficLineChart = createOrUpdateLineChart('traffic-line-chart', trafficLineChart, labels, yourTrafficData, avgTrafficData, (val) => `${val} ч`);
+            leadsLineChart = createOrUpdateLineChart('leads-line-chart', leadsLineChart, labels, yourLeadsData, avgLeadsData, (val) => `${val}`);
+            timePerLeadLineChart = createOrUpdateLineChart('time-per-lead-line-chart', timePerLeadLineChart, labels, yourTimeData, avgTimeData, (val) => { const min = Math.floor(val / 60); const sec = val % 60; return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`; });
+            document.getElementById('dynamics-os-text').textContent = "В этом месяце твой трафик немного ниже среднего. Попробуй увеличить количество активных диалогов.";
+        }
 
-        // --- ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ ---
+        // --- ИНИЦИАЛИЗАЦИЯ И УПРАВЛЕНИЕ ВИДАМИ ---
         document.addEventListener('DOMContentLoaded', () => {
             const darkBlueColor = getComputedStyle(document.documentElement).getPropertyValue('--dark-blue').trim();
             const chartOptions = { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false }, tooltip: { enabled: false } } };
@@ -368,11 +449,13 @@
                 viewToShow.style.display = 'flex';
                 buttonToActivate.classList.add('active');
                 
+                operatorNameEl.style.display = 'inline';
+                contextNameEl.style.display = 'inline';
+                contextNameEl.style.fontWeight = '600';
+                contextNameEl.style.fontSize = 'inherit';
+                contextNameEl.style.color = 'var(--text-secondary)';
+                
                 if (task === 'day' || task === 'month') {
-                    operatorNameEl.style.display = 'inline';
-                    contextNameEl.style.fontWeight = '600';
-                    contextNameEl.style.fontSize = 'inherit';
-                    contextNameEl.style.color = 'var(--text-secondary)';
                     fetchDashboardData(task);
                 } else if (task === 'position') {
                     operatorNameEl.style.display = 'none';
@@ -380,6 +463,9 @@
                     contextNameEl.style.fontSize = '22px';
                     contextNameEl.style.color = 'var(--text-primary)';
                     fetchPositionData();
+                } else if (task === 'dynamics') {
+                    operatorNameEl.textContent = currentUserName || "Пользователь";
+                    fetchDynamicsData();
                 }
             }
 
@@ -390,106 +476,6 @@
 
             fetchDashboardData('day');
         });
-
-        // Полный код функции fetchDashboardData из предыдущего ответа
-        async function fetchDashboardData(period) {
-            const userTable = period === 'day' ? 'TMday' : 'TMmonth';
-            const avgTable = period === 'day' ? 'AVGday' : 'AVGmonth';
-            
-            const userRequest = supabaseClient.from(userTable).select('*').eq('tg', currentUserTgId).maybeSingle();
-            const avgRequest = supabaseClient.from(avgTable).select('*').maybeSingle();
-
-            const [userResponse, avgResponse] = await Promise.all([userRequest, avgRequest]);
-
-            if (userResponse.error || avgResponse.error) {
-                console.error(`Ошибка Supabase:`, userResponse.error || avgResponse.error);
-                alert(`Произошла ошибка при загрузке данных. Подробности в консоли.`);
-                return;
-            }
-            
-            const userData = userResponse.data;
-            const avgData = avgResponse.data;
-            
-            if (!userData) {
-                alert(`Данные для пользователя с tg ID "${currentUserTgId}" не найдены в таблице ${userTable}.`);
-                return;
-            }
-             if (!avgData) {
-                alert(`Средние данные не найдены в таблице ${avgTable}.`);
-                return;
-            }
-
-            // Глобальное обновление данных о пользователе
-            currentUserName = userData.operator;
-            currentUserPosition = userData.dolg;
-            currentUserTeam = userData.Team;
-
-            document.getElementById('operator-name').textContent = currentUserName;
-            if (currentUserPosition) {
-                document.getElementById('btn-position').textContent = `Все ${currentUserPosition}`;
-            }
-
-            if (period === 'day') {
-                // ИСПРАВЛЕНИЕ: Возвращаем установку названия команды
-                document.getElementById('context-name').textContent = currentUserTeam;
-
-                document.getElementById('trafic-value-day').textContent = formatInterval(userData.trafic);
-                updateDoughnutChart(doughnutChartDay, (userData.per_trafic || 0) * 100);
-                document.getElementById('kz-bar-day').textContent = `Количество звонков - ${userData.kz || 0}`;
-                document.getElementById('lid-bar-day').textContent = `Количество лидов - ${userData.lid || 0}`;
-                document.getElementById('avg-time-lid-bar-day').textContent = `Время на лид - ${formatInterval(userData.avg_time_lid)}`;
-                document.getElementById('os-text-day').textContent = userData.OS || "Обратная связь отсутствует.";
-                document.getElementById('cat-image-day').src = CAT_IMAGE_MAP[userData.cat] || DEFAULT_CAT_IMAGE;
-                
-                document.getElementById('day-user-kz').textContent = userData.kz;
-                document.getElementById('day-srav-kz').textContent = avgData.kz;
-                setComparisonIndicator('day-ind-kz', userData.kz, avgData.kz);
-
-                document.getElementById('day-user-lid').textContent = userData.lid;
-                document.getElementById('day-srav-lid').textContent = avgData.lid;
-                setComparisonIndicator('day-ind-lid', userData.lid, avgData.lid);
-
-                document.getElementById('day-user-time').textContent = formatInterval(userData.avg_time_lid);
-                document.getElementById('day-srav-time').textContent = formatInterval(avgData.avg_time_lid);
-                setComparisonIndicator('day-ind-time', userData.avg_time_lid, avgData.avg_time_lid, true);
-
-                document.getElementById('day-user-trafic').textContent = formatInterval(userData.trafic);
-                document.getElementById('day-srav-trafic').textContent = formatInterval(avgData.trafic);
-                setComparisonIndicator('day-ind-trafic', userData.trafic, avgData.trafic, true);
-                
-                updateTagsTable('tags-table-body-day', userData);
-            } else if (period === 'month') {
-                document.getElementById('context-name').textContent = avgData.month || "Месяц";
-                
-                document.getElementById('trafic-value-month').textContent = formatInterval(userData.trafic);
-                updateDoughnutChart(doughnutChartMonth, (userData.per_trafic || 0) * 100);
-                document.getElementById('kz-bar-month').textContent = `Количество звонков - ${userData.kz || 0}`;
-                document.getElementById('lid-bar-month').textContent = `Количество лидов - ${userData.lid || 0}`;
-                document.getElementById('avg-time-lid-bar-month').textContent = `Время на лид - ${formatInterval(userData.avg_time_lid)}`;
-                
-                document.getElementById('os-text-month').textContent = userData.OS || "Обратная связь отсутствует.";
-                document.getElementById('plan-trafic-prognoz-value').textContent = `${Math.round((userData.per_trafic_prognoz || 0) * 100)}%`;
-                document.getElementById('plan-lid-prognoz-value').textContent = `${Math.round((userData.per_lid_prognoz || 0) * 100)}%`;
-
-                document.getElementById('month-user-kz').textContent = userData.kz;
-                document.getElementById('month-srav-kz').textContent = avgData.kz;
-                setComparisonIndicator('month-ind-kz', userData.kz, avgData.kz);
-
-                document.getElementById('month-user-lid').textContent = userData.lid;
-                document.getElementById('month-srav-lid').textContent = avgData.lid;
-                setComparisonIndicator('month-ind-lid', userData.lid, avgData.lid);
-
-                document.getElementById('month-user-time').textContent = formatInterval(userData.avg_time_lid);
-                document.getElementById('month-srav-time').textContent = formatInterval(avgData.avg_time_lid);
-                setComparisonIndicator('month-ind-time', userData.avg_time_lid, avgData.avg_time_lid, true);
-
-                document.getElementById('month-user-trafic').textContent = formatInterval(userData.trafic);
-                document.getElementById('month-srav-trafic').textContent = formatInterval(avgData.trafic);
-                setComparisonIndicator('month-ind-trafic', userData.trafic, avgData.trafic, true);
-
-                updateTagsTable('tags-table-body-month', userData);
-            }
-        }
     </script>
 </body>
 </html>
