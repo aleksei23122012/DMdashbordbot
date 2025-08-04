@@ -7,7 +7,6 @@
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- ИЗМЕНЕНИЕ: Добавлена библиотека для работы с Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -95,7 +94,137 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- ... HTML ... -->
+        <div class="block-v">
+            <div class="header-buttons">
+                <button id="btn-day" class="active">День</button>
+                <button id="btn-month">Месяц</button>
+                <button id="btn-position">Рейтинг</button>
+                <button id="btn-dynamics">Динамика</button>
+            </div>
+            <div class="user-info-container">
+                <span id="context-name"></span>
+                <span id="operator-name">Загрузка...</span>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div id="view-day" class="view active">
+                 <div class="block-l">
+                    <div class="block-l-top">
+                        <div class="chart-center-text"><div class="title">Трафик</div><div class="value" id="trafic-value-day">...</div></div>
+                        <canvas id="doughnutChartDay"></canvas>
+                    </div>
+                    <div class="block-l-bottom">
+                        <div class="horizontal-bar bar-calls" id="kz-bar-day"></div>
+                        <div class="horizontal-bar bar-leads" id="lid-bar-day"></div>
+                        <div class="horizontal-bar bar-time" id="avg-time-lid-bar-day"></div>
+                    </div>
+                </div>
+                <div class="block-c">
+                    <div class="block-c-top"><p id="os-text-day">Загрузка обратной связи...</p></div>
+                    <div class="block-c-bottom"><img id="cat-image-day" src="" alt="Кот" class="cat-image"></div>
+                </div>
+                <div class="block-p">
+                    <div class="block-p-upper-day">
+                         <table class="data-table">
+                            <thead><tr><th>Показатели</th><th>Твои</th><th class="indicator-col"></th><th>Средние</th></tr></thead>
+                            <tbody>
+                                <tr><td>Количество звонков</td><td id="day-user-kz">...</td><td id="day-ind-kz" class="indicator-col"></td><td id="day-srav-kz">...</td></tr>
+                                <tr><td>Количество лидов</td><td id="day-user-lid">...</td><td id="day-ind-lid" class="indicator-col"></td><td id="day-srav-lid">...</td></tr>
+                                <tr><td>Время на лид</td><td id="day-user-time">...</td><td id="day-ind-time" class="indicator-col"></td><td id="day-srav-time">...</td></tr>
+                                <tr><td>Трафик</td><td id="day-user-trafic">...</td><td id="day-ind-trafic" class="indicator-col"></td><td id="day-srav-trafic">...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="block-p-lower-day">
+                        <table class="data-table"><thead><tr><th>Теги</th><th>Кол-во</th></tr></thead><tbody id="tags-table-body-day"></tbody></table>
+                    </div>
+                </div>
+            </div>
+            <div id="view-month" class="view">
+                <div class="block-l">
+                    <div class="block-l-top">
+                        <div class="chart-center-text"><div class="title">Трафик (Месяц)</div><div class="value" id="trafic-value-month">...</div></div><canvas id="doughnutChartMonth"></canvas>
+                    </div>
+                    <div class="block-l-bottom">
+                        <div class="horizontal-bar bar-calls" id="kz-bar-month">...</div><div class="horizontal-bar bar-leads" id="lid-bar-month">...</div><div class="horizontal-bar bar-time" id="avg-time-lid-bar-month">...</div>
+                    </div>
+                </div>
+                <div class="block-c">
+                     <div class="block-c-top"><p id="os-text-month">Загрузка обратной связи...</p></div>
+                     <div class="block-c-bottom-month">
+                        <div class="plan-indicator"><div>Выполнение плана по трафику (прогноз):</div><div id="plan-trafic-prognoz-value" class="value">...</div></div>
+                        <div class="plan-indicator"><div>Выполнение плана по лидам (прогноз):</div><div id="plan-lid-prognoz-value" class="value">...</div></div>
+                    </div>
+                </div>
+                <div class="block-p">
+                    <div class="block-p-upper-month">
+                         <table class="data-table">
+                            <thead><tr><th>Показатели</th><th>Твои</th><th class="indicator-col"></th><th>Средние</th></tr></thead>
+                            <tbody>
+                                <tr><td>Количество звонков</td><td id="month-user-kz">...</td><td id="month-ind-kz" class="indicator-col"></td><td id="month-srav-kz">...</td></tr>
+                                <tr><td>Количество лидов</td><td id="month-user-lid">...</td><td id="month-ind-lid" class="indicator-col"></td><td id="month-srav-lid">...</td></tr>
+                                <tr><td>Время на лид</td><td id="month-user-time">...</td><td id="month-ind-time" class="indicator-col"></td><td id="month-srav-time">...</td></tr>
+                                <tr><td>Трафик</td><td id="month-user-trafic">...</td><td id="month-ind-trafic" class="indicator-col"></td><td id="month-srav-trafic">...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="block-p-lower-month">
+                        <table class="data-table"><thead><tr><th>Теги</th><th>Кол-во</th></tr></thead><tbody id="tags-table-body-month"></tbody></table>
+                    </div>
+                </div>
+            </div>
+            <div id="view-position" class="view">
+                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
+                    <h3 class="block-title">День</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="separator-right" style="vertical-align: middle; width: 200px;">Оператор</th><th colspan="6" class="separator-right">Показатели</th><th colspan="2">План</th>
+                            </tr>
+                            <tr>
+                                <th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th><th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th><th>План по<br>трафику</th><th>План по<br>лидам</th>
+                            </tr>
+                        </thead>
+                        <tbody id="position-data-body-day"></tbody>
+                    </table>
+                </div>
+                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
+                    <h3 class="block-title">Месяц</h3>
+                     <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="separator-right">Оператор</th><th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th><th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th><th>Ср. время<br>поствызова</th>
+                            </tr>
+                        </thead>
+                        <tbody id="position-data-body-month"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="view-dynamics" class="view">
+                <div class="dynamics-grid">
+                    <div class="dynamics-block" id="block-vl">
+                        <h3 class="block-title">Трафик</h3>
+                        <div class="chart-container"><canvas id="traffic-line-chart"></canvas></div>
+                    </div>
+                    <div class="dynamics-block" id="block-vp">
+                        <h3 class="block-title">Лиды</h3>
+                        <div class="chart-container"><canvas id="leads-line-chart"></canvas></div>
+                    </div>
+                    <div class="dynamics-block" id="block-nl">
+                        <h3 class="block-title">Время на лид</h3>
+                        <div class="chart-container"><canvas id="time-per-lead-line-chart"></canvas></div>
+                    </div>
+                    <div class="dynamics-block" id="block-np">
+                        <div class="legend-container">
+                            <div class="legend-item"><div class="legend-color-box" style="background-color: var(--chart-blue);"></div><span>Средние значения</span></div>
+                            <div class="legend-item"><div class="legend-color-box" style="background-color: var(--chart-red);"></div><span>Твои значения</span></div>
+                        </div>
+                        <div id="dynamics-os-block" class="block-c-top"><p id="dynamics-os-text">Загрузка обратной связи...</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -106,7 +235,7 @@
 
         // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
         let doughnutChartDay, doughnutChartMonth, trafficLineChart, leadsLineChart, timePerLeadLineChart;
-        let currentUserTgId = "don_liar"; // Запасной TG ID по умолчанию
+        let currentUserTgId = "don_liar"; 
         let currentUserName = "", currentUserPosition = "", currentUserTeam = "";
         
         const TAG_MAP = {"t_net": "Теги не проставлены", "t_avtootvet": "Автоответчик", "t_lid": "Лид", "t_neinteres": "Не интересно", "t_finorg": "Фин. орг.", "t_perezvon": "Перезвонить позже", "t_woman": "Женщина", "t_sbros": "Сброс", "t_nomany": "Нет денег", "t_buisnes": "Есть бизнес", "t_mat": "Ругается", "t_idiot": "Неадекват", "t_deti": "Дети", "t_old": "Пенсионер", "t_bankrot": "Банкрот", "t_duble": "Дубль", "t_gos": "Госслужащие"};
@@ -114,7 +243,7 @@
         const DEFAULT_CAT_IMAGE = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTAxrOH3BsNrlwQ7MRFAM5YQfoyo4uSbgQVg&s';
         
         // --- ФУНКЦИИ-ПОМОЩНИКИ ---
-        function capitalizeFirstLetter(string) { return string.charAt(0).toUpperCase() + string.slice(1); }
+        function capitalizeFirstLetter(string) { if (!string) return ''; return string.charAt(0).toUpperCase() + string.slice(1); }
         function formatInterval(intervalStr) { if (!intervalStr) return "00:00:00"; return intervalStr.split('.')[0]; }
         function updateDoughnutChart(chartInstance, percentage = 0) { if (!chartInstance) return; const validPercentage = Math.max(0, Math.min(100, percentage)); chartInstance.data.datasets[0].data = [validPercentage, 100 - validPercentage]; chartInstance.update(); }
         function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) { const element = document.getElementById(elementId); if (!element || userValue === null || userValue === undefined || avgValue === null || avgValue === undefined) { if (element) element.textContent = '---'; return; } const userSeconds = isTime ? timeToSeconds(userValue) : parseFloat(userValue); const avgSeconds = isTime ? timeToSeconds(avgValue) : parseFloat(avgValue); let userIsBetter = isTime ? userSeconds < avgSeconds : userSeconds > avgSeconds; element.textContent = userIsBetter ? '>' : '<'; element.className = userIsBetter ? 'indicator-col indicator-green' : 'indicator-col indicator-red'; }
@@ -132,7 +261,6 @@
             const userRequest = supabaseClient.from(userTable).select('*').eq('tg', currentUserTgId).maybeSingle();
             const avgRequest = supabaseClient.from(avgTable).select('*').maybeSingle();
             const [userResponse, avgResponse] = await Promise.all([userRequest, avgRequest]);
-
             if (userResponse.error || avgResponse.error) { console.error(`Ошибка Supabase:`, userResponse.error || avgResponse.error); alert(`Произошла ошибка при загрузке данных. Подробности в консоли.`); return; }
             const userData = userResponse.data;
             const avgData = avgResponse.data;
@@ -197,9 +325,7 @@
         async function fetchPositionData() {
             if (!currentUserPosition || !currentUserTeam) { await fetchDashboardData('day'); }
             if (!currentUserPosition) { alert("Не удалось загрузить данные пользователя для определения группы."); return; }
-
             let filterColumn, filterValue, headerText;
-
             if (currentUserPosition === 'РГТМ') {
                 filterColumn = 'team';
                 filterValue = currentUserTeam;
@@ -209,72 +335,20 @@
                 filterValue = currentUserPosition;
                 headerText = currentUserPosition;
             }
-            
             document.getElementById('context-name').textContent = headerText;
-
             const dayRequest = supabaseClient.from('TMday').select('*').eq(filterColumn, filterValue);
             const monthRequest = supabaseClient.from('TMmonth').select('*').eq(filterColumn, filterValue);
-
             const [dayResponse, monthResponse] = await Promise.all([dayRequest, monthRequest]);
-
             if (dayResponse.error || monthResponse.error) { console.error("Ошибка при загрузке рейтинга:", dayResponse.error || monthResponse.error); alert("Не удалось загрузить данные для рейтинга."); return; }
-
             populatePositionTableDay(dayResponse.data);
             populatePositionTableMonth(monthResponse.data);
         }
 
-        function populatePositionTableDay(data) {
-            const tbody = document.getElementById('position-data-body-day');
-            tbody.innerHTML = '';
-            data.sort((a, b) => (b.lid || 0) - (a.lid || 0));
-            data.forEach(op => {
-                const row = document.createElement('tr');
-                if (op.operator === currentUserName) { row.classList.add('current-user-row'); }
-                row.innerHTML = `
-                    <td class="separator-right">${op.operator || '---'}</td>
-                    <td>${formatInterval(op.trafic)}</td>
-                    <td class="td-gradient-traffic-day">${Math.round((op.per_trafic || 0) * 100)}%</td>
-                    <td>${op.kz || 0}</td>
-                    <td>${op.lid || 0}</td>
-                    <td class="td-gradient-time-day">${formatInterval(op.avg_time_lid)}</td>
-                    <td class="td-gradient-leads-day separator-right">${Math.round((op.per_lid || 0) * 100)}%</td>
-                    <td>${formatInterval(op.plan_trafic)}</td>
-                    <td>${op.plan_lid || 0}</td>
-                `;
-                tbody.appendChild(row);
-            });
-            applyRelativeGradient('.td-gradient-traffic-day');
-            applyRelativeGradient('.td-gradient-leads-day');
-            applyRelativeGradient('.td-gradient-time-day', true);
-        }
-
-        function populatePositionTableMonth(data) {
-            const tbody = document.getElementById('position-data-body-month');
-            tbody.innerHTML = '';
-            data.sort((a, b) => (b.lid || 0) - (a.lid || 0));
-            data.forEach(op => {
-                const row = document.createElement('tr');
-                if (op.operator === currentUserName) { row.classList.add('current-user-row'); }
-                row.innerHTML = `
-                    <td class="separator-right">${op.operator || '---'}</td>
-                    <td>${formatInterval(op.trafic)}</td>
-                    <td class="td-gradient-traffic-month">${Math.round((op.per_trafic || 0) * 100)}%</td>
-                    <td>${op.kz || 0}</td>
-                    <td>${op.lid || 0}</td>
-                    <td class="td-gradient-time-month">${formatInterval(op.avg_time_lid)}</td>
-                    <td class="td-gradient-leads-month separator-right">${Math.round((op.per_lid || 0) * 100)}%</td>
-                    <td>${formatInterval(op.avg_time_post)}</td>
-                `;
-                tbody.appendChild(row);
-            });
-            applyRelativeGradient('.td-gradient-traffic-month');
-            applyRelativeGradient('.td-gradient-leads-month');
-            applyRelativeGradient('.td-gradient-time-month', true);
-        }
+        function populatePositionTableDay(data) { const tbody = document.getElementById('position-data-body-day'); tbody.innerHTML = ''; data.sort((a, b) => (b.lid || 0) - (a.lid || 0)); data.forEach(op => { const row = document.createElement('tr'); if (op.operator === currentUserName) { row.classList.add('current-user-row'); } row.innerHTML = ` <td class="separator-right">${op.operator || '---'}</td> <td>${formatInterval(op.trafic)}</td> <td class="td-gradient-traffic-day">${Math.round((op.per_trafic || 0) * 100)}%</td> <td>${op.kz || 0}</td> <td>${op.lid || 0}</td> <td class="td-gradient-time-day">${formatInterval(op.avg_time_lid)}</td> <td class="td-gradient-leads-day separator-right">${Math.round((op.per_lid || 0) * 100)}%</td> <td>${formatInterval(op.plan_trafic)}</td> <td>${op.plan_lid || 0}</td> `; tbody.appendChild(row); }); applyRelativeGradient('.td-gradient-traffic-day'); applyRelativeGradient('.td-gradient-leads-day'); applyRelativeGradient('.td-gradient-time-day', true); }
+        function populatePositionTableMonth(data) { const tbody = document.getElementById('position-data-body-month'); tbody.innerHTML = ''; data.sort((a, b) => (b.lid || 0) - (a.lid || 0)); data.forEach(op => { const row = document.createElement('tr'); if (op.operator === currentUserName) { row.classList.add('current-user-row'); } row.innerHTML = ` <td class="separator-right">${op.operator || '---'}</td> <td>${formatInterval(op.trafic)}</td> <td class="td-gradient-traffic-month">${Math.round((op.per_trafic || 0) * 100)}%</td> <td>${op.kz || 0}</td> <td>${op.lid || 0}</td> <td class="td-gradient-time-month">${formatInterval(op.avg_time_lid)}</td> <td class="td-gradient-leads-month separator-right">${Math.round((op.per_lid || 0) * 100)}%</td> <td>${formatInterval(op.avg_time_post)}</td> `; tbody.appendChild(row); }); applyRelativeGradient('.td-gradient-traffic-month'); applyRelativeGradient('.td-gradient-leads-month'); applyRelativeGradient('.td-gradient-time-month', true); }
         
         async function fetchDynamicsData() {
             const { data, error } = await supabaseClient.from('Dynamics').select('*').eq('tg', currentUserTgId).maybeSingle();
-            
             if (error) { console.error("Ошибка при загрузке данных для динамики:", error); alert("Не удалось загрузить данные для динамики."); return; }
             if (!data) { alert(`Данные для динамики не найдены для пользователя ${currentUserTgId}.`); return; }
 
@@ -292,7 +366,7 @@
             for (let i = 1; i <= 6; i++) {
                 yourTraffic.push(timeToHours(data[`${i}trafic`]));
                 avgTraffic.push(timeToHours(data[`${i}avg_trafic`]));
-                yourLeads.push(data[`${i}lid`] || 0); // Предполагаем, что колонки называются 1lid, 1avg_lid и т.д.
+                yourLeads.push(data[`${i}lid`] || 0); 
                 avgLeads.push(data[`${i}avg_lid`] || 0);
                 yourTime.push(timeToSeconds(data[`${i}time`]));
                 avgTime.push(timeToSeconds(data[`${i}avg_time`]));
@@ -305,27 +379,24 @@
             
             trafficLineChart = createOrUpdateLineChart('traffic-line-chart', trafficLineChart, labels, yourTraffic, avgTraffic, (val) => `${Math.round(val)} ч`);
             leadsLineChart = createOrUpdateLineChart('leads-line-chart', leadsLineChart, labels, yourLeads, avgLeads, (val) => `${val}`);
-            timePerLeadLineChart = createOrUpdateLineChart('time-per-lead-line-chart', timePerLeadLineChart, labels, yourTime, avgTime, (val) => `${(val / 60).toFixed(1)} мин`);
+            timePerLeadLineChart = createOrUpdateLineChart('time-per-lead-line-chart', timePerLeadLineChart, labels, yourTime, avgTime, (val) => `${(val / 60).toFixed(1).replace('.',',')} мин`);
             document.getElementById('dynamics-os-text').textContent = data.os || "Обратная связь отсутствует.";
         }
 
         // --- ИНИЦИАЛИЗАЦИЯ И УПРАВЛЕНИЕ ВИДАМИ ---
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    const tgUser = window.Telegram.WebApp.initDataUnsafe?.user;
-                    if (tgUser?.username) {
+                if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe?.user) {
+                    const tgUser = window.Telegram.WebApp.initDataUnsafe.user;
+                    if (tgUser.username) {
                         currentUserTgId = tgUser.username;
                     }
                 }
-            } catch (e) {
-                console.warn("Не удалось получить данные Telegram Web App. Используется ID по умолчанию.", e);
-            }
+            } catch (e) { console.warn("Не удалось получить данные Telegram Web App. Используется ID по умолчанию.", e); }
 
             const darkBlueColor = getComputedStyle(document.documentElement).getPropertyValue('--dark-blue').trim();
             const chartOptions = { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false }, tooltip: { enabled: false } } };
             const chartDataTemplate = { labels: ['Процент трафика', 'Остаток'], datasets: [{ data: [0, 100], backgroundColor: [ darkBlueColor, '#E9ECEF' ], borderColor: 'transparent' }] };
-            
             doughnutChartDay = new Chart(document.getElementById('doughnutChartDay').getContext('2d'), { type: 'doughnut', data: JSON.parse(JSON.stringify(chartDataTemplate)), options: chartOptions });
             doughnutChartMonth = new Chart(document.getElementById('doughnutChartMonth').getContext('2d'), { type: 'doughnut', data: JSON.parse(JSON.stringify(chartDataTemplate)), options: chartOptions });
             
@@ -341,7 +412,6 @@
             function switchView(viewId, buttonToActivate, task) {
                 allViews.forEach(view => view.style.display = 'none');
                 allButtons.forEach(button => button.classList.remove('active'));
-                
                 const viewToShow = document.getElementById(viewId);
                 viewToShow.style.display = 'flex';
                 buttonToActivate.classList.add('active');
@@ -352,9 +422,8 @@
                 contextNameEl.style.fontSize = 'inherit';
                 contextNameEl.style.color = 'var(--text-secondary)';
                 
-                if (task === 'day' || task === 'month') {
-                    fetchDashboardData(task);
-                } else if (task === 'position') {
+                if (task === 'day' || task === 'month') { fetchDashboardData(task); } 
+                else if (task === 'position') {
                     operatorNameEl.style.display = 'none';
                     contextNameEl.style.fontWeight = '700';
                     contextNameEl.style.fontSize = '22px';
