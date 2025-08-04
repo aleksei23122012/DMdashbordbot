@@ -93,6 +93,7 @@
 </head>
 <body>
     <div class="dashboard-container">
+        <!-- ... HTML ... -->
         <div class="block-v">
             <div class="header-buttons">
                 <button id="btn-day" class="active">День</button>
@@ -246,10 +247,10 @@
         function updateDoughnutChart(chartInstance, percentage = 0) { if (!chartInstance) return; const validPercentage = Math.max(0, Math.min(100, percentage)); chartInstance.data.datasets[0].data = [validPercentage, 100 - validPercentage]; chartInstance.update(); }
         function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) { const element = document.getElementById(elementId); if (!element || userValue === null || userValue === undefined || avgValue === null || avgValue === undefined) { if (element) element.textContent = '---'; return; } const userSeconds = isTime ? timeToSeconds(userValue) : parseFloat(userValue); const avgSeconds = isTime ? timeToSeconds(avgValue) : parseFloat(avgValue); let userIsBetter = isTime ? userSeconds < avgSeconds : userSeconds > avgSeconds; element.textContent = userIsBetter ? '>' : '<'; element.className = userIsBetter ? 'indicator-col indicator-green' : 'indicator-col indicator-red'; }
         function timeToSeconds(timeStr) { if (!timeStr || typeof timeStr !== 'string') return 0; const parts = formatInterval(timeStr).split(':'); if (parts.length !== 3) return 0; return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10); }
+        function timeToHours(timeStr) { if (!timeStr) return 0; const totalSeconds = timeToSeconds(timeStr); return totalSeconds / 3600; }
         function applyRelativeGradient(selector, isReversed = false) { const cells = document.querySelectorAll(selector); if (cells.length === 0) return; const values = Array.from(cells).map(cell => { const text = cell.textContent; if (text.includes(':')) { return timeToSeconds(text); } return parseFloat(text.replace('%', '')); }); const min = Math.min(...values); const max = Math.max(...values); if (min === max) return; const range = max - min; cells.forEach((cell, index) => { const value = values[index]; let normalized = (value - min) / range; if (isReversed) normalized = 1 - normalized; const hue = normalized * 120; cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`; cell.style.color = `hsl(${hue}, 80%, 25%)`; cell.style.fontWeight = '600'; cell.style.borderRadius = '4px'; }); }
         function updateTagsTable(tbodyId, data) { const tbody = document.getElementById(tbodyId); if (!tbody || !data) { tbody.innerHTML = '<tr><td colspan="2">Нет данных</td></tr>'; return; } tbody.innerHTML = ''; const tagsArray = Object.keys(data).filter(key => key.startsWith('t_') && key !== 't_os').map(key => ({ key, name: TAG_MAP[key] || key, count: data[key] || 0 })).filter(tag => tag.count > 0).sort((a, b) => b.count - a.count); if (tagsArray.length === 0) { tbody.innerHTML = '<tr><td colspan="2">Теги не найдены</td></tr>'; return; } tagsArray.forEach(tag => { const row = document.createElement('tr'); if (tag.key === 't_net') row.classList.add('highlight-red'); row.innerHTML = `<td>${tag.name}</td><td>${tag.count}</td>`; tbody.appendChild(row); }); }
-
-        function createOrUpdateLineChart(canvasId, chartInstance, labels, yourData, avgData, yAxisFormatter) { const ctx = document.getElementById(canvasId).getContext('2d'); const data = { labels: labels, datasets: [ { label: 'Средние значения', data: avgData, borderColor: '#1e88e5', backgroundColor: '#1e88e5', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: '#1e88e5', pointBorderWidth: 2 }, { label: 'Твои значения', data: yourData, borderColor: '#e53935', backgroundColor: '#e53935', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: '#e53935', pointBorderWidth: 2 } ] }; const options = { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false, }, plugins: { legend: { display: false }, tooltip: { enabled: true, backgroundColor: 'rgba(0, 0, 0, 0.85)', titleColor: '#FFFFFF', bodyColor: '#FFFFFF', titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 12 }, padding: 12, cornerRadius: 8, displayColors: true, borderColor: 'rgba(0,0,0,0)', borderWidth: 0, callbacks: { labelColor: function(context) { return { borderColor: context.dataset.borderColor, backgroundColor: context.dataset.borderColor, borderWidth: 2, borderRadius: 2, }; }, title: function(tooltipItems) { const label = tooltipItems[0].label; const monthPart = label.split(' ')[1] || label; return monthPart.charAt(0).toUpperCase() + monthPart.slice(1); }, label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += yAxisFormatter(context.parsed.y).replace(' ',''); } return label; } } } }, scales: { y: { beginAtZero: true, ticks: { callback: yAxisFormatter } } } }; if (chartInstance) { chartInstance.data = data; chartInstance.options = options; chartInstance.update(); return chartInstance; } else { return new Chart(ctx, { type: 'line', data: data, options: options }); } }
+        function createOrUpdateLineChart(canvasId, chartInstance, labels, yourData, avgData, yAxisFormatter) { const ctx = document.getElementById(canvasId).getContext('2d'); const data = { labels: labels, datasets: [ { label: 'Средние значения', data: avgData, borderColor: '#1e88e5', backgroundColor: '#1e88e5', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: '#1e88e5', pointBorderWidth: 2 }, { label: 'Твои значения', data: yourData, borderColor: '#e53935', backgroundColor: '#e53935', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: '#e53935', pointBorderWidth: 2 } ] }; const options = { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false, }, plugins: { legend: { display: false }, tooltip: { enabled: true, backgroundColor: 'rgba(0, 0, 0, 0.85)', titleColor: '#FFFFFF', bodyColor: '#FFFFFF', titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 12 }, padding: 12, cornerRadius: 8, displayColors: true, borderColor: 'rgba(0,0,0,0)', borderWidth: 0, callbacks: { labelColor: function(context) { return { borderColor: context.dataset.borderColor, backgroundColor: context.dataset.borderColor, borderWidth: 2, borderRadius: 2, }; }, title: function(tooltipItems) { const label = tooltipItems[0].label; return label.charAt(0).toUpperCase() + label.slice(1); }, label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += yAxisFormatter(context.parsed.y).replace(' ',''); } return label; } } } }, scales: { y: { beginAtZero: true, ticks: { callback: yAxisFormatter } } } }; if (chartInstance) { chartInstance.data = data; chartInstance.options = options; chartInstance.update(); return chartInstance; } else { return new Chart(ctx, { type: 'line', data: data, options: options }); } }
 
         // --- ОСНОВНЫЕ ФУНКЦИИ ЗАГРУЗКИ ---
         
@@ -259,6 +260,7 @@
             const userRequest = supabaseClient.from(userTable).select('*').eq('tg', currentUserTgId).maybeSingle();
             const avgRequest = supabaseClient.from(avgTable).select('*').maybeSingle();
             const [userResponse, avgResponse] = await Promise.all([userRequest, avgRequest]);
+
             if (userResponse.error || avgResponse.error) { console.error(`Ошибка Supabase:`, userResponse.error || avgResponse.error); alert(`Произошла ошибка при загрузке данных. Подробности в консоли.`); return; }
             const userData = userResponse.data;
             const avgData = avgResponse.data;
@@ -321,13 +323,12 @@
         }
 
         async function fetchPositionData() {
-            if (!currentUserPosition) { await fetchDashboardData('day'); }
+            if (!currentUserPosition || !currentUserTeam) { await fetchDashboardData('day'); }
             if (!currentUserPosition) { alert("Не удалось загрузить данные пользователя для определения группы."); return; }
 
             let filterColumn, filterValue, headerText;
 
             if (currentUserPosition === 'РГТМ') {
-                if (!currentUserTeam) { alert("Не удалось определить команду для РГТМ."); return; }
                 filterColumn = 'team';
                 filterValue = currentUserTeam;
                 headerText = currentUserTeam;
@@ -399,28 +400,42 @@
             applyRelativeGradient('.td-gradient-time-month', true);
         }
         
-        function fetchDynamicsData() {
+        async function fetchDynamicsData() {
+            const { data, error } = await supabaseClient.from('Dynamics').select('*').eq('tg', currentUserTgId).maybeSingle();
+            
+            if (error) { console.error("Ошибка при загрузке данных для динамики:", error); alert("Не удалось загрузить данные для динамики."); return; }
+            if (!data) { alert(`Данные для динамики не найдены для пользователя ${currentUserTgId}.`); return; }
+
             const labels = [];
-            const yourTrafficData = [], avgTrafficData = [];
-            const yourLeadsData = [], avgLeadsData = [];
-            const yourTimeData = [], avgTimeData = [];
+            const yourTraffic = [], avgTraffic = [];
+            const yourLeads = [], avgLeads = [];
+            const yourTime = [], avgTime = [];
+
             const now = new Date();
             for (let i = 5; i >= 0; i--) {
                 const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                if (i === 0) { const day = now.getDate(); const monthShort = date.toLocaleString('ru-RU', { month: 'short' }).replace('.', ''); labels.push(`${day} ${monthShort}`);
-                } else { labels.push(date.toLocaleString('ru-RU', { month: 'short' }).replace('.', '')); }
-                yourTrafficData.push(Math.floor(Math.random() * 80) + 10); avgTrafficData.push(Math.floor(Math.random() * 80) + 15);
-                yourLeadsData.push(Math.floor(Math.random() * 20) + 5); avgLeadsData.push(Math.floor(Math.random() * 20) + 8);
-                yourTimeData.push(Math.floor(Math.random() * 300) + 60); avgTimeData.push(Math.floor(Math.random() * 300) + 90);
+                const monthShort = date.toLocaleString('ru-RU', { month: 'short' }).replace('.', '');
+                labels.push(monthShort);
             }
+
+            for (let i = 1; i <= 6; i++) {
+                yourTraffic.push(timeToHours(data[`${i}trafic`]));
+                avgTraffic.push(timeToHours(data[`${i}avg_trafic`]));
+                yourLeads.push(data[`${i}lid`] || 0);
+                avgLeads.push(data[`${i}avg_lid`] || 0);
+                yourTime.push(timeToSeconds(data[`${i}time`]));
+                avgTime.push(timeToSeconds(data[`${i}avg_time`]));
+            }
+
             const monthFormatter = new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric' });
             const firstMonth = new Date(now.getFullYear(), now.getMonth() - 5, 1);
-            const lastMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const lastMonth = new Date(now.getFullYear(), now.getMonth(), 0); // 0-й день следующего месяца = последний день текущего
             document.getElementById('context-name').textContent = `${monthFormatter.format(firstMonth)} – ${monthFormatter.format(lastMonth)}`;
-            trafficLineChart = createOrUpdateLineChart('traffic-line-chart', trafficLineChart, labels, yourTrafficData, avgTrafficData, (val) => `${val} ч`);
-            leadsLineChart = createOrUpdateLineChart('leads-line-chart', leadsLineChart, labels, yourLeadsData, avgLeadsData, (val) => `${val}`);
-            timePerLeadLineChart = createOrUpdateLineChart('time-per-lead-line-chart', timePerLeadLineChart, labels, yourTimeData, avgTimeData, (val) => { const min = Math.floor(val / 60); const sec = val % 60; return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`; });
-            document.getElementById('dynamics-os-text').textContent = "В этом месяце твой трафик немного ниже среднего. Попробуй увеличить количество активных диалогов.";
+            
+            trafficLineChart = createOrUpdateLineChart('traffic-line-chart', trafficLineChart, labels, yourTraffic, avgTraffic, (val) => `${Math.round(val)} ч`);
+            leadsLineChart = createOrUpdateLineChart('leads-line-chart', leadsLineChart, labels, yourLeads, avgLeads, (val) => `${val}`);
+            timePerLeadLineChart = createOrUpdateLineChart('time-per-lead-line-chart', timePerLeadLineChart, labels, yourTime, avgTime, (val) => { const min = Math.floor(val / 60); const sec = val % 60; return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`; });
+            document.getElementById('dynamics-os-text').textContent = data.os || "Обратная связь отсутствует.";
         }
 
         // --- ИНИЦИАЛИЗАЦИЯ И УПРАВЛЕНИЕ ВИДАМИ ---
