@@ -30,8 +30,9 @@
         #operator-name { font-weight: 700; font-size: 22px; }
         .content-area { flex-grow: 1; padding: 12px; box-sizing: border-box; overflow: hidden; }
         .view { display: none; }
-        .view.active { display: flex; align-items: center; justify-content: center; } /* Центрируем контент по умолчанию */
-        #view-day.active, #view-month.active { flex-direction: row; gap: 12px; height: calc(90vh - 24px); justify-content: flex-start; } /* Возвращаем как было */
+        .view.active { display: flex; }
+        #view-day.active, #view-month.active { flex-direction: row; gap: 12px; height: calc(90vh - 24px); }
+        .view:not(#view-day):not(#view-month) { align-items: center; justify-content: center; }
         .block-l { width: 400px; flex-shrink: 0; }
         .block-c { flex-grow: 1; }
         .block-p { width: 400px; flex-shrink: 0; }
@@ -85,7 +86,7 @@
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- ... HTML-код шапки ... -->
+        <!-- ... HTML ... -->
         <div class="block-v">
             <div class="header-buttons">
                 <button id="btn-day" class="active">День</button>
@@ -100,7 +101,6 @@
         </div>
 
         <div class="content-area">
-            <!-- Вид "День" -->
             <div id="view-day" class="view active">
                  <div class="block-l">
                     <div class="block-l-top">
@@ -144,9 +144,7 @@
                     </div>
                 </div>
             </div>
-            <!-- Вид "Месяц" -->
             <div id="view-month" class="view">
-                <!-- Содержимое такое же, как и раньше, но с новыми ID для уникальности -->
                 <div class="block-l">
                     <div class="block-l-top">
                         <div class="chart-center-text"><div class="title">Трафик (Месяц)</div><div class="value" id="trafic-value-month">...</div></div><canvas id="doughnutChartMonth"></canvas>
@@ -185,26 +183,22 @@
                 </div>
             </div>
             
-            <!-- Заглушки для пустых вкладок -->
-            <div id="view-position" class="view">
-                <h2 class="placeholder-message">Вкладка в разработке</h2>
-            </div>
-            <div id="view-dynamics" class="view">
-                 <h2 class="placeholder-message">Вкладка в разработке</h2>
-            </div>
+            <div id="view-position" class="view"><h2 class="placeholder-message">Вкладка в разработке</h2></div>
+            <div id="view-dynamics" class="view"><h2 class="placeholder-message">Вкладка в разработке</h2></div>
         </div>
     </div>
 
     <script>
         // --- ПОДКЛЮЧЕНИЕ К SUPABASE ---
+        // ИЗМЕНЕНИЕ: Вставлены правильные данные для подключения
         const SUPABASE_URL = 'https://yhjrhnglgtenxwncrrnf.supabase.co'; 
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzA4MDcwOSwiZXhwIjoyMDY4NjU2NzA5fQ.n-DaOFmspPq26s4QjmP-nQ7FoktOxmvq5JavTKdysBoЧ';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InloanJobmdsZ3Rlbnh3bmNycm5mIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MzA4MDcwOSwiZXhwIjoyMDY4NjU2NzA5fQ.n-DaOFmspPq26s4QjmP-nQ7FoktOxmvq5JavTKdysBo';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
         let doughnutChartDay, doughnutChartMonth;
-        let currentUserName = "Алексей Ли"; 
-        let currentUserPosition = ""; 
+        // ИЗМЕНЕНИЕ: Задаем TG ID пользователя, которого ищем
+        let currentUserTgId = "Aleksei_Li_Radievich"; 
         
         const TAG_MAP = {"t_net": "Теги не проставлены", "t_avtootvet": "Автоответчик", "t_lid": "Лид", "t_neinteres": "Не интересно", "t_finorg": "Фин. орг.", "t_perezvon": "Перезвонить позже", "t_woman": "Женщина", "t_sbros": "Сброс", "t_nomany": "Нет денег", "t_buisnes": "Есть бизнес", "t_mat": "Ругается", "t_idiot": "Неадекват", "t_deti": "Дети", "t_old": "Пенсионер", "t_bankrot": "Банкрот", "t_duble": "Дубль", "t_gos": "Госслужащие"};
         const CAT_IMAGE_MAP = {1: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat1.png', 2: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat2.png', 3: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat3.png', 4: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat4.png', 5: 'https://yhjrhnglgtenxwncrrnf.supabase.co/storage/v1/object/public/cats/cat5.png'};
@@ -232,20 +226,10 @@
             const userSeconds = isTime ? timeToSeconds(userValue) : parseFloat(userValue);
             const avgSeconds = isTime ? timeToSeconds(avgValue) : parseFloat(avgValue);
             
-            let userIsBetter;
-            if (isTime) { 
-                userIsBetter = userSeconds < avgSeconds; 
-            } else { 
-                userIsBetter = userSeconds > avgSeconds; 
-            }
+            let userIsBetter = isTime ? userSeconds < avgSeconds : userSeconds > avgSeconds; 
             
-            if (userIsBetter) { 
-                element.textContent = '>'; 
-                element.className = 'indicator-col indicator-green'; 
-            } else { 
-                element.textContent = '<'; 
-                element.className = 'indicator-col indicator-red'; 
-            }
+            element.textContent = userIsBetter ? '>' : '<'; 
+            element.className = userIsBetter ? 'indicator-col indicator-green' : 'indicator-col indicator-red';
         }
         
         function timeToSeconds(timeStr) {
@@ -260,15 +244,11 @@
             if (!tbody || !data) { tbody.innerHTML = '<tr><td colspan="2">Нет данных</td></tr>'; return; }
             tbody.innerHTML = '';
             
-            const tagsArray = [];
-            for (const key in data) {
-                if (key.startsWith('t_') && key !== 't_os') {
-                    const tagName = TAG_MAP[key] || key; 
-                    tagsArray.push({ key: key, name: tagName, count: data[key] || 0 });
-                }
-            }
-            
-            tagsArray.sort((a, b) => b.count - a.count);
+            const tagsArray = Object.keys(data)
+                .filter(key => key.startsWith('t_') && key !== 't_os')
+                .map(key => ({ key, name: TAG_MAP[key] || key, count: data[key] || 0 }))
+                .filter(tag => tag.count > 0)
+                .sort((a, b) => b.count - a.count);
             
             if (tagsArray.length === 0) {
                  tbody.innerHTML = '<tr><td colspan="2">Теги не найдены</td></tr>';
@@ -276,27 +256,20 @@
             }
 
             tagsArray.forEach(tag => {
-                if (tag.count > 0) {
-                    const row = document.createElement('tr');
-                    if (tag.key === 't_net') {
-                        row.classList.add('highlight-red');
-                    }
-                    row.innerHTML = `<td>${tag.name}</td><td>${tag.count}</td>`;
-                    tbody.appendChild(row);
-                }
+                const row = document.createElement('tr');
+                if (tag.key === 't_net') row.classList.add('highlight-red');
+                row.innerHTML = `<td>${tag.name}</td><td>${tag.count}</td>`;
+                tbody.appendChild(row);
             });
-        }
-        
-        function clearDashboard(period) {
-             // ... можно добавить функцию очистки полей перед загрузкой ...
         }
 
         // --- ГЛАВНАЯ ФУНКЦИЯ ЗАГРУЗКИ ДАННЫХ ---
         async function fetchDashboardData(period) {
             const userTable = period === 'day' ? 'TMday' : 'TMmonth';
             const avgTable = period === 'day' ? 'AVGday' : 'AVGmonth';
-
-            const userRequest = supabaseClient.from(userTable).select('*').eq('operator', currentUserName).maybeSingle();
+            
+            // ИЗМЕНЕНИЕ: Ищем по `tg` и используем `maybeSingle()` для большей надежности
+            const userRequest = supabaseClient.from(userTable).select('*').eq('tg', currentUserTgId).maybeSingle();
             const avgRequest = supabaseClient.from(avgTable).select('*').maybeSingle();
 
             const [userResponse, avgResponse] = await Promise.all([userRequest, avgRequest]);
@@ -311,7 +284,7 @@
             const avgData = avgResponse.data;
             
             if (!userData) {
-                alert(`Данные для пользователя "${currentUserName}" не найдены в таблице ${userTable}.`);
+                alert(`Данные для пользователя с tg ID "${currentUserTgId}" не найдены в таблице ${userTable}.`);
                 return;
             }
              if (!avgData) {
@@ -351,6 +324,7 @@
                 document.getElementById('day-srav-trafic').textContent = formatInterval(avgData.trafic);
                 setComparisonIndicator('day-ind-trafic', userData.trafic, avgData.trafic, true);
                 updateTagsTable('tags-table-body-day', userData);
+
             } else if (period === 'month') {
                 document.getElementById('context-name').textContent = avgData.month || "Месяц";
                 // Блок Л
@@ -400,10 +374,12 @@
             const allButtons = document.querySelectorAll('.header-buttons button');
 
             function switchView(viewId, buttonToActivate, period) {
-                allViews.forEach(view => view.classList.remove('active'));
+                allViews.forEach(view => view.style.display = 'none');
                 allButtons.forEach(button => button.classList.remove('active'));
                 
-                document.getElementById(viewId).classList.add('active');
+                const viewToShow = document.getElementById(viewId);
+                viewToShow.style.display = 'flex';
+                viewToShow.classList.add('active'); // Keep class for potential styling
                 buttonToActivate.classList.add('active');
                 
                 if (period === 'day' || period === 'month') {
@@ -421,4 +397,3 @@
     </script>
 </body>
 </html>
-
