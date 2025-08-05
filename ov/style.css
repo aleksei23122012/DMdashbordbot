@@ -1,0 +1,242 @@
+:root {
+  /* Палитра */
+  --ui-primary-blue: #357ABD;
+  --ui-primary-blue-hover: #2A65B2;
+  --ui-light-blue-bg: #eaf5ff;
+  --palette-bg-color: #F5F7FA;
+  --palette-card-color: #FFFFFF;
+  --palette-text-primary: #1D232A;
+  --palette-text-secondary: #6C757D;
+  --palette-border-color: #E9ECEF;
+  --toggle-bg: #e9ecef;
+  --shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+body,
+html {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--palette-bg-color);
+  color: var(--palette-text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 800px;
+  height: 95%;
+  max-height: 850px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--palette-card-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--palette-border-color);
+  overflow: hidden;
+}
+
+/* БЛОК В */
+.block-v {
+  padding: 15px 25px;
+  border-bottom: 1px solid var(--palette-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 54px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.back-button {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ui-primary-blue);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.toggle-wrapper {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 220px;
+  height: 44px;
+  background-color: var(--toggle-bg);
+  border-radius: 22px;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  display: none;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  height: 36px;
+  width: 108px;
+  background-color: var(--ui-primary-blue);
+  border-radius: 18px;
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.toggle-labels {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.toggle-labels span {
+  flex: 1;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--palette-text-secondary);
+  transition: color 0.3s ease;
+}
+
+.toggle-switch input:checked+.toggle-slider {
+  transform: translateX(104px);
+}
+
+.toggle-labels span.text-active {
+  color: #fff;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* БЛОК Т */
+.block-t {
+  padding: 20px 25px;
+}
+
+.block-t input[type="text"] {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  border: 1px solid var(--ui-primary-blue);
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+/* БЛОК О */
+.block-o {
+  flex-grow: 1;
+  padding: 25px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  transition: opacity 0.2s ease-in-out;
+  display: flex; /* Ключевое свойство для фикса высоты */
+  flex-direction: column; /* Дети будут выстраиваться в колонку */
+}
+
+.block-o.loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Сетка кнопок в НАЧПОЗ */
+.button-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 20px;
+  height: 100%;
+}
+
+.button-grid button {
+  font-size: 17px;
+  font-weight: 600;
+  color: #fff;
+  background-color: var(--ui-primary-blue);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.button-grid button:hover {
+  background-color: var(--ui-primary-blue-hover);
+}
+
+.empty-slot {
+  border-radius: 10px;
+  background-color: #f8f9fa;
+  border: 1px dashed var(--palette-border-color);
+}
+
+.pusheen-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* Аккордеон */
+.accordion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.accordion-item .accordion-header {
+  width: 100%;
+  text-align: left;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 15px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: var(--ui-light-blue-bg);
+  color: var(--ui-primary-blue);
+  border: 1px solid #dce1e7;
+}
+
+.accordion-item .accordion-header.active {
+  background-color: var(--ui-primary-blue);
+  color: #fff;
+}
+
+.accordion-item .accordion-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, padding 0.3s ease;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--palette-text-secondary);
+  padding: 0 20px;
+}
+
+.accordion-item .accordion-panel.active {
+  padding: 15px 20px;
+  max-height: 500px;
+}
+
+/* ФИНАЛЬНОЕ ИСПРАВЛЕНИЕ: Класс для центрирования сообщения в блоке полной высоты */
+.block-o.is-centered-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
