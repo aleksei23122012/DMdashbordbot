@@ -72,6 +72,9 @@
   .block-o {
     flex-grow: 1; padding: 25px; box-sizing: border-box; overflow-y: auto;
     transition: opacity 0.2s ease-in-out;
+    /* --- ИЗМЕНЕНИЕ 1: Заставляем БЛОК О быть Flex-контейнером --- */
+    display: flex;
+    flex-direction: column;
   }
   .block-o.loading { opacity: 0.5; pointer-events: none; }
   
@@ -108,12 +111,12 @@
   }
   .accordion-item .accordion-panel.active { padding: 15px 20px; max-height: 500px; }
   
-  /* --- ИЗМЕНЕНИЕ 2: Улучшенные стили для пустого сообщения --- */
+  /* --- ИЗМЕНЕНИЕ 2: Контейнер для пустого сообщения теперь растягивается --- */
   .empty-message-container {
-      height: 100%;
+      flex-grow: 1; /* Растягиваемся на всю доступную высоту */
       display: flex;
-      align-items: center;       /* Центрирование по вертикали */
-      justify-content: center;   /* Центрирование по горизонтали */
+      align-items: center;
+      justify-content: center;
       color: var(--palette-text-secondary);
   }
 </style>
@@ -160,14 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // --- ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
   let currentCategory = 'Брокеридж';
-  let currentType = null; // --- ИЗМЕНЕНИЕ 1: Запоминаем тип для контекстного поиска
+  let currentType = null;
   let debounceTimeout;
   const pusheenImageUrl = 'https://cdn.imgbin.com/9/12/6/imgbin-pusheen-sticker-telegram-vkontakte-jj-pusheen-cat-illustration-FYzgapPV2qHfFNKvYnCcXKHuH.jpg';
 
   // --- ФУНКЦИИ ОТОБРАЖЕНИЯ ---
   
   async function renderNachpoz(categoryColumn) {
-    currentType = null; // Сбрасываем тип при возврате в НАЧПОЗ
+    currentType = null;
     mainBlock.classList.add('loading');
     backButton.classList.add('hidden');
     const { data, error } = await supabase.from('Button').select(`num, ${categoryColumn}`).order('num');
@@ -192,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   async function renderTupoz(category, type) {
-    currentType = type; // Запоминаем тип для контекстного поиска
+    currentType = type;
     mainBlock.classList.add('loading');
     backButton.classList.remove('hidden');
     
@@ -201,15 +204,15 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (error) { mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки: ${error.message}</p>`; return; }
     
-    mainBlock.innerHTML = createAccordionHtml(data, category);
+    mainBlock.innerHTML = createAccordionHtml(data, category, false, false);
     setupAccordionListeners();
   }
   
   async function renderSearchResults(searchText) {
       if (!searchText) {
-        if (currentType) { // Если мы были в ТУПОЗ
+        if (currentType) {
           renderTupoz(currentCategory, currentType);
-        } else { // Если мы были в НАЧПОЗ
+        } else {
           renderNachpoz(currentCategory === 'Брокеридж' ? 'brok' : 'upak');
         }
         return;
@@ -223,7 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .eq('category', currentCategory)
         .ilike('question', `%${searchText}%`);
       
-      // Если мы в режиме ТУПОЗ, добавляем фильтр по типу
       if (currentType) {
         query = query.eq('type', currentType);
       }
@@ -248,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const isActive = autoExpandSingleItem;
           const headerClass = `accordion-header ${isActive ? 'active' : ''}`;
           const panelClass = `accordion-panel ${isActive ? 'active' : ''}`;
-          return `<div class="accordion-item"><button class="${headerClass}">${item.question}</button><div class="accordion-panel"><p>${item.answer}</p></div></div>`;
+          return `<div class="accordion-item"><button class="${headerClass}">${item.question}</button><div class="${panelClass}"><p>${item.answer}</p></div></div>`;
       }).join('');
       return `<div class="accordion-list">${accordionItems}</div>`;
   }
