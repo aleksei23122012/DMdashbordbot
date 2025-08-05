@@ -3,18 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- 1. ИЗМЕНИЛ TITLE -->
 <title>Бот ОВ</title>
-<!-- 2. ИЗМЕНИЛ СКРИПТ SUPABASE, ЧТОБЫ ОН ЗАГРУЖАЛСЯ БЫСТРЕЕ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-  /* Стили остаются без изменений */
   :root {
+    /* Палитра */
     --ui-primary-blue: #357ABD; --ui-primary-blue-hover: #2A65B2;
     --ui-light-blue-bg: #eaf5ff; --palette-bg-color: #F5F7FA;
     --palette-card-color: #FFFFFF; --palette-text-primary: #1D232A;
@@ -22,23 +19,27 @@
     --toggle-bg: #e9ecef; --shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
   }
   body, html {
-    height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--palette-bg-color);
-    color: var(--palette-text-primary); display: flex; justify-content: center; align-items: center;
+    height: 100%; margin: 0; font-family: 'Inter', sans-serif;
+    background-color: var(--palette-bg-color); color: var(--palette-text-primary);
+    display: flex; justify-content: center; align-items: center;
     padding: 20px; box-sizing: border-box;
   }
   .app-container {
-    width: 100%; max-width: 800px; height: 95%; max-height: 850px; display: flex;
-    flex-direction: column; background-color: var(--palette-card-color); border-radius: 12px;
-    box-shadow: var(--shadow); border: 1px solid var(--palette-border-color); overflow: hidden;
+    width: 100%; max-width: 800px; height: 95%; max-height: 850px;
+    display: flex; flex-direction: column; background-color: var(--palette-card-color);
+    border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--palette-border-color);
+    overflow: hidden;
   }
+  /* БЛОК В */
   .block-v {
-    padding: 15px 25px; border-bottom: 1px solid var(--palette-border-color); display: flex;
-    align-items: center; justify-content: space-between; min-height: 54px;
-    box-sizing: border-box; position: relative;
+    padding: 15px 25px; border-bottom: 1px solid var(--palette-border-color);
+    display: flex; align-items: center; justify-content: space-between;
+    min-height: 54px; box-sizing: border-box; position: relative;
   }
   .back-button {
-    font-size: 15px; font-weight: 600; color: var(--ui-primary-blue); background: transparent;
-    border: none; cursor: pointer; padding: 8px; opacity: 1; transition: opacity 0.3s;
+    font-size: 15px; font-weight: 600; color: var(--ui-primary-blue);
+    background: transparent; border: none; cursor: pointer; padding: 8px;
+    opacity: 1; transition: opacity 0.3s;
   }
   .toggle-wrapper { position: absolute; left: 50%; transform: translateX(-50%); }
   .toggle-switch {
@@ -52,7 +53,8 @@
     transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
   .toggle-labels {
-    position: absolute; inset: 0; display: flex; align-items: center; pointer-events: none;
+    position: absolute; inset: 0; display: flex; align-items: center;
+    pointer-events: none;
   }
   .toggle-labels span {
     flex: 1; text-align: center; font-size: 15px; font-weight: 600;
@@ -61,36 +63,57 @@
   .toggle-switch input:checked + .toggle-slider { transform: translateX(104px); }
   .toggle-labels span.text-active { color: #fff; }
   .hidden { opacity: 0; pointer-events: none; }
+  /* БЛОК Т */
   .block-t { padding: 20px 25px; }
   .block-t input[type="text"] {
-    width: 100%; padding: 12px 16px; font-size: 16px; border: 1px solid var(--ui-primary-blue);
-    border-radius: 8px; box-sizing: border-box;
+    width: 100%; padding: 12px 16px; font-size: 16px;
+    border: 1px solid var(--ui-primary-blue); border-radius: 8px;
+    box-sizing: border-box;
   }
-  .block-o { flex-grow: 1; padding: 25px; box-sizing: border-box; overflow-y: auto; }
+  /* БЛОК О */
+  .block-o {
+    flex-grow: 1; padding: 25px; box-sizing: border-box; overflow-y: auto;
+    transition: opacity 0.2s ease-in-out; /* Плавный переход для затухания */
+  }
+  /* Класс для состояния загрузки */
+  .block-o.loading {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  /* Стили для сетки кнопок в НАЧПОЗ */
   .button-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr);
-    gap: 20px; height: 100%;
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr); gap: 20px; height: 100%;
   }
   .button-grid button {
-    font-size: 17px; font-weight: 600; color: #fff; background-color: var(--ui-primary-blue);
-    border: none; border-radius: 10px; cursor: pointer; transition: background-color 0.2s;
+    font-size: 17px; font-weight: 600; color: #fff;
+    background-color: var(--ui-primary-blue); border: none;
+    border-radius: 10px; cursor: pointer; transition: background-color 0.2s;
   }
   .button-grid button:hover { background-color: var(--ui-primary-blue-hover); }
   .empty-slot {
-    border-radius: 10px; background-color: #f8f9fa; border: 1px dashed var(--palette-border-color);
+    border-radius: 10px; background-color: #f8f9fa;
+    border: 1px dashed var(--palette-border-color);
   }
-  .pusheen-image { width: 100%; height: 100%; object-fit: contain; padding: 10px; box-sizing: border-box; }
+  .pusheen-image {
+    width: 100%; height: 100%; object-fit: contain; padding: 10px;
+    box-sizing: border-box;
+  }
+  /* Стили для аккордеона в ТУПОЗ и результатах поиска */
   .accordion-list { display: flex; flex-direction: column; gap: 15px; }
   .accordion-item .accordion-header {
-    width: 100%; text-align: left; font-size: 16px; font-weight: 600; padding: 15px 20px;
-    border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
-    background-color: var(--ui-light-blue-bg); color: var(--ui-primary-blue);
-    border: 1px solid #dce1e7;
+    width: 100%; text-align: left; font-size: 16px; font-weight: 600;
+    padding: 15px 20px; border-radius: 8px; cursor: pointer;
+    transition: all 0.3s ease; background-color: var(--ui-light-blue-bg);
+    color: var(--ui-primary-blue); border: 1px solid #dce1e7;
   }
-  .accordion-item .accordion-header.active { background-color: var(--ui-primary-blue); color: #fff; }
+  .accordion-item .accordion-header.active {
+    background-color: var(--ui-primary-blue); color: #fff;
+  }
   .accordion-item .accordion-panel {
     max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease;
-    font-size: 15px; line-height: 1.6; color: var(--palette-text-secondary); padding: 0 20px;
+    font-size: 15px; line-height: 1.6; color: var(--palette-text-secondary);
+    padding: 0 20px;
   }
   .accordion-item .accordion-panel.active { padding: 15px 20px; max-height: 500px; }
 </style>
@@ -112,45 +135,46 @@
     </div>
   </div>
   <div class="block-t">
-    <input type="text" placeholder="Введите возражение">
+    <input type="text" id="search-input" placeholder="Введите возражение для поиска...">
   </div>
   <div class="block-o" id="main-block"></div>
 </div>
 
 <script>
-// 3. ИСПОЛЬЗУЕМ DOMContentLoaded ДЛЯ ГАРАНТИРОВАННОЙ ЗАГРУЗКИ
 document.addEventListener('DOMContentLoaded', () => {
-
   const SUPABASE_URL = 'https://vyxjfeoqngnlvqttetbd.supabase.co';
-  // ВСТАВИЛ ВАШ КЛЮЧ
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eGpmZW9xbmdubHZxdHRldGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzODQyMjMsImV4cCI6MjA2OTk2MDIyM30.mt8Ybj6H0DHi07XD0Tt_sW3DfyZAMInyNyDNpI69Ld0';
 
   const mainBlock = document.getElementById('main-block');
   const backButton = document.getElementById('back-button');
   const modeToggle = document.getElementById('mode-toggle');
+  const searchInput = document.getElementById('search-input');
   const labelBrokerage = document.querySelector('.label-brokerage');
   const labelPackaging = document.querySelector('.label-packaging');
 
   let supabase;
   try {
-    // 4. ПРАВИЛЬНАЯ ИНИЦИАЛИЗАЦИЯ
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   } catch (error) {
-    console.error("ОШИБКА ИНИЦИАЛИЗАЦИИ SUPABASE:", error);
-    mainBlock.innerHTML = `<p style="color: red;">Не удалось инициализировать Supabase. Проверьте консоль (F12).</p>`;
+    mainBlock.innerHTML = `<p style="color: red;">Не удалось инициализировать Supabase.</p>`;
     return;
   }
   
   let currentCategory = 'Брокеридж';
+  let debounceTimeout;
   const pusheenImageUrl = 'https://cdn.imgbin.com/9/12/6/imgbin-pusheen-sticker-telegram-vkontakte-jj-pusheen-cat-illustration-FYzgapPV2qHfFNKvYnCcXKHuH.jpg';
 
+  // --- ФУНКЦИИ ОТОБРАЖЕНИЯ ---
+
+  /** НАЧПОЗ: Запрашивает кнопки и отображает их. */
   async function renderNachpoz(categoryColumn) {
-    mainBlock.innerHTML = '<p>Загрузка кнопок...</p>';
+    mainBlock.classList.add('loading');
     backButton.classList.add('hidden');
     const { data, error } = await supabase.from('Button').select(`num, ${categoryColumn}`).order('num');
+    mainBlock.classList.remove('loading');
+
     if (error) {
       mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки кнопок: ${error.message}</p>`;
-      console.error("Ошибка при загрузке кнопок:", error);
       return;
     }
     let buttonsHtml = '';
@@ -160,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (buttonData.num === 6 && !buttonText) {
         buttonsHtml += `<div class="empty-slot"><img src="${pusheenImageUrl}" alt="Pusheen Cat" class="pusheen-image"></div>`;
       } else if (buttonText) {
-        buttonsHtml += `<button data-objection="${buttonText}">${buttonText}</button>`;
+        buttonsHtml += `<button>${buttonText}</button>`;
       } else {
         buttonsHtml += '<div class="empty-slot"></div>';
       }
@@ -169,28 +193,67 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNachpozListeners();
   }
 
+  /** ТУПОЗ: Запрашивает все скрипты для категории и отображает аккордеон. */
   async function renderTupoz(category) {
-    mainBlock.innerHTML = '<p>Загрузка скриптов...</p>';
+    mainBlock.classList.add('loading');
     backButton.classList.remove('hidden');
     const { data, error } = await supabase.from('Text').select('question, answer').eq('category', category);
+    mainBlock.classList.remove('loading');
+    
     if (error) {
       mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки скриптов: ${error.message}</p>`;
-      console.error("Ошибка при загрузке скриптов:", error);
       return;
     }
-    if (data.length === 0) {
-      mainBlock.innerHTML = `<p>Для категории "${category}" скрипты не найдены.</p>`;
-      return;
-    }
-    const accordionHtml = data.map(item => `<div class="accordion-item"><button class="accordion-header">${item.question}</button><div class="accordion-panel"><p>${item.answer}</p></div></div>`).join('');
-    mainBlock.innerHTML = `<div class="accordion-list">${accordionHtml}</div>`;
+    mainBlock.innerHTML = createAccordionHtml(data, category);
     setupAccordionListeners();
   }
+  
+  /** ПОИСК: Ищет скрипты по ключевому слову и отображает результат в виде аккордеона. */
+  async function renderSearchResults(searchText) {
+      if (!searchText) {
+        renderNachpoz(currentCategory === 'Брокеридж' ? 'brok' : 'upak');
+        return;
+      }
+      mainBlock.classList.add('loading');
+      backButton.classList.add('hidden'); // Кнопка "назад" не нужна в поиске
+      
+      const { data, error } = await supabase.from('Text')
+        .select('question, answer')
+        .eq('category', currentCategory)
+        .ilike('question', `%${searchText}%`); // ilike - поиск без учета регистра
+      
+      mainBlock.classList.remove('loading');
 
+      if (error) {
+          mainBlock.innerHTML = `<p style="color:red;">Ошибка поиска: ${error.message}</p>`;
+          return;
+      }
+      mainBlock.innerHTML = createAccordionHtml(data, currentCategory, true);
+      setupAccordionListeners();
+  }
+
+  // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+
+  /** Создает HTML для аккордеона из массива данных */
+  function createAccordionHtml(items, category, isSearchResult = false) {
+      if (!items || items.length === 0) {
+          const message = isSearchResult ? 'Ничего не найдено.' : `Для категории "${category}" скрипты не найдены.`;
+          return `<p>${message}</p>`;
+      }
+      const accordionItems = items.map(item => `
+          <div class="accordion-item">
+              <button class="accordion-header">${item.question}</button>
+              <div class="accordion-panel"><p>${item.answer}</p></div>
+          </div>
+      `).join('');
+      return `<div class="accordion-list">${accordionItems}</div>`;
+  }
+
+  // --- СЛУШАТЕЛИ СОБЫТИЙ ---
+  
   function setupNachpozListeners() {
     mainBlock.querySelectorAll('.button-grid button').forEach(button => button.addEventListener('click', () => renderTupoz(currentCategory)));
   }
-
   function setupAccordionListeners() {
     mainBlock.querySelectorAll('.accordion-header').forEach(header => {
       header.addEventListener('click', () => {
@@ -206,13 +269,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   backButton.addEventListener('click', () => {
-    const categoryColumn = currentCategory === 'Брокеридж' ? 'brok' : 'upak';
-    renderNachpoz(categoryColumn);
+    searchInput.value = ''; // Очищаем поиск при нажатии "назад"
+    renderNachpoz(currentCategory === 'Брокеридж' ? 'brok' : 'upak');
   });
 
   modeToggle.addEventListener('change', function() {
     labelBrokerage.classList.toggle('text-active', !this.checked);
     labelPackaging.classList.toggle('text-active', this.checked);
+    searchInput.value = ''; // Очищаем поиск при смене режима
     if (this.checked) {
       currentCategory = 'Упаковка';
       renderNachpoz('upak');
@@ -220,6 +284,14 @@ document.addEventListener('DOMContentLoaded', () => {
       currentCategory = 'Брокеридж';
       renderNachpoz('brok');
     }
+  });
+  
+  // Слушатель для поля поиска с "дебаунсом"
+  searchInput.addEventListener('input', (e) => {
+      clearTimeout(debounceTimeout);
+      debounceTimeout = setTimeout(() => {
+          renderSearchResults(e.target.value.trim());
+      }, 300); // Задержка в 300 мс перед отправкой запроса
   });
 
   // Первоначальная загрузка
