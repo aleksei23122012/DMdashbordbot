@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Бот ОВ</title>
+<title>Бот отработки возражений</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -51,12 +51,11 @@
     opacity: 1; transition: opacity 0.3s;
   }
 
-  /* Обертка для центрирования бегунка */
   .toggle-wrapper {
       position: absolute; left: 50%; transform: translateX(-50%);
   }
   
-  /* Стили для бегунка-переключателя */
+  /* Стили для бегунка */
   .toggle-switch {
     position: relative; display: inline-block; width: 220px; height: 44px;
     background-color: var(--toggle-bg); border-radius: 22px; cursor: pointer;
@@ -73,12 +72,17 @@
   }
   .toggle-labels span {
     flex: 1; text-align: center; font-size: 15px; font-weight: 600;
-    color: var(--palette-text-secondary); transition: color 0.3s ease;
+    color: var(--palette-text-secondary); /* По умолчанию текст серый */
+    transition: color 0.3s ease;
   }
   .toggle-switch input:checked + .toggle-slider { transform: translateX(104px); }
-  .label-brokerage { color: #fff; }
   
-  /* Класс для скрытия элементов */
+  /* --- ГЛАВНОЕ ИЗМЕНЕНИЕ --- */
+  /* Класс для активного текста, который будет белым */
+  .toggle-labels span.text-active {
+      color: #fff;
+  }
+  
   .hidden { opacity: 0; pointer-events: none; }
 
   /* --- БЛОК Т: Поле для ввода --- */
@@ -121,7 +125,7 @@
           <input type="checkbox" id="mode-toggle">
           <span class="toggle-slider"></span>
           <div class="toggle-labels">
-            <span class="label-brokerage">Брокеридж</span>
+            <span class="label-brokerage text-active">Брокеридж</span>
             <span class="label-packaging">Упаковка</span>
           </div>
         </label>
@@ -135,7 +139,6 @@
 
   <!-- БЛОК О -->
   <div class="block-o" id="main-block">
-    <!-- Начальное состояние: 6 кнопок -->
     <button>Не интересно</button>
     <button>Дорого</button>
     <button>Нет денег</button>
@@ -155,57 +158,54 @@
 
   // --- Функции ---
   function showResultTable(objectionText) {
-    // Создаем HTML для таблицы, подставляя текст нажатой кнопки
     const resultTableContent = `
       <table class="result-table">
         <thead><tr><th>Параметр</th><th>Значение</th></tr></thead>
         <tbody>
           <tr><td>Тип возражения</td><td>${objectionText}</td></tr>
           <tr><td>Рекомендуемый ответ</td><td>Здесь будет скрипт ответа...</td></tr>
-          <tr><td>Вероятность успеха</td><td>...%</td></tr>
         </tbody>
       </table>`;
-
     mainBlock.innerHTML = resultTableContent;
-    mainBlock.style.display = 'block'; // Меняем сетку на блочный элемент для таблицы
-    backButton.classList.remove('hidden'); // Показываем кнопку "Назад"
+    mainBlock.style.display = 'block';
+    backButton.classList.remove('hidden');
   }
 
   function showInitialButtons() {
     mainBlock.innerHTML = initialBlockOContent;
-    mainBlock.style.display = 'grid'; // Возвращаем отображение сеткой
-    backButton.classList.add('hidden'); // Скрываем кнопку "Назад"
-    setupObjectionButtonListeners(); // **ВАЖНО:** Заново назначаем слушатели на кнопки
+    mainBlock.style.display = 'grid';
+    backButton.classList.add('hidden');
+    setupObjectionButtonListeners();
   }
 
   function setupObjectionButtonListeners() {
     const objectionButtons = mainBlock.querySelectorAll('button');
     objectionButtons.forEach(button => {
       button.addEventListener('click', () => {
-        // При клике передаем текст кнопки в функцию отображения таблицы
         showResultTable(button.textContent);
       });
     });
   }
 
-  // --- Назначение слушателей событий ---
+  // --- Назначение слушателей ---
   backButton.addEventListener('click', showInitialButtons);
-  setupObjectionButtonListeners(); // Назначаем слушатели при первой загрузке
+  setupObjectionButtonListeners();
 
-  // Логика для бегунка (БЛОК В)
+  // --- ИСПРАВЛЕННАЯ ЛОГИКА ДЛЯ БЕГУНКА ---
+  const labelBrokerage = document.querySelector('.label-brokerage');
+  const labelPackaging = document.querySelector('.label-packaging');
+
   modeToggle.addEventListener('change', function() {
-    const labelBrokerage = document.querySelector('.label-brokerage');
-    const labelPackaging = document.querySelector('.label-packaging');
+    // Управляем классом 'text-active' для смены цвета текста
+    labelBrokerage.classList.toggle('text-active', !this.checked);
+    labelPackaging.classList.toggle('text-active', this.checked);
+
     if (this.checked) {
-      labelBrokerage.style.color = 'var(--palette-text-secondary)';
-      labelPackaging.style.color = '#fff';
       console.log('Выбран режим: Упаковка');
-      // В будущем здесь будет логика для смены контента на режим "Упаковка"
+      // В будущем здесь будет логика для режима "Упаковка"
     } else {
-      labelBrokerage.style.color = '#fff';
-      labelPackaging.style.color = 'var(--palette-text-secondary)';
       console.log('Выбран режим: Брокеридж');
-      showInitialButtons(); // При возврате в режим "Брокеридж" показываем его кнопки
+      showInitialButtons(); // Возвращаем контент для режима "Брокеридж"
     }
   });
 </script>
