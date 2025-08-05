@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Бот отработки возражений</title>
-<!-- УБЕДИТЕСЬ, ЧТО ЭТОТ СКРИПТ ВЫШЕ ВАШЕГО ОСНОВНОГО КОДА -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<!-- 1. ИЗМЕНИЛ TITLE -->
+<title>Бот ОВ</title>
+<!-- 2. ИЗМЕНИЛ СКРИПТ SUPABASE, ЧТОБЫ ОН ЗАГРУЖАЛСЯ БЫСТРЕЕ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -117,31 +118,29 @@
 </div>
 
 <script>
-// Ждем, пока загрузится DOM и скрипт Supabase
+// 3. ИСПОЛЬЗУЕМ DOMContentLoaded ДЛЯ ГАРАНТИРОВАННОЙ ЗАГРУЗКИ
 document.addEventListener('DOMContentLoaded', () => {
 
-  // --- НАСТРОЙКИ SUPABASE ---
-  // 1. ПРОВЕРЬТЕ URL - он должен быть правильным
   const SUPABASE_URL = 'https://vyxjfeoqngnlvqttetbd.supabase.co';
-  // 2. ПРОВЕРЬТЕ КЛЮЧ - это должен быть ПУБЛИЧНЫЙ ANON KEY
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eGpmZW9xbmdubHZxdHRldGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjE0NDMyMjksImV4cCI6MTk3NzAxOTIyOX0.nk43omHWfpCs_hJbs4gt_EsJXZ8za8EzhAvN7_zu9Ak';
+  // ВСТАВИЛ ВАШ КЛЮЧ
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eGpmZW9xbmdubHZxdHRldGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzODQyMjMsImV4cCI6MjA2OTk2MDIyM30.mt8Ybj6H0DHi07XD0Tt_sW3DfyZAMInyNyDNpI69Ld0';
 
-  let supabase;
-  try {
-    supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  } catch (error) {
-    console.error("ОШИБКА ИНИЦИАЛИЗАЦИИ SUPABASE:", error);
-    const mainBlock = document.getElementById('main-block');
-    mainBlock.innerHTML = `<p style="color: red;">Не удалось инициализировать Supabase. Проверьте консоль (F12).</p>`;
-    return; // Останавливаем выполнение, если инициализация не удалась
-  }
-  
-  // --- Остальной код остается без изменений ---
   const mainBlock = document.getElementById('main-block');
   const backButton = document.getElementById('back-button');
   const modeToggle = document.getElementById('mode-toggle');
   const labelBrokerage = document.querySelector('.label-brokerage');
   const labelPackaging = document.querySelector('.label-packaging');
+
+  let supabase;
+  try {
+    // 4. ПРАВИЛЬНАЯ ИНИЦИАЛИЗАЦИЯ
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } catch (error) {
+    console.error("ОШИБКА ИНИЦИАЛИЗАЦИИ SUPABASE:", error);
+    mainBlock.innerHTML = `<p style="color: red;">Не удалось инициализировать Supabase. Проверьте консоль (F12).</p>`;
+    return;
+  }
+  
   let currentCategory = 'Брокеридж';
   const pusheenImageUrl = 'https://cdn.imgbin.com/9/12/6/imgbin-pusheen-sticker-telegram-vkontakte-jj-pusheen-cat-illustration-FYzgapPV2qHfFNKvYnCcXKHuH.jpg';
 
@@ -150,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
     backButton.classList.add('hidden');
     const { data, error } = await supabase.from('Button').select(`num, ${categoryColumn}`).order('num');
     if (error) {
-      mainBlock.innerHTML = `<p>Ошибка загрузки: ${error.message}</p>`;
+      mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки кнопок: ${error.message}</p>`;
       console.error("Ошибка при загрузке кнопок:", error);
       return;
     }
@@ -169,12 +168,13 @@ document.addEventListener('DOMContentLoaded', () => {
     mainBlock.innerHTML = `<div class="button-grid">${buttonsHtml}</div>`;
     setupNachpozListeners();
   }
+
   async function renderTupoz(category) {
     mainBlock.innerHTML = '<p>Загрузка скриптов...</p>';
     backButton.classList.remove('hidden');
     const { data, error } = await supabase.from('Text').select('question, answer').eq('category', category);
     if (error) {
-      mainBlock.innerHTML = `<p>Ошибка загрузки: ${error.message}</p>`;
+      mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки скриптов: ${error.message}</p>`;
       console.error("Ошибка при загрузке скриптов:", error);
       return;
     }
@@ -186,9 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
     mainBlock.innerHTML = `<div class="accordion-list">${accordionHtml}</div>`;
     setupAccordionListeners();
   }
+
   function setupNachpozListeners() {
     mainBlock.querySelectorAll('.button-grid button').forEach(button => button.addEventListener('click', () => renderTupoz(currentCategory)));
   }
+
   function setupAccordionListeners() {
     mainBlock.querySelectorAll('.accordion-header').forEach(header => {
       header.addEventListener('click', () => {
@@ -202,10 +204,12 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
   backButton.addEventListener('click', () => {
     const categoryColumn = currentCategory === 'Брокеридж' ? 'brok' : 'upak';
     renderNachpoz(categoryColumn);
   });
+
   modeToggle.addEventListener('change', function() {
     labelBrokerage.classList.toggle('text-active', !this.checked);
     labelPackaging.classList.toggle('text-active', this.checked);
@@ -217,6 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
       renderNachpoz('brok');
     }
   });
+
+  // Первоначальная загрузка
   renderNachpoz('brok');
 });
 </script>
