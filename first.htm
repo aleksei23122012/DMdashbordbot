@@ -53,8 +53,7 @@
     transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
   .toggle-labels {
-    position: absolute; inset: 0; display: flex; align-items: center;
-    pointer-events: none;
+    position: absolute; inset: 0; display: flex; align-items: center; pointer-events: none;
   }
   .toggle-labels span {
     flex: 1; text-align: center; font-size: 15px; font-weight: 600;
@@ -67,19 +66,15 @@
   .block-t { padding: 20px 25px; }
   .block-t input[type="text"] {
     width: 100%; padding: 12px 16px; font-size: 16px;
-    border: 1px solid var(--ui-primary-blue); border-radius: 8px;
-    box-sizing: border-box;
+    border: 1px solid var(--ui-primary-blue); border-radius: 8px; box-sizing: border-box;
   }
   /* БЛОК О */
   .block-o {
     flex-grow: 1; padding: 25px; box-sizing: border-box; overflow-y: auto;
-    transition: opacity 0.2s ease-in-out; /* Плавный переход для затухания */
+    transition: opacity 0.2s ease-in-out;
   }
-  /* Класс для состояния загрузки */
-  .block-o.loading {
-    opacity: 0.5;
-    pointer-events: none;
-  }
+  .block-o.loading { opacity: 0.5; pointer-events: none; }
+  
   /* Стили для сетки кнопок в НАЧПОЗ */
   .button-grid {
     display: grid; grid-template-columns: repeat(2, 1fr);
@@ -96,26 +91,30 @@
     border: 1px dashed var(--palette-border-color);
   }
   .pusheen-image {
-    width: 100%; height: 100%; object-fit: contain; padding: 10px;
-    box-sizing: border-box;
+    width: 100%; height: 100%; object-fit: contain; padding: 10px; box-sizing: border-box;
   }
-  /* Стили для аккордеона в ТУПОЗ и результатах поиска */
+
+  /* Стили для аккордеона */
   .accordion-list { display: flex; flex-direction: column; gap: 15px; }
   .accordion-item .accordion-header {
-    width: 100%; text-align: left; font-size: 16px; font-weight: 600;
-    padding: 15px 20px; border-radius: 8px; cursor: pointer;
-    transition: all 0.3s ease; background-color: var(--ui-light-blue-bg);
-    color: var(--ui-primary-blue); border: 1px solid #dce1e7;
+    width: 100%; text-align: left; font-size: 16px; font-weight: 600; padding: 15px 20px;
+    border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
+    background-color: var(--ui-light-blue-bg); color: var(--ui-primary-blue);
+    border: 1px solid #dce1e7;
   }
-  .accordion-item .accordion-header.active {
-    background-color: var(--ui-primary-blue); color: #fff;
-  }
+  .accordion-item .accordion-header.active { background-color: var(--ui-primary-blue); color: #fff; }
   .accordion-item .accordion-panel {
     max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease;
-    font-size: 15px; line-height: 1.6; color: var(--palette-text-secondary);
-    padding: 0 20px;
+    font-size: 15px; line-height: 1.6; color: var(--palette-text-secondary); padding: 0 20px;
   }
   .accordion-item .accordion-panel.active { padding: 15px 20px; max-height: 500px; }
+  
+  /* --- НОВЫЙ СТИЛЬ: Контейнер для пустого сообщения, чтобы избежать скачков --- */
+  .empty-message-container {
+      height: 100%;
+      display: flex;
+  }
+
 </style>
 </head>
 <body>
@@ -142,6 +141,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  // --- НАСТРОЙКИ И ЭЛЕМЕНТЫ ---
   const SUPABASE_URL = 'https://vyxjfeoqngnlvqttetbd.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eGpmZW9xbmdubHZxdHRldGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzODQyMjMsImV4cCI6MjA2OTk2MDIyM30.mt8Ybj6H0DHi07XD0Tt_sW3DfyZAMInyNyDNpI69Ld0';
 
@@ -160,21 +160,23 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
   
+  // --- ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
   let currentCategory = 'Брокеридж';
+  let currentView = 'NACHPOZ'; // 'NACHPOZ' или 'TUPOZ'
   let debounceTimeout;
   const pusheenImageUrl = 'https://cdn.imgbin.com/9/12/6/imgbin-pusheen-sticker-telegram-vkontakte-jj-pusheen-cat-illustration-FYzgapPV2qHfFNKvYnCcXKHuH.jpg';
 
   // --- ФУНКЦИИ ОТОБРАЖЕНИЯ ---
-
-  /** НАЧПОЗ: Запрашивает кнопки и отображает их. */
+  
   async function renderNachpoz(categoryColumn) {
+    currentView = 'NACHPOZ'; // Запоминаем текущее состояние
     mainBlock.classList.add('loading');
     backButton.classList.add('hidden');
     const { data, error } = await supabase.from('Button').select(`num, ${categoryColumn}`).order('num');
     mainBlock.classList.remove('loading');
 
     if (error) {
-      mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки кнопок: ${error.message}</p>`;
+      mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки: ${error.message}</p>`;
       return;
     }
     let buttonsHtml = '';
@@ -193,34 +195,38 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNachpozListeners();
   }
 
-  /** ТУПОЗ: Запрашивает все скрипты для категории и отображает аккордеон. */
   async function renderTupoz(category) {
+    currentView = 'TUPOZ'; // Запоминаем текущее состояние
     mainBlock.classList.add('loading');
     backButton.classList.remove('hidden');
     const { data, error } = await supabase.from('Text').select('question, answer').eq('category', category);
     mainBlock.classList.remove('loading');
     
     if (error) {
-      mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки скриптов: ${error.message}</p>`;
+      mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки: ${error.message}</p>`;
       return;
     }
     mainBlock.innerHTML = createAccordionHtml(data, category);
     setupAccordionListeners();
   }
   
-  /** ПОИСК: Ищет скрипты по ключевому слову и отображает результат в виде аккордеона. */
   async function renderSearchResults(searchText) {
+      // Если поле поиска очистили, возвращаемся к предыдущему состоянию
       if (!searchText) {
-        renderNachpoz(currentCategory === 'Брокеридж' ? 'brok' : 'upak');
+        if (currentView === 'NACHPOZ') {
+          renderNachpoz(currentCategory === 'Брокеридж' ? 'brok' : 'upak');
+        } else { // currentView === 'TUPOZ'
+          renderTupoz(currentCategory);
+        }
         return;
       }
+
       mainBlock.classList.add('loading');
-      backButton.classList.add('hidden'); // Кнопка "назад" не нужна в поиске
-      
+      backButton.classList.add('hidden');
       const { data, error } = await supabase.from('Text')
         .select('question, answer')
         .eq('category', currentCategory)
-        .ilike('question', `%${searchText}%`); // ilike - поиск без учета регистра
+        .ilike('question', `%${searchText}%`);
       
       mainBlock.classList.remove('loading');
 
@@ -234,11 +240,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 
-  /** Создает HTML для аккордеона из массива данных */
   function createAccordionHtml(items, category, isSearchResult = false) {
       if (!items || items.length === 0) {
           const message = isSearchResult ? 'Ничего не найдено.' : `Для категории "${category}" скрипты не найдены.`;
-          return `<p>${message}</p>`;
+          // Оборачиваем сообщение в контейнер, чтобы избежать скачка высоты
+          return `<div class="empty-message-container"><p>${message}</p></div>`;
       }
       const accordionItems = items.map(item => `
           <div class="accordion-item">
@@ -269,14 +275,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   backButton.addEventListener('click', () => {
-    searchInput.value = ''; // Очищаем поиск при нажатии "назад"
+    searchInput.value = '';
     renderNachpoz(currentCategory === 'Брокеридж' ? 'brok' : 'upak');
   });
 
   modeToggle.addEventListener('change', function() {
     labelBrokerage.classList.toggle('text-active', !this.checked);
     labelPackaging.classList.toggle('text-active', this.checked);
-    searchInput.value = ''; // Очищаем поиск при смене режима
+    searchInput.value = '';
     if (this.checked) {
       currentCategory = 'Упаковка';
       renderNachpoz('upak');
@@ -286,12 +292,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
   
-  // Слушатель для поля поиска с "дебаунсом"
   searchInput.addEventListener('input', (e) => {
       clearTimeout(debounceTimeout);
       debounceTimeout = setTimeout(() => {
           renderSearchResults(e.target.value.trim());
-      }, 300); // Задержка в 300 мс перед отправкой запроса
+      }, 300);
   });
 
   // Первоначальная загрузка
