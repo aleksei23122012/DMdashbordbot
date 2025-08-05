@@ -6,27 +6,18 @@
 <title>Бот отработки возражений</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    /* Палитра из вашего style.css */
-    --palette-primary-blue: #007AFF;
-    --palette-dark-blue: #0056b3;
-    --palette-light-blue: #EAF5FF;
+    /* Палитра, основанная на вашем дашборде */
+    --ui-primary-blue: #357ABD;
+    --ui-primary-blue-hover: #2A65B2;
     --palette-bg-color: #F5F7FA;
     --palette-card-color: #FFFFFF;
     --palette-text-primary: #1D232A;
     --palette-text-secondary: #6C757D;
     --palette-border-color: #E9ECEF;
-    
-    /* 
-      НОВЫЕ, ПРАВИЛЬНЫЕ ЦВЕТА 
-      Основаны на визуальном анализе вашего дашборда, а не на переменной --primary-blue.
-      Этот синий гораздо спокойнее и профессиональнее.
-    */
-    --ui-primary-blue: #357ABD; /* Спокойный синий, как на кнопке "День" */
-    --ui-primary-blue-hover: #2A65B2; /* Его более темный оттенок для наведения */
     --shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
   }
 
@@ -59,10 +50,42 @@
     overflow: hidden;
   }
 
-  /* Верхний блок */
+  /* НОВЫЙ БЛОК: Контейнер для кнопок-переключателей */
+  .mode-selector {
+    padding: 20px 25px 15px 25px; /* Отступы сверху и по бокам, снизу меньше */
+    border-bottom: 1px solid var(--palette-border-color);
+    display: flex;
+    gap: 10px; /* Промежуток между кнопками */
+  }
+
+  /* Стили для кнопок-переключателей */
+  .mode-selector button {
+    padding: 8px 16px;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid var(--palette-border-color);
+    background-color: transparent;
+    color: var(--palette-text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .mode-selector button:hover {
+      background-color: #f8f9fa;
+      border-color: #dce1e7;
+  }
+
+  /* Стиль для активной кнопки-переключателя */
+  .mode-selector button.active {
+    background-color: var(--ui-primary-blue);
+    color: #fff;
+    border-color: var(--ui-primary-blue);
+  }
+
+  /* Верхний блок с полем ввода */
   .top-block {
     padding: 20px 25px;
-    border-bottom: 1px solid var(--palette-border-color);
   }
 
   .top-block input[type="text"] {
@@ -83,7 +106,7 @@
   .top-block input[type="text"]:focus {
     outline: none;
     border-color: var(--ui-primary-blue);
-    box-shadow: 0 0 0 3px rgba(53, 122, 189, 0.2); /* Подсветка в цвет нового синего */
+    box-shadow: 0 0 0 3px rgba(53, 122, 189, 0.2);
   }
 
   /* Нижний блок с кнопками */
@@ -97,14 +120,15 @@
     box-sizing: border-box;
   }
 
-  /* Стили для активных кнопок с НОВЫМ цветом */
+  /* Стили для активных кнопок */
   .bottom-block button {
     width: 100%;
     height: 100%;
-    font-size: 16px;
-    font-weight: 500;
+    /* --- ИЗМЕНЕНИЯ ШРИФТА --- */
+    font-size: 17px;  /* Увеличили размер */
+    font-weight: 600; /* Сделали жирнее (600 - Semibold) */
     color: #fff;
-    background-color: var(--ui-primary-blue); /* Используем новый, правильный синий */
+    background-color: var(--ui-primary-blue);
     border: none;
     border-radius: 10px;
     cursor: pointer;
@@ -119,7 +143,7 @@
   }
 
   .bottom-block button:hover {
-    background-color: var(--ui-primary-blue-hover); /* Используем новый цвет для наведения */
+    background-color: var(--ui-primary-blue-hover);
   }
 
   .bottom-block button:active {
@@ -149,6 +173,13 @@
 <body>
 
 <div class="app-container">
+  
+  <!-- НОВЫЙ БЛОК HTML: Переключатели режимов -->
+  <div class="mode-selector">
+    <button class="active" data-mode="brokerage">Брокеридж</button>
+    <button data-mode="packaging">Упаковка</button>
+  </div>
+
   <div class="top-block">
     <input type="text" placeholder="Введите текст возражения...">
   </div>
@@ -167,12 +198,29 @@
 </div>
 
 <script>
-  // JavaScript без изменений
+  // --- НОВЫЙ БЛОК JAVASCRIPT: Логика для переключателей режимов ---
+  const modeButtons = document.querySelectorAll('.mode-selector button');
+
+  modeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      // 1. Убираем класс 'active' у всех кнопок
+      modeButtons.forEach(btn => btn.classList.remove('active'));
+      // 2. Добавляем класс 'active' только что нажатой кнопке
+      button.classList.add('active');
+      
+      const selectedMode = button.dataset.mode;
+      console.log(`Выбран режим: ${selectedMode}`);
+      // Здесь в будущем можно будет менять содержимое нижних кнопок или
+      // обращаться к разным таблицам в Supabase в зависимости от режима.
+    });
+  });
+
+  // Логика для основных кнопок отработки возражений
   document.querySelectorAll('.bottom-block button').forEach(button => {
     button.addEventListener('click', () => {
       if (!button.classList.contains('empty')) {
         const buttonText = button.textContent;
-        console.log(`Нажата кнопка: ${buttonText}`);
+        console.log(`Нажата кнопка возражения: ${buttonText}`);
       }
     });
   });
