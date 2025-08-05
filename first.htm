@@ -4,57 +4,42 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Бот отработки возражений</title>
-<!-- 1. ПОДКЛЮЧАЕМ КЛИЕНТ SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- УБЕДИТЕСЬ, ЧТО ЭТОТ СКРИПТ ВЫШЕ ВАШЕГО ОСНОВНОГО КОДА -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
+  /* Стили остаются без изменений */
   :root {
-    /* Палитра */
-    --ui-primary-blue: #357ABD;
-    --ui-primary-blue-hover: #2A65B2;
-    --ui-light-blue-bg: #eaf5ff;
-    --palette-bg-color: #F5F7FA;
-    --palette-card-color: #FFFFFF;
-    --palette-text-primary: #1D232A;
-    --palette-text-secondary: #6C757D;
-    --palette-border-color: #E9ECEF;
-    --toggle-bg: #e9ecef;
-    --shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    --ui-primary-blue: #357ABD; --ui-primary-blue-hover: #2A65B2;
+    --ui-light-blue-bg: #eaf5ff; --palette-bg-color: #F5F7FA;
+    --palette-card-color: #FFFFFF; --palette-text-primary: #1D232A;
+    --palette-text-secondary: #6C757D; --palette-border-color: #E9ECEF;
+    --toggle-bg: #e9ecef; --shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
   }
-
-  /* Общие стили */
   body, html {
-    height: 100%; margin: 0; font-family: 'Inter', sans-serif;
-    background-color: var(--palette-bg-color); color: var(--palette-text-primary);
-    display: flex; justify-content: center; align-items: center;
+    height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--palette-bg-color);
+    color: var(--palette-text-primary); display: flex; justify-content: center; align-items: center;
     padding: 20px; box-sizing: border-box;
   }
-
   .app-container {
-    width: 100%; max-width: 800px; height: 95%; max-height: 850px;
-    display: flex; flex-direction: column; background-color: var(--palette-card-color);
-    border-radius: 12px; box-shadow: var(--shadow); border: 1px solid var(--palette-border-color);
-    overflow: hidden;
+    width: 100%; max-width: 800px; height: 95%; max-height: 850px; display: flex;
+    flex-direction: column; background-color: var(--palette-card-color); border-radius: 12px;
+    box-shadow: var(--shadow); border: 1px solid var(--palette-border-color); overflow: hidden;
   }
-
-  /* БЛОК В */
   .block-v {
-    padding: 15px 25px; border-bottom: 1px solid var(--palette-border-color);
-    display: flex; align-items: center; justify-content: space-between;
-    min-height: 54px; box-sizing: border-box; position: relative;
+    padding: 15px 25px; border-bottom: 1px solid var(--palette-border-color); display: flex;
+    align-items: center; justify-content: space-between; min-height: 54px;
+    box-sizing: border-box; position: relative;
   }
   .back-button {
-    font-size: 15px; font-weight: 600; color: var(--ui-primary-blue);
-    background: transparent; border: none; cursor: pointer; padding: 8px;
-    opacity: 1; transition: opacity 0.3s;
+    font-size: 15px; font-weight: 600; color: var(--ui-primary-blue); background: transparent;
+    border: none; cursor: pointer; padding: 8px; opacity: 1; transition: opacity 0.3s;
   }
-  .toggle-wrapper {
-      position: absolute; left: 50%; transform: translateX(-50%);
-  }
+  .toggle-wrapper { position: absolute; left: 50%; transform: translateX(-50%); }
   .toggle-switch {
     position: relative; display: inline-block; width: 220px; height: 44px;
     background-color: var(--toggle-bg); border-radius: 22px; cursor: pointer;
@@ -75,61 +60,38 @@
   .toggle-switch input:checked + .toggle-slider { transform: translateX(104px); }
   .toggle-labels span.text-active { color: #fff; }
   .hidden { opacity: 0; pointer-events: none; }
-
-  /* БЛОК Т */
   .block-t { padding: 20px 25px; }
   .block-t input[type="text"] {
-    width: 100%; padding: 12px 16px; font-size: 16px;
-    border: 1px solid var(--ui-primary-blue); border-radius: 8px; box-sizing: border-box;
+    width: 100%; padding: 12px 16px; font-size: 16px; border: 1px solid var(--ui-primary-blue);
+    border-radius: 8px; box-sizing: border-box;
   }
-
-  /* БЛОК О (Главное изменение для фикса ширины) */
-  .block-o {
-    flex-grow: 1; padding: 25px; box-sizing: border-box;
-    overflow-y: auto; /* Позволяет контенту скроллиться, если он не влезает */
-    /* Убрали grid отсюда, чтобы блок не менял ширину */
-  }
-  
-  /* Стили для сетки кнопок в НАЧПОЗ */
+  .block-o { flex-grow: 1; padding: 25px; box-sizing: border-box; overflow-y: auto; }
   .button-grid {
-      display: grid; grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(3, 1fr); gap: 20px; height: 100%;
+    display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr);
+    gap: 20px; height: 100%;
   }
   .button-grid button {
     font-size: 17px; font-weight: 600; color: #fff; background-color: var(--ui-primary-blue);
     border: none; border-radius: 10px; cursor: pointer; transition: background-color 0.2s;
   }
   .button-grid button:hover { background-color: var(--ui-primary-blue-hover); }
-
-  /* Стили для пустой ячейки и картинки */
   .empty-slot {
-      border-radius: 10px;
-      background-color: #f8f9fa;
-      border: 1px dashed var(--palette-border-color);
+    border-radius: 10px; background-color: #f8f9fa; border: 1px dashed var(--palette-border-color);
   }
-  .pusheen-image {
-      width: 100%; height: 100%; object-fit: contain;
-      padding: 10px; box-sizing: border-box;
-  }
-
-  /* Стили для аккордеона в ТУПОЗ */
+  .pusheen-image { width: 100%; height: 100%; object-fit: contain; padding: 10px; box-sizing: border-box; }
   .accordion-list { display: flex; flex-direction: column; gap: 15px; }
   .accordion-item .accordion-header {
-      width: 100%; text-align: left; font-size: 16px; font-weight: 600; padding: 15px 20px;
-      border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
-      background-color: var(--ui-light-blue-bg); color: var(--ui-primary-blue);
-      border: 1px solid #dce1e7;
+    width: 100%; text-align: left; font-size: 16px; font-weight: 600; padding: 15px 20px;
+    border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
+    background-color: var(--ui-light-blue-bg); color: var(--ui-primary-blue);
+    border: 1px solid #dce1e7;
   }
-  .accordion-item .accordion-header.active {
-      background-color: var(--ui-primary-blue); color: #fff;
-  }
+  .accordion-item .accordion-header.active { background-color: var(--ui-primary-blue); color: #fff; }
   .accordion-item .accordion-panel {
-      max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease;
-      font-size: 15px; line-height: 1.6; color: var(--palette-text-secondary);
-      padding: 0 20px;
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease;
+    font-size: 15px; line-height: 1.6; color: var(--palette-text-secondary); padding: 0 20px;
   }
   .accordion-item .accordion-panel.active { padding: 15px 20px; max-height: 500px; }
-
 </style>
 </head>
 <body>
@@ -148,160 +110,115 @@
         </label>
     </div>
   </div>
-
   <div class="block-t">
     <input type="text" placeholder="Введите возражение">
   </div>
-
-  <div class="block-o" id="main-block">
-    <!-- Контент будет загружаться сюда динамически -->
-  </div>
+  <div class="block-o" id="main-block"></div>
 </div>
 
 <script>
-// --- 2. НАСТРОЙКИ SUPABASE ---
-// ЗАМЕНИТЕ ЭТИ ЗНАЧЕНИЯ НА ВАШИ из Settings -> API
-const SUPABASE_URL = 'https://vyxjfeoqngnlvqttetbd.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eGpmZW9xbmdubHZxdHRldGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzODQyMjMsImV4cCI6MjA2OTk2MDIyM30.mt8Ybj6H0DHi07XD0Tt_sW3DfyZAMInyNyDNpI69Ld0'; // Используем публичный anon-ключ!
+// Ждем, пока загрузится DOM и скрипт Supabase
+document.addEventListener('DOMContentLoaded', () => {
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // --- НАСТРОЙКИ SUPABASE ---
+  // 1. ПРОВЕРЬТЕ URL - он должен быть правильным
+  const SUPABASE_URL = 'https://vyxjfeoqngnlvqttetbd.supabase.co';
+  // 2. ПРОВЕРЬТЕ КЛЮЧ - это должен быть ПУБЛИЧНЫЙ ANON KEY
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5eGpmZW9xbmdubHZxdHRldGJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NjE0NDMyMjksImV4cCI6MTk3NzAxOTIyOX0.nk43omHWfpCs_hJbs4gt_EsJXZ8za8EzhAvN7_zu9Ak';
 
-// --- Элементы DOM ---
-const mainBlock = document.getElementById('main-block');
-const backButton = document.getElementById('back-button');
-const modeToggle = document.getElementById('mode-toggle');
-const labelBrokerage = document.querySelector('.label-brokerage');
-const labelPackaging = document.querySelector('.label-packaging');
-
-let currentCategory = 'Брокеридж'; // Храним текущий режим
-const pusheenImageUrl = 'https://cdn.imgbin.com/9/12/6/imgbin-pusheen-sticker-telegram-vkontakte-jj-pusheen-cat-illustration-FYzgapPV2qHfFNKvYnCcXKHuH.jpg';
-
-// --- ОСНОВНЫЕ ФУНКЦИИ ОТОБРАЖЕНИЯ ---
-
-/**
- * НАЧПОЗ: Запрашивает кнопки из Supabase и отображает их.
- * @param {string} categoryColumn - 'brok' или 'upak', колонка для получения текста.
- */
-async function renderNachpoz(categoryColumn) {
-  mainBlock.innerHTML = '<p>Загрузка кнопок...</p>';
-  backButton.classList.add('hidden');
-
-  const { data, error } = await supabase
-    .from('Button') // Название вашей таблицы с кнопками
-    .select(`num, ${categoryColumn}`) // Выбираем номер и нужную колонку
-    .order('num'); // Сортируем по номеру
-
-  if (error) {
-    mainBlock.innerHTML = `<p>Ошибка загрузки: ${error.message}</p>`;
-    return;
-  }
-
-  let buttonsHtml = '';
-  // Создаем массив с 6 слотами, чтобы гарантировать порядок
-  const buttonSlots = Array.from({ length: 6 }, (_, i) => {
-    return data.find(d => d.num === i + 1) || { num: i + 1, [categoryColumn]: null };
-  });
-
-  buttonSlots.forEach(buttonData => {
-    const buttonText = buttonData[categoryColumn];
-    // Особый случай для 6-й кнопки
-    if (buttonData.num === 6 && !buttonText) {
-      buttonsHtml += `<div class="empty-slot"><img src="${pusheenImageUrl}" alt="Pusheen Cat" class="pusheen-image"></div>`;
-    } else if (buttonText) {
-      buttonsHtml += `<button data-objection="${buttonText}">${buttonText}</button>`;
-    } else {
-      buttonsHtml += '<div class="empty-slot"></div>'; // Пустой слот для остальных
-    }
-  });
-
-  mainBlock.innerHTML = `<div class="button-grid">${buttonsHtml}</div>`;
-  setupNachpozListeners();
-}
-
-/**
- * ТУПОЗ: Запрашивает скрипты из Supabase и отображает аккордеон.
- * @param {string} category - "Брокеридж" или "Упаковка" для фильтрации.
- */
-async function renderTupoz(category) {
-  mainBlock.innerHTML = '<p>Загрузка скриптов...</p>';
-  backButton.classList.remove('hidden');
-
-  const { data, error } = await supabase
-    .from('Text') // Название вашей таблицы со скриптами
-    .select('question, answer')
-    .eq('category', category); // Фильтруем по категории
-
-  if (error) {
-    mainBlock.innerHTML = `<p>Ошибка загрузки: ${error.message}</p>`;
-    return;
+  let supabase;
+  try {
+    supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  } catch (error) {
+    console.error("ОШИБКА ИНИЦИАЛИЗАЦИИ SUPABASE:", error);
+    const mainBlock = document.getElementById('main-block');
+    mainBlock.innerHTML = `<p style="color: red;">Не удалось инициализировать Supabase. Проверьте консоль (F12).</p>`;
+    return; // Останавливаем выполнение, если инициализация не удалась
   }
   
-  if (data.length === 0) {
+  // --- Остальной код остается без изменений ---
+  const mainBlock = document.getElementById('main-block');
+  const backButton = document.getElementById('back-button');
+  const modeToggle = document.getElementById('mode-toggle');
+  const labelBrokerage = document.querySelector('.label-brokerage');
+  const labelPackaging = document.querySelector('.label-packaging');
+  let currentCategory = 'Брокеридж';
+  const pusheenImageUrl = 'https://cdn.imgbin.com/9/12/6/imgbin-pusheen-sticker-telegram-vkontakte-jj-pusheen-cat-illustration-FYzgapPV2qHfFNKvYnCcXKHuH.jpg';
+
+  async function renderNachpoz(categoryColumn) {
+    mainBlock.innerHTML = '<p>Загрузка кнопок...</p>';
+    backButton.classList.add('hidden');
+    const { data, error } = await supabase.from('Button').select(`num, ${categoryColumn}`).order('num');
+    if (error) {
+      mainBlock.innerHTML = `<p>Ошибка загрузки: ${error.message}</p>`;
+      console.error("Ошибка при загрузке кнопок:", error);
+      return;
+    }
+    let buttonsHtml = '';
+    const buttonSlots = Array.from({ length: 6 }, (_, i) => data.find(d => d.num === i + 1) || { num: i + 1, [categoryColumn]: null });
+    buttonSlots.forEach(buttonData => {
+      const buttonText = buttonData[categoryColumn];
+      if (buttonData.num === 6 && !buttonText) {
+        buttonsHtml += `<div class="empty-slot"><img src="${pusheenImageUrl}" alt="Pusheen Cat" class="pusheen-image"></div>`;
+      } else if (buttonText) {
+        buttonsHtml += `<button data-objection="${buttonText}">${buttonText}</button>`;
+      } else {
+        buttonsHtml += '<div class="empty-slot"></div>';
+      }
+    });
+    mainBlock.innerHTML = `<div class="button-grid">${buttonsHtml}</div>`;
+    setupNachpozListeners();
+  }
+  async function renderTupoz(category) {
+    mainBlock.innerHTML = '<p>Загрузка скриптов...</p>';
+    backButton.classList.remove('hidden');
+    const { data, error } = await supabase.from('Text').select('question, answer').eq('category', category);
+    if (error) {
+      mainBlock.innerHTML = `<p>Ошибка загрузки: ${error.message}</p>`;
+      console.error("Ошибка при загрузке скриптов:", error);
+      return;
+    }
+    if (data.length === 0) {
       mainBlock.innerHTML = `<p>Для категории "${category}" скрипты не найдены.</p>`;
       return;
+    }
+    const accordionHtml = data.map(item => `<div class="accordion-item"><button class="accordion-header">${item.question}</button><div class="accordion-panel"><p>${item.answer}</p></div></div>`).join('');
+    mainBlock.innerHTML = `<div class="accordion-list">${accordionHtml}</div>`;
+    setupAccordionListeners();
   }
-
-  const accordionHtml = data.map(item => `
-    <div class="accordion-item">
-      <button class="accordion-header">${item.question}</button>
-      <div class="accordion-panel"><p>${item.answer}</p></div>
-    </div>
-  `).join('');
-
-  mainBlock.innerHTML = `<div class="accordion-list">${accordionHtml}</div>`;
-  setupAccordionListeners();
-}
-
-// --- ФУНКЦИИ НАЗНАЧЕНИЯ СЛУШАТЕЛЕЙ ---
-
-/** Назначает слушатели на кнопки в НАЧПОЗ */
-function setupNachpozListeners() {
-  mainBlock.querySelectorAll('.button-grid button').forEach(button => {
-    button.addEventListener('click', () => renderTupoz(currentCategory));
-  });
-}
-
-/** Назначает слушатели на аккордеон в ТУПОЗ */
-function setupAccordionListeners() {
-  mainBlock.querySelectorAll('.accordion-header').forEach(header => {
-    header.addEventListener('click', () => {
-      const currentlyActive = mainBlock.querySelector('.accordion-header.active');
-      if (currentlyActive && currentlyActive !== header) {
-        currentlyActive.classList.remove('active');
-        currentlyActive.nextElementSibling.classList.remove('active');
-      }
-      header.classList.toggle('active');
-      header.nextElementSibling.classList.toggle('active');
+  function setupNachpozListeners() {
+    mainBlock.querySelectorAll('.button-grid button').forEach(button => button.addEventListener('click', () => renderTupoz(currentCategory)));
+  }
+  function setupAccordionListeners() {
+    mainBlock.querySelectorAll('.accordion-header').forEach(header => {
+      header.addEventListener('click', () => {
+        const currentlyActive = mainBlock.querySelector('.accordion-header.active');
+        if (currentlyActive && currentlyActive !== header) {
+          currentlyActive.classList.remove('active');
+          currentlyActive.nextElementSibling.classList.remove('active');
+        }
+        header.classList.toggle('active');
+        header.nextElementSibling.classList.toggle('active');
+      });
     });
-  });
-}
-
-
-// --- ИНИЦИАЛИЗАЦИЯ И ГЛАВНЫЕ СЛУШАТЕЛИ ---
-
-// Слушатель для кнопки "Назад"
-backButton.addEventListener('click', () => {
+  }
+  backButton.addEventListener('click', () => {
     const categoryColumn = currentCategory === 'Брокеридж' ? 'brok' : 'upak';
     renderNachpoz(categoryColumn);
+  });
+  modeToggle.addEventListener('change', function() {
+    labelBrokerage.classList.toggle('text-active', !this.checked);
+    labelPackaging.classList.toggle('text-active', this.checked);
+    if (this.checked) {
+      currentCategory = 'Упаковка';
+      renderNachpoz('upak');
+    } else {
+      currentCategory = 'Брокеридж';
+      renderNachpoz('brok');
+    }
+  });
+  renderNachpoz('brok');
 });
-
-// Слушатель для бегунка-переключателя (БЛОК В)
-modeToggle.addEventListener('change', function() {
-  labelBrokerage.classList.toggle('text-active', !this.checked);
-  labelPackaging.classList.toggle('text-active', this.checked);
-  
-  if (this.checked) {
-    currentCategory = 'Упаковка';
-    renderNachpoz('upak'); // Загружаем кнопки для "Упаковки"
-  } else {
-    currentCategory = 'Брокеридж';
-    renderNachpoz('brok'); // Загружаем кнопки для "Брокериджа"
-  }
-});
-
-// Первоначальная загрузка данных при открытии страницы
-renderNachpoz('brok');
-
 </script>
 
 </body>
