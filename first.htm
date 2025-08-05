@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Бот отработки возражений</title>
+<title>Бот ОВ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -41,9 +41,8 @@
   /* --- БЛОК В: Бегунок и кнопка "Назад" --- */
   .block-v {
     padding: 15px 25px; border-bottom: 1px solid var(--palette-border-color);
-    display: flex; align-items: center; justify-content: space-between; /* Расставляем элементы по краям */
-    min-height: 54px; /* Чтобы блок не прыгал по высоте */
-    box-sizing: border-box;
+    display: flex; align-items: center; justify-content: space-between;
+    min-height: 54px; box-sizing: border-box; position: relative;
   }
   
   .back-button {
@@ -52,12 +51,12 @@
     opacity: 1; transition: opacity 0.3s;
   }
 
+  /* Обертка для центрирования бегунка */
   .toggle-wrapper {
-      position: absolute; /* Позиционируем по центру родителя */
-      left: 50%;
-      transform: translateX(-50%);
+      position: absolute; left: 50%; transform: translateX(-50%);
   }
-
+  
+  /* Стили для бегунка-переключателя */
   .toggle-switch {
     position: relative; display: inline-block; width: 220px; height: 44px;
     background-color: var(--toggle-bg); border-radius: 22px; cursor: pointer;
@@ -80,10 +79,7 @@
   .label-brokerage { color: #fff; }
   
   /* Класс для скрытия элементов */
-  .hidden {
-      opacity: 0;
-      pointer-events: none;
-  }
+  .hidden { opacity: 0; pointer-events: none; }
 
   /* --- БЛОК Т: Поле для ввода --- */
   .block-t { padding: 20px 25px; }
@@ -95,36 +91,22 @@
   /* --- БЛОК О: Основной контент --- */
   .block-o {
     flex-grow: 1; padding: 25px; box-sizing: border-box;
-    display: grid;
-    /* Новая сетка 2x3 */
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: 20px;
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr); gap: 20px;
   }
-
   .block-o button {
     width: 100%; height: 100%; font-size: 17px; font-weight: 600; color: #fff;
     background-color: var(--ui-primary-blue); border: none; border-radius: 10px; cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s; display: flex; justify-content: center;
-    align-items: center; text-align: center; padding: 10px; box-sizing: border-box;
+    transition: background-color 0.2s, transform 0.1s;
   }
   .block-o button:hover { background-color: var(--ui-primary-blue-hover); }
 
-  /* Стили для тестовой таблицы */
-  .result-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 16px;
-  }
+  /* Стили для таблицы результатов */
+  .result-table { width: 100%; border-collapse: collapse; font-size: 16px; }
   .result-table th, .result-table td {
-      border: 1px solid var(--palette-border-color);
-      padding: 12px;
-      text-align: left;
+      border: 1px solid var(--palette-border-color); padding: 12px; text-align: left;
   }
-  .result-table th {
-      background-color: #f8f9fa;
-      font-weight: 600;
-  }
+  .result-table th { background-color: #f8f9fa; font-weight: 600; }
 </style>
 </head>
 <body>
@@ -169,90 +151,61 @@
   const backButton = document.getElementById('back-button');
   const modeToggle = document.getElementById('mode-toggle');
   
-  // Сохраняем начальное состояние БЛОКА О (6 кнопок)
   const initialBlockOContent = mainBlock.innerHTML;
 
-  // HTML для тестовой таблицы, которая появится после клика
-  const resultTableContent = `
-    <table class="result-table">
-      <thead>
-        <tr>
-          <th>Параметр</th>
-          <th>Значение</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Тип возражения</td>
-          <td>Не интересно</td>
-        </tr>
-        <tr>
-          <td>Рекомендуемый ответ</td>
-          <td>Уточните, пожалуйста, что именно вам не интересно...</td>
-        </tr>
-        <tr>
-          <td>Вероятность успеха</td>
-          <td>35%</td>
-        </tr>
-      </tbody>
-    </table>
-  `;
-
   // --- Функции ---
+  function showResultTable(objectionText) {
+    // Создаем HTML для таблицы, подставляя текст нажатой кнопки
+    const resultTableContent = `
+      <table class="result-table">
+        <thead><tr><th>Параметр</th><th>Значение</th></tr></thead>
+        <tbody>
+          <tr><td>Тип возражения</td><td>${objectionText}</td></tr>
+          <tr><td>Рекомендуемый ответ</td><td>Здесь будет скрипт ответа...</td></tr>
+          <tr><td>Вероятность успеха</td><td>...%</td></tr>
+        </tbody>
+      </table>`;
 
-  /**
-   * Функция для смены содержимого БЛОКА О на таблицу
-   */
-  function showResultTable() {
     mainBlock.innerHTML = resultTableContent;
-    mainBlock.style.display = 'block'; // Меняем display на block для таблицы
+    mainBlock.style.display = 'block'; // Меняем сетку на блочный элемент для таблицы
     backButton.classList.remove('hidden'); // Показываем кнопку "Назад"
   }
 
-  /**
-   * Функция для восстановления начального содержимого БЛОКА О
-   */
   function showInitialButtons() {
     mainBlock.innerHTML = initialBlockOContent;
-    mainBlock.style.display = 'grid'; // Возвращаем display grid для кнопок
+    mainBlock.style.display = 'grid'; // Возвращаем отображение сеткой
     backButton.classList.add('hidden'); // Скрываем кнопку "Назад"
-    setup ObjectionButtonListeners(); // **ВАЖНО:** Переназначаем слушатели на новые кнопки
+    setupObjectionButtonListeners(); // **ВАЖНО:** Заново назначаем слушатели на кнопки
   }
 
-  /**
-   * Функция для назначения слушателей на кнопки возражений в БЛОКЕ О
-   */
   function setupObjectionButtonListeners() {
     const objectionButtons = mainBlock.querySelectorAll('button');
     objectionButtons.forEach(button => {
-      button.addEventListener('click', showResultTable);
+      button.addEventListener('click', () => {
+        // При клике передаем текст кнопки в функцию отображения таблицы
+        showResultTable(button.textContent);
+      });
     });
   }
 
   // --- Назначение слушателей событий ---
-
-  // Слушатель для кнопки "Назад"
   backButton.addEventListener('click', showInitialButtons);
-
-  // Первоначальное назначение слушателей для кнопок в БЛОКЕ О
-  setupObjectionButtonListeners();
+  setupObjectionButtonListeners(); // Назначаем слушатели при первой загрузке
 
   // Логика для бегунка (БЛОК В)
   modeToggle.addEventListener('change', function() {
     const labelBrokerage = document.querySelector('.label-brokerage');
     const labelPackaging = document.querySelector('.label-packaging');
     if (this.checked) {
-      // Режим "Упаковка"
       labelBrokerage.style.color = 'var(--palette-text-secondary)';
       labelPackaging.style.color = '#fff';
       console.log('Выбран режим: Упаковка');
-      // Здесь в будущем будет логика для смены содержимого БЛОКА О под режим "Упаковка"
+      // В будущем здесь будет логика для смены контента на режим "Упаковка"
     } else {
-      // Режим "Брокеридж"
       labelBrokerage.style.color = '#fff';
       labelPackaging.style.color = 'var(--palette-text-secondary)';
       console.log('Выбран режим: Брокеридж');
-      showInitialButtons(); // Возвращаемся к кнопкам брокериджа
+      showInitialButtons(); // При возврате в режим "Брокеридж" показываем его кнопки
     }
   });
 </script>
