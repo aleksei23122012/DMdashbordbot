@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Бот ОВ</title>
+<!-- Подключаем библиотеку Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Подключаем наши файлы -->
+<link rel="stylesheet" href="style.css">
+<script src="script.js" defer></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-container">
+  <!-- БЛОК В -->
+  <div class="block-v">
+    <button id="back-button" class="back-button hidden">← Назад</button>
+    <div class="toggle-wrapper">
+        <label class="toggle-switch">
+          <input type="checkbox" id="mode-toggle">
+          <span class="toggle-slider"></span>
+          <div class="toggle-labels">
+            <span class="label-brokerage text-active">Брокеридж</span>
+            <span class="label-packaging">Упаковка</span>
+          </div>
+        </label>
+    </div>
+  </div>
+
+  <!-- БЛОК Т -->
+  <div class="block-t">
+    <input type="text" id="search-input" placeholder="Введите возражение для поиска...">
+  </div>
+
+  <!-- БЛОК О -->
+  <div class="block-o" id="main-block">
+      <!-- Весь контент будет генерироваться здесь с помощью script.js -->
+  </div>
+</div>
+
+</body>
+</html>
