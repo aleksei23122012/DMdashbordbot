@@ -107,7 +107,15 @@
     font-size: 15px; line-height: 1.6; color: var(--palette-text-secondary); padding: 0 20px;
   }
   .accordion-item .accordion-panel.active { padding: 15px 20px; max-height: 500px; }
-  .empty-message-container { height: 100%; display: flex; }
+  
+  /* --- ИЗМЕНЕНИЕ 2: Улучшенные стили для пустого сообщения --- */
+  .empty-message-container {
+      height: 100%;
+      display: flex;
+      align-items: center;       /* Центрирование по вертикали */
+      justify-content: center;   /* Центрирование по горизонтали */
+      color: var(--palette-text-secondary);
+  }
 </style>
 </head>
 <body>
@@ -147,28 +155,26 @@ document.addEventListener('DOMContentLoaded', () => {
   try {
     supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   } catch (error) {
-    mainBlock.innerHTML = `<p style="color: red;">Не удалось инициализировать Supabase.</p>`;
-    return;
+    mainBlock.innerHTML = `<p style="color: red;">Не удалось инициализировать Supabase.</p>`; return;
   }
   
   // --- ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
   let currentCategory = 'Брокеридж';
-  let currentView = 'NACHPOZ';
+  let currentType = null; // --- ИЗМЕНЕНИЕ 1: Запоминаем тип для контекстного поиска
   let debounceTimeout;
   const pusheenImageUrl = 'https://cdn.imgbin.com/9/12/6/imgbin-pusheen-sticker-telegram-vkontakte-jj-pusheen-cat-illustration-FYzgapPV2qHfFNKvYnCcXKHuH.jpg';
 
   // --- ФУНКЦИИ ОТОБРАЖЕНИЯ ---
   
   async function renderNachpoz(categoryColumn) {
-    currentView = 'NACHPOZ';
+    currentType = null; // Сбрасываем тип при возврате в НАЧПОЗ
     mainBlock.classList.add('loading');
     backButton.classList.add('hidden');
     const { data, error } = await supabase.from('Button').select(`num, ${categoryColumn}`).order('num');
     mainBlock.classList.remove('loading');
 
-    if (error) {
-      mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки: ${error.message}</p>`; return;
-    }
+    if (error) { mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки: ${error.message}</p>`; return; }
+    
     let buttonsHtml = '';
     const buttonSlots = Array.from({ length: 6 }, (_, i) => data.find(d => d.num === i + 1) || { num: i + 1, [categoryColumn]: null });
     buttonSlots.forEach(buttonData => {
@@ -185,33 +191,25 @@ document.addEventListener('DOMContentLoaded', () => {
     setupNachpozListeners();
   }
   
-  // --- ИЗМЕНЕНИЕ 1: Функция теперь принимает ТИП (текст с кнопки) ---
   async function renderTupoz(category, type) {
-    currentView = 'TUPOZ';
+    currentType = type; // Запоминаем тип для контекстного поиска
     mainBlock.classList.add('loading');
     backButton.classList.remove('hidden');
     
-    // Запрос теперь фильтрует не только по категории, но и по типу
-    const { data, error } = await supabase.from('Text')
-        .select('question, answer')
-        .eq('category', category)
-        .eq('type', type);
-
+    const { data, error } = await supabase.from('Text').select('question, answer').eq('category', category).eq('type', type);
     mainBlock.classList.remove('loading');
     
-    if (error) {
-      mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки: ${error.message}</p>`; return;
-    }
+    if (error) { mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки: ${error.message}</p>`; return; }
+    
     mainBlock.innerHTML = createAccordionHtml(data, category);
     setupAccordionListeners();
   }
   
   async function renderSearchResults(searchText) {
       if (!searchText) {
-        if (currentView === 'NACHPOZ') {
-          renderNachpoz(currentCategory === 'Брокеридж' ? 'brok' : 'upak');
-        } else {
-          // Если мы были в ТУПОЗ, надо вернуться к кнопкам, т.к. контекст кнопки утерян
+        if (currentType) { // Если мы были в ТУПОЗ
+          renderTupoz(currentCategory, currentType);
+        } else { // Если мы были в НАЧПОЗ
           renderNachpoz(currentCategory === 'Брокеридж' ? 'brok' : 'upak');
         }
         return;
@@ -220,24 +218,27 @@ document.addEventListener('DOMContentLoaded', () => {
       mainBlock.classList.add('loading');
       backButton.classList.add('hidden');
       
-      const { data, error } = await supabase.from('Text')
+      let query = supabase.from('Text')
         .select('question, answer')
         .eq('category', currentCategory)
         .ilike('question', `%${searchText}%`);
       
+      // Если мы в режиме ТУПОЗ, добавляем фильтр по типу
+      if (currentType) {
+        query = query.eq('type', currentType);
+      }
+      
+      const { data, error } = await query;
       mainBlock.classList.remove('loading');
 
-      if (error) {
-          mainBlock.innerHTML = `<p style="color:red;">Ошибка поиска: ${error.message}</p>`; return;
-      }
-      // --- ИЗМЕНЕНИЕ 2: Передаем флаг для авто-раскрытия ---
+      if (error) { mainBlock.innerHTML = `<p style="color:red;">Ошибка поиска: ${error.message}</p>`; return; }
+      
       mainBlock.innerHTML = createAccordionHtml(data, currentCategory, true, data.length === 1);
       setupAccordionListeners();
   }
 
   // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 
-  // --- ИЗМЕНЕНИЕ 3: Функция теперь принимает флаг autoExpandSingleItem ---
   function createAccordionHtml(items, category, isSearchResult = false, autoExpandSingleItem = false) {
       if (!items || items.length === 0) {
           const message = isSearchResult ? 'Ничего не найдено.' : `Для типа "${category}" скрипты не найдены.`;
@@ -247,11 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const isActive = autoExpandSingleItem;
           const headerClass = `accordion-header ${isActive ? 'active' : ''}`;
           const panelClass = `accordion-panel ${isActive ? 'active' : ''}`;
-          return `
-            <div class="accordion-item">
-                <button class="${headerClass}">${item.question}</button>
-                <div class="${panelClass}"><p>${item.answer}</p></div>
-            </div>`;
+          return `<div class="accordion-item"><button class="${headerClass}">${item.question}</button><div class="accordion-panel"><p>${item.answer}</p></div></div>`;
       }).join('');
       return `<div class="accordion-list">${accordionItems}</div>`;
   }
@@ -260,11 +257,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   function setupNachpozListeners() {
     mainBlock.querySelectorAll('.button-grid button').forEach(button => {
-        // --- ИЗМЕНЕНИЕ 4: Передаем текст кнопки в renderTupoz ---
         button.addEventListener('click', (e) => renderTupoz(currentCategory, e.target.textContent));
     });
   }
-
   function setupAccordionListeners() {
     mainBlock.querySelectorAll('.accordion-header').forEach(header => {
       header.addEventListener('click', () => {
