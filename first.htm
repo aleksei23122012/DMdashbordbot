@@ -4,22 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Бот отработки возражений</title>
-<!-- Подключаем шрифт Inter, который отлично подходит под стиль дашборда -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
   :root {
-    /* Цветовая палитра, воссозданная по вашему дашборду */
-    --primary-blue: #2979ff;         /* Яркий синий для кнопок и акцентов */
-    --primary-blue-hover: #2962ff;   /* Более темный синий при наведении */
-    --background-color: #f5f7fa;     /* Светло-серый фон как в дашборде */
-    --card-background: #ffffff;      /* Белый фон для "виджетов" */
-    --text-primary: #333745;         /* Основной темный текст */
-    --text-secondary: #8c95a5;       /* Вторичный серый текст */
-    --border-color: #e3e8f0;         /* Цвет рамок */
-    --shadow: 0 5px 15px rgba(0, 0, 0, 0.05); /* Мягкая тень для карточек */
+    /*
+      Новая, более спокойная и профессиональная палитра.
+      Ушли от "ядовитого" синего к более глубокому и сдержанному оттенку.
+    */
+    --primary-blue-calm: #3b71ca;      /* Спокойный, уверенный синий */
+    --primary-blue-calm-hover: #3260ad; /* Его более темный вариант для наведения */
+    --background-main: #f5f7fa;        /* Светло-серый фон (как в дашборде) */
+    --background-card: #ffffff;         /* Чистый белый для карточки */
+    --text-primary: #2c3e50;            /* Темный, но не черный текст для мягкости */
+    --text-secondary: #8492a6;          /* Спокойный серый для второстепенной информации */
+    --border-color: #e3e8f0;            /* Мягкая рамка */
+    --shadow: 0 6px 20px rgba(0, 0, 0, 0.06); /* Чуть более заметная, но мягкая тень */
+    --focus-ring-color: rgba(59, 113, 202, 0.25); /* Подсветка в цвет нового синего */
   }
 
   /* Общие стили */
@@ -27,7 +30,7 @@
     height: 100%;
     margin: 0;
     font-family: 'Inter', sans-serif;
-    background-color: var(--background-color);
+    background-color: var(--background-main);
     color: var(--text-primary);
     display: flex;
     justify-content: center;
@@ -36,7 +39,7 @@
     box-sizing: border-box;
   }
 
-  /* Основной контейнер, стилизованный под карточку из дашборда */
+  /* Основной контейнер */
   .app-container {
     width: 100%;
     max-width: 800px;
@@ -44,14 +47,14 @@
     max-height: 850px;
     display: flex;
     flex-direction: column;
-    background-color: var(--card-background);
+    background-color: var(--background-card);
     border-radius: 12px;
     box-shadow: var(--shadow);
     border: 1px solid var(--border-color);
     overflow: hidden;
   }
 
-  /* Верхний блок с полем ввода */
+  /* Верхний блок */
   .top-block {
     padding: 20px 25px;
     border-bottom: 1px solid var(--border-color);
@@ -74,11 +77,11 @@
 
   .top-block input[type="text"]:focus {
     outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(41, 121, 255, 0.2);
+    border-color: var(--primary-blue-calm);
+    box-shadow: 0 0 0 3px var(--focus-ring-color);
   }
 
-  /* Нижний блок с сеткой кнопок */
+  /* Нижний блок с кнопками */
   .bottom-block {
     flex-grow: 1;
     display: grid;
@@ -89,14 +92,14 @@
     box-sizing: border-box;
   }
 
-  /* Стили для активных кнопок */
+  /* Стили для активных кнопок с новым цветом */
   .bottom-block button {
     width: 100%;
     height: 100%;
     font-size: 16px;
     font-weight: 500;
     color: #fff;
-    background-color: var(--primary-blue);
+    background-color: var(--primary-blue-calm);
     border: none;
     border-radius: 10px;
     cursor: pointer;
@@ -111,14 +114,14 @@
   }
 
   .bottom-block button:hover {
-    background-color: var(--primary-blue-hover);
+    background-color: var(--primary-blue-calm-hover);
   }
 
   .bottom-block button:active {
     transform: scale(0.97);
   }
 
-  /* Стили для неактивных/пустых кнопок */
+  /* Стили для неактивных кнопок остались прежними, они выглядят хорошо */
   .bottom-block button.empty {
       background-color: transparent;
       border: 1px solid var(--border-color);
@@ -128,7 +131,7 @@
   }
 
   .bottom-block button.empty:hover {
-       background-color: #f9fafb;
+       background-color: #fcfdfe;
        border-color: #dce1e7;
   }
   
@@ -161,16 +164,12 @@
 </div>
 
 <script>
-  // JavaScript для будущей интерактивности
+  // JavaScript без изменений
   document.querySelectorAll('.bottom-block button').forEach(button => {
     button.addEventListener('click', () => {
-      // Игнорируем клики по пустым кнопкам
       if (!button.classList.contains('empty')) {
         const buttonText = button.textContent;
         console.log(`Нажата кнопка: ${buttonText}`);
-        
-        // В будущем здесь будет ваш код для получения данных из Supabase
-        // Например: fetchDataFromSupabase(buttonText);
       }
     });
   });
