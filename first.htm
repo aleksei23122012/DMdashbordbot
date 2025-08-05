@@ -10,7 +10,7 @@
 
 <style>
   :root {
-    /* Палитра, основанная на вашем дашборде */
+    /* Палитра */
     --ui-primary-blue: #357ABD;
     --ui-primary-blue-hover: #2A65B2;
     --palette-bg-color: #F5F7FA;
@@ -18,6 +18,7 @@
     --palette-text-primary: #1D232A;
     --palette-text-secondary: #6C757D;
     --palette-border-color: #E9ECEF;
+    --toggle-bg: #e9ecef; /* Фон для неактивного бегунка */
     --shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
   }
 
@@ -50,134 +51,125 @@
     overflow: hidden;
   }
 
-  /* НОВЫЙ БЛОК: Контейнер для кнопок-переключателей */
-  .mode-selector {
-    padding: 20px 25px 15px 25px; /* Отступы сверху и по бокам, снизу меньше */
+  /* --- НОВЫЙ БЛОК: Контейнер для бегунка --- */
+  .mode-selector-wrapper {
+    padding: 20px 25px 15px 25px;
     border-bottom: 1px solid var(--palette-border-color);
     display: flex;
-    gap: 10px; /* Промежуток между кнопками */
+    justify-content: center; /* Центрируем бегунок */
   }
 
-  /* Стили для кнопок-переключателей */
-  .mode-selector button {
-    padding: 8px 16px;
-    font-size: 15px;
-    font-weight: 500;
-    border-radius: 8px;
-    border: 1px solid var(--palette-border-color);
-    background-color: transparent;
-    color: var(--palette-text-secondary);
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 220px; /* Ширина контейнера бегунка */
+    height: 44px; /* Высота */
+    background-color: var(--toggle-bg);
+    border-radius: 22px; /* Полное скругление (высота / 2) */
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
   }
   
-  .mode-selector button:hover {
-      background-color: #f8f9fa;
-      border-color: #dce1e7;
+  /* Скрываем стандартный чекбокс */
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
   }
-
-  /* Стиль для активной кнопки-переключателя */
-  .mode-selector button.active {
+  
+  /* Сам бегунок (кружок) */
+  .toggle-slider {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    height: 36px; /* Высота кружка (контейнер - 2 * отступ) */
+    width: 108px; /* Ширина бегунка (половина контейнера - отступы) */
     background-color: var(--ui-primary-blue);
-    color: #fff;
-    border-color: var(--ui-primary-blue);
+    border-radius: 18px; /* Полное скругление */
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Плавная анимация */
   }
 
-  /* Верхний блок с полем ввода */
+  /* Стили для текста внутри бегунка */
+  .toggle-labels {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    pointer-events: none; /* Чтобы клики проходили на input */
+  }
+
+  .toggle-labels span {
+    flex: 1;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--palette-text-secondary);
+    transition: color 0.3s ease;
+  }
+  
+  /* --- Логика переключения --- */
+  /* Когда input активен (checked), двигаем бегунок */
+  .toggle-switch input:checked + .toggle-slider {
+    transform: translateX(104px); /* Двигаем вправо */
+  }
+  
+  /* Цвет текста по умолчанию для активного режима ("Брокеридж") */
+  .toggle-labels .label-brokerage {
+    color: #fff;
+  }
+  
+  /* --- Верхний блок с полем ввода --- */
   .top-block {
     padding: 20px 25px;
   }
+  /* ... (остальной CSS без изменений) ... */
 
   .top-block input[type="text"] {
-    width: 100%;
-    padding: 12px 16px;
-    font-size: 16px;
-    font-family: 'Inter', sans-serif;
-    border: 1px solid var(--palette-border-color);
-    border-radius: 8px;
-    box-sizing: border-box;
+    width: 100%; padding: 12px 16px; font-size: 16px; font-family: 'Inter', sans-serif;
+    border: 1px solid var(--palette-border-color); border-radius: 8px; box-sizing: border-box;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
-
-  .top-block input[type="text"]::placeholder {
-      color: var(--palette-text-secondary);
-  }
-
+  .top-block input[type="text"]::placeholder { color: var(--palette-text-secondary); }
   .top-block input[type="text"]:focus {
-    outline: none;
-    border-color: var(--ui-primary-blue);
+    outline: none; border-color: var(--ui-primary-blue);
     box-shadow: 0 0 0 3px rgba(53, 122, 189, 0.2);
   }
-
-  /* Нижний блок с кнопками */
   .bottom-block {
-    flex-grow: 1;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: 15px;
-    padding: 25px;
-    box-sizing: border-box;
+    flex-grow: 1; display: grid; grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr); gap: 15px; padding: 25px; box-sizing: border-box;
   }
-
-  /* Стили для активных кнопок */
   .bottom-block button {
-    width: 100%;
-    height: 100%;
-    /* --- ИЗМЕНЕНИЯ ШРИФТА --- */
-    font-size: 17px;  /* Увеличили размер */
-    font-weight: 600; /* Сделали жирнее (600 - Semibold) */
-    color: #fff;
-    background-color: var(--ui-primary-blue);
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 10px;
-    box-sizing: border-box;
-    line-height: 1.4;
+    width: 100%; height: 100%; font-size: 17px; font-weight: 600; color: #fff;
+    background-color: var(--ui-primary-blue); border: none; border-radius: 10px; cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s; display: flex; justify-content: center;
+    align-items: center; text-align: center; padding: 10px; box-sizing: border-box; line-height: 1.4;
   }
-
-  .bottom-block button:hover {
-    background-color: var(--ui-primary-blue-hover);
-  }
-
-  .bottom-block button:active {
-    transform: scale(0.97);
-  }
-
-  /* Стили для неактивных кнопок */
+  .bottom-block button:hover { background-color: var(--ui-primary-blue-hover); }
+  .bottom-block button:active { transform: scale(0.97); }
   .bottom-block button.empty {
-      background-color: transparent;
-      border: 1px solid var(--palette-border-color);
-      color: var(--palette-text-secondary);
-      font-weight: 400;
-      cursor: default;
+    background-color: transparent; border: 1px solid var(--palette-border-color);
+    color: var(--palette-text-secondary); font-weight: 400; cursor: default;
   }
-
-  .bottom-block button.empty:hover {
-       background-color: #fcfdfe;
-       transform: none;
-  }
-  
-  .bottom-block button.empty:active {
-       transform: none;
-  }
-
+  .bottom-block button.empty:hover { background-color: #fcfdfe; transform: none; }
+  .bottom-block button.empty:active { transform: none; }
 </style>
 </head>
 <body>
 
 <div class="app-container">
   
-  <!-- НОВЫЙ БЛОК HTML: Переключатели режимов -->
-  <div class="mode-selector">
-    <button class="active" data-mode="brokerage">Брокеридж</button>
-    <button data-mode="packaging">Упаковка</button>
+  <!-- НОВЫЙ БЛОК HTML: Бегунок-переключатель -->
+  <div class="mode-selector-wrapper">
+    <label class="toggle-switch">
+      <input type="checkbox" id="mode-toggle">
+      <span class="toggle-slider"></span>
+      <div class="toggle-labels">
+        <span class="label-brokerage">Брокеридж</span>
+        <span class="label-packaging">Упаковка</span>
+      </div>
+    </label>
   </div>
 
   <div class="top-block">
@@ -198,21 +190,23 @@
 </div>
 
 <script>
-  // --- НОВЫЙ БЛОК JAVASCRIPT: Логика для переключателей режимов ---
-  const modeButtons = document.querySelectorAll('.mode-selector button');
+  // --- НОВЫЙ БЛОК JAVASCRIPT: Логика для бегунка ---
+  const modeToggle = document.getElementById('mode-toggle');
+  const labelBrokerage = document.querySelector('.label-brokerage');
+  const labelPackaging = document.querySelector('.label-packaging');
 
-  modeButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      // 1. Убираем класс 'active' у всех кнопок
-      modeButtons.forEach(btn => btn.classList.remove('active'));
-      // 2. Добавляем класс 'active' только что нажатой кнопке
-      button.classList.add('active');
-      
-      const selectedMode = button.dataset.mode;
-      console.log(`Выбран режим: ${selectedMode}`);
-      // Здесь в будущем можно будет менять содержимое нижних кнопок или
-      // обращаться к разным таблицам в Supabase в зависимости от режима.
-    });
+  modeToggle.addEventListener('change', function() {
+    if (this.checked) {
+      // Режим "Упаковка"
+      labelBrokerage.style.color = 'var(--palette-text-secondary)';
+      labelPackaging.style.color = '#fff';
+      console.log('Выбран режим: Упаковка');
+    } else {
+      // Режим "Брокеридж"
+      labelBrokerage.style.color = '#fff';
+      labelPackaging.style.color = 'var(--palette-text-secondary)';
+      console.log('Выбран режим: Брокеридж');
+    }
   });
 
   // Логика для основных кнопок отработки возражений
