@@ -93,7 +93,6 @@
   .pusheen-image {
     width: 100%; height: 100%; object-fit: contain; padding: 10px; box-sizing: border-box;
   }
-
   /* Стили для аккордеона */
   .accordion-list { display: flex; flex-direction: column; gap: 15px; }
   .accordion-item .accordion-header {
@@ -108,13 +107,7 @@
     font-size: 15px; line-height: 1.6; color: var(--palette-text-secondary); padding: 0 20px;
   }
   .accordion-item .accordion-panel.active { padding: 15px 20px; max-height: 500px; }
-  
-  /* --- НОВЫЙ СТИЛЬ: Контейнер для пустого сообщения, чтобы избежать скачков --- */
-  .empty-message-container {
-      height: 100%;
-      display: flex;
-  }
-
+  .empty-message-container { height: 100%; display: flex; }
 </style>
 </head>
 <body>
@@ -149,8 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const backButton = document.getElementById('back-button');
   const modeToggle = document.getElementById('mode-toggle');
   const searchInput = document.getElementById('search-input');
-  const labelBrokerage = document.querySelector('.label-brokerage');
-  const labelPackaging = document.querySelector('.label-packaging');
 
   let supabase;
   try {
@@ -162,22 +153,21 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // --- ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
   let currentCategory = 'Брокеридж';
-  let currentView = 'NACHPOZ'; // 'NACHPOZ' или 'TUPOZ'
+  let currentView = 'NACHPOZ';
   let debounceTimeout;
   const pusheenImageUrl = 'https://cdn.imgbin.com/9/12/6/imgbin-pusheen-sticker-telegram-vkontakte-jj-pusheen-cat-illustration-FYzgapPV2qHfFNKvYnCcXKHuH.jpg';
 
   // --- ФУНКЦИИ ОТОБРАЖЕНИЯ ---
   
   async function renderNachpoz(categoryColumn) {
-    currentView = 'NACHPOZ'; // Запоминаем текущее состояние
+    currentView = 'NACHPOZ';
     mainBlock.classList.add('loading');
     backButton.classList.add('hidden');
     const { data, error } = await supabase.from('Button').select(`num, ${categoryColumn}`).order('num');
     mainBlock.classList.remove('loading');
 
     if (error) {
-      mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки: ${error.message}</p>`;
-      return;
+      mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки: ${error.message}</p>`; return;
     }
     let buttonsHtml = '';
     const buttonSlots = Array.from({ length: 6 }, (_, i) => data.find(d => d.num === i + 1) || { num: i + 1, [categoryColumn]: null });
@@ -194,35 +184,42 @@ document.addEventListener('DOMContentLoaded', () => {
     mainBlock.innerHTML = `<div class="button-grid">${buttonsHtml}</div>`;
     setupNachpozListeners();
   }
-
-  async function renderTupoz(category) {
-    currentView = 'TUPOZ'; // Запоминаем текущее состояние
+  
+  // --- ИЗМЕНЕНИЕ 1: Функция теперь принимает ТИП (текст с кнопки) ---
+  async function renderTupoz(category, type) {
+    currentView = 'TUPOZ';
     mainBlock.classList.add('loading');
     backButton.classList.remove('hidden');
-    const { data, error } = await supabase.from('Text').select('question, answer').eq('category', category);
+    
+    // Запрос теперь фильтрует не только по категории, но и по типу
+    const { data, error } = await supabase.from('Text')
+        .select('question, answer')
+        .eq('category', category)
+        .eq('type', type);
+
     mainBlock.classList.remove('loading');
     
     if (error) {
-      mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки: ${error.message}</p>`;
-      return;
+      mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки: ${error.message}</p>`; return;
     }
     mainBlock.innerHTML = createAccordionHtml(data, category);
     setupAccordionListeners();
   }
   
   async function renderSearchResults(searchText) {
-      // Если поле поиска очистили, возвращаемся к предыдущему состоянию
       if (!searchText) {
         if (currentView === 'NACHPOZ') {
           renderNachpoz(currentCategory === 'Брокеридж' ? 'brok' : 'upak');
-        } else { // currentView === 'TUPOZ'
-          renderTupoz(currentCategory);
+        } else {
+          // Если мы были в ТУПОЗ, надо вернуться к кнопкам, т.к. контекст кнопки утерян
+          renderNachpoz(currentCategory === 'Брокеридж' ? 'brok' : 'upak');
         }
         return;
       }
 
       mainBlock.classList.add('loading');
       backButton.classList.add('hidden');
+      
       const { data, error } = await supabase.from('Text')
         .select('question, answer')
         .eq('category', currentCategory)
@@ -231,35 +228,43 @@ document.addEventListener('DOMContentLoaded', () => {
       mainBlock.classList.remove('loading');
 
       if (error) {
-          mainBlock.innerHTML = `<p style="color:red;">Ошибка поиска: ${error.message}</p>`;
-          return;
+          mainBlock.innerHTML = `<p style="color:red;">Ошибка поиска: ${error.message}</p>`; return;
       }
-      mainBlock.innerHTML = createAccordionHtml(data, currentCategory, true);
+      // --- ИЗМЕНЕНИЕ 2: Передаем флаг для авто-раскрытия ---
+      mainBlock.innerHTML = createAccordionHtml(data, currentCategory, true, data.length === 1);
       setupAccordionListeners();
   }
 
   // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 
-  function createAccordionHtml(items, category, isSearchResult = false) {
+  // --- ИЗМЕНЕНИЕ 3: Функция теперь принимает флаг autoExpandSingleItem ---
+  function createAccordionHtml(items, category, isSearchResult = false, autoExpandSingleItem = false) {
       if (!items || items.length === 0) {
-          const message = isSearchResult ? 'Ничего не найдено.' : `Для категории "${category}" скрипты не найдены.`;
-          // Оборачиваем сообщение в контейнер, чтобы избежать скачка высоты
+          const message = isSearchResult ? 'Ничего не найдено.' : `Для типа "${category}" скрипты не найдены.`;
           return `<div class="empty-message-container"><p>${message}</p></div>`;
       }
-      const accordionItems = items.map(item => `
-          <div class="accordion-item">
-              <button class="accordion-header">${item.question}</button>
-              <div class="accordion-panel"><p>${item.answer}</p></div>
-          </div>
-      `).join('');
+      const accordionItems = items.map(item => {
+          const isActive = autoExpandSingleItem;
+          const headerClass = `accordion-header ${isActive ? 'active' : ''}`;
+          const panelClass = `accordion-panel ${isActive ? 'active' : ''}`;
+          return `
+            <div class="accordion-item">
+                <button class="${headerClass}">${item.question}</button>
+                <div class="${panelClass}"><p>${item.answer}</p></div>
+            </div>`;
+      }).join('');
       return `<div class="accordion-list">${accordionItems}</div>`;
   }
 
   // --- СЛУШАТЕЛИ СОБЫТИЙ ---
   
   function setupNachpozListeners() {
-    mainBlock.querySelectorAll('.button-grid button').forEach(button => button.addEventListener('click', () => renderTupoz(currentCategory)));
+    mainBlock.querySelectorAll('.button-grid button').forEach(button => {
+        // --- ИЗМЕНЕНИЕ 4: Передаем текст кнопки в renderTupoz ---
+        button.addEventListener('click', (e) => renderTupoz(currentCategory, e.target.textContent));
+    });
   }
+
   function setupAccordionListeners() {
     mainBlock.querySelectorAll('.accordion-header').forEach(header => {
       header.addEventListener('click', () => {
@@ -280,6 +285,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   modeToggle.addEventListener('change', function() {
+    const labelBrokerage = document.querySelector('.label-brokerage');
+    const labelPackaging = document.querySelector('.label-packaging');
     labelBrokerage.classList.toggle('text-active', !this.checked);
     labelPackaging.classList.toggle('text-active', this.checked);
     searchInput.value = '';
