@@ -13,6 +13,7 @@
     /* Палитра */
     --ui-primary-blue: #357ABD;
     --ui-primary-blue-hover: #2A65B2;
+    --ui-light-blue-bg: #eaf5ff; /* Светло-голубой для неактивных заголовков аккордеона */
     --palette-bg-color: #F5F7FA;
     --palette-card-color: #FFFFFF;
     --palette-text-primary: #1D232A;
@@ -44,73 +45,95 @@
     display: flex; align-items: center; justify-content: space-between;
     min-height: 54px; box-sizing: border-box; position: relative;
   }
-  
   .back-button {
     font-size: 15px; font-weight: 600; color: var(--ui-primary-blue);
     background: transparent; border: none; cursor: pointer; padding: 8px;
     opacity: 1; transition: opacity 0.3s;
   }
-
   .toggle-wrapper {
       position: absolute; left: 50%; transform: translateX(-50%);
   }
-  
-  /* Стили для бегунка */
   .toggle-switch {
     position: relative; display: inline-block; width: 220px; height: 44px;
     background-color: var(--toggle-bg); border-radius: 22px; cursor: pointer;
   }
-  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-switch input { display: none; }
   .toggle-slider {
     position: absolute; top: 4px; left: 4px; height: 36px; width: 108px;
     background-color: var(--ui-primary-blue); border-radius: 18px;
     transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   }
   .toggle-labels {
-    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-    display: flex; align-items: center; pointer-events: none;
+    position: absolute; inset: 0; display: flex; align-items: center; pointer-events: none;
   }
   .toggle-labels span {
     flex: 1; text-align: center; font-size: 15px; font-weight: 600;
-    color: var(--palette-text-secondary); /* По умолчанию текст серый */
-    transition: color 0.3s ease;
+    color: var(--palette-text-secondary); transition: color 0.3s ease;
   }
   .toggle-switch input:checked + .toggle-slider { transform: translateX(104px); }
-  
-  /* --- ГЛАВНОЕ ИЗМЕНЕНИЕ --- */
-  /* Класс для активного текста, который будет белым */
-  .toggle-labels span.text-active {
-      color: #fff;
-  }
-  
+  .toggle-labels span.text-active { color: #fff; }
   .hidden { opacity: 0; pointer-events: none; }
 
   /* --- БЛОК Т: Поле для ввода --- */
   .block-t { padding: 20px 25px; }
   .block-t input[type="text"] {
     width: 100%; padding: 12px 16px; font-size: 16px; font-family: 'Inter', sans-serif;
-    border: 1px solid var(--palette-border-color); border-radius: 8px; box-sizing: border-box;
+    /* Постоянная синяя обводка */
+    border: 1px solid var(--ui-primary-blue);
+    border-radius: 8px; box-sizing: border-box;
+    transition: box-shadow 0.2s;
   }
+   .block-t input[type="text"]:focus {
+       outline: none;
+       box-shadow: 0 0 0 3px rgba(53, 122, 189, 0.2);
+   }
 
   /* --- БЛОК О: Основной контент --- */
   .block-o {
     flex-grow: 1; padding: 25px; box-sizing: border-box;
-    display: grid; grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(3, 1fr); gap: 20px;
+    overflow-y: auto; /* Добавляем скролл, если контент не помещается */
   }
-  .block-o button {
+  
+  /* Стили для сетки кнопок в НАЧПОЗ */
+  .button-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(3, 1fr); gap: 20px; height: 100%;
+  }
+  .button-grid button {
     width: 100%; height: 100%; font-size: 17px; font-weight: 600; color: #fff;
     background-color: var(--ui-primary-blue); border: none; border-radius: 10px; cursor: pointer;
     transition: background-color 0.2s, transform 0.1s;
   }
-  .block-o button:hover { background-color: var(--ui-primary-blue-hover); }
+  .button-grid button:hover { background-color: var(--ui-primary-blue-hover); }
 
-  /* Стили для таблицы результатов */
-  .result-table { width: 100%; border-collapse: collapse; font-size: 16px; }
-  .result-table th, .result-table td {
-      border: 1px solid var(--palette-border-color); padding: 12px; text-align: left;
+  /* Стили для аккордеона в ТУПОЗ */
+  .accordion-list {
+      display: flex; flex-direction: column; gap: 15px;
   }
-  .result-table th { background-color: #f8f9fa; font-weight: 600; }
+  .accordion-item .accordion-header {
+      width: 100%; text-align: left; font-size: 16px; font-weight: 600;
+      padding: 15px 20px; border-radius: 8px; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center;
+      transition: all 0.3s ease;
+      background-color: var(--ui-light-blue-bg);
+      color: var(--ui-primary-blue);
+      border: 1px solid #dce1e7;
+  }
+  .accordion-item .accordion-header.active {
+      background-color: var(--ui-primary-blue);
+      color: #fff;
+      border-color: var(--ui-primary-blue);
+  }
+  .accordion-item .accordion-panel {
+      max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out, padding 0.3s ease;
+      font-size: 15px; line-height: 1.6; color: var(--palette-text-secondary);
+      padding: 0 20px;
+  }
+  .accordion-item .accordion-panel.active {
+      padding: 15px 20px;
+      max-height: 500px; /* Достаточная высота для раскрытия */
+  }
+
 </style>
 </head>
 <body>
@@ -139,12 +162,7 @@
 
   <!-- БЛОК О -->
   <div class="block-o" id="main-block">
-    <button>Не интересно</button>
-    <button>Дорого</button>
-    <button>Нет денег</button>
-    <button>Подумаю</button>
-    <button>Не готов в ближайшее время</button>
-    <button>Отправьте на почту</button>
+    <!-- НАЧПОЗ (Начальное положение) будет здесь -->
   </div>
 </div>
 
@@ -153,61 +171,104 @@
   const mainBlock = document.getElementById('main-block');
   const backButton = document.getElementById('back-button');
   const modeToggle = document.getElementById('mode-toggle');
-  
-  const initialBlockOContent = mainBlock.innerHTML;
+
+  // --- HTML-шаблоны для состояний ---
+
+  // НАЧПОЗ: Сетка с 6 кнопками
+  const nachpozContent = `
+    <div class="button-grid">
+      <button>Не интересно</button>
+      <button>Дорого</button>
+      <button>Нет денег</button>
+      <button>Подумаю</button>
+      <button>Не готов в ближайшее время</button>
+      <button>Отправьте на почту</button>
+    </div>
+  `;
+
+  // ТУПОЗ: Список-аккордеон
+  const tupozContent = `
+    <div class="accordion-list">
+      <div class="accordion-item">
+        <button class="accordion-header">Шаг 1: Присоединение</button>
+        <div class="accordion-panel"><p>Да, я понимаю, цена — важный фактор. Спасибо, что прямо об этом говорите. Правильно ли я понимаю, что в целом предложение вам интересно, но смущает именно стоимость?</p></div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-header">Шаг 2: Аргументация ценности</button>
+        <div class="accordion-panel"><p>Наш продукт решает проблему X, что экономит вам в среднем Y часов в неделю. Давайте посчитаем, сколько это в деньгах. Также он включает в себя пожизненную поддержку, в отличие от аналогов.</p></div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-header">Шаг 3: Предложение альтернативы</button>
+        <div class="accordion-panel"><p>Если полный пакет сейчас не вписывается в бюджет, мы можем рассмотреть базовую версию или предложить рассрочку на 6 месяцев. Это снизит ежемесячную нагрузку. Как вам такой вариант?</p></div>
+      </div>
+    </div>
+  `;
 
   // --- Функции ---
-  function showResultTable(objectionText) {
-    const resultTableContent = `
-      <table class="result-table">
-        <thead><tr><th>Параметр</th><th>Значение</th></tr></thead>
-        <tbody>
-          <tr><td>Тип возражения</td><td>${objectionText}</td></tr>
-          <tr><td>Рекомендуемый ответ</td><td>Здесь будет скрипт ответа...</td></tr>
-        </tbody>
-      </table>`;
-    mainBlock.innerHTML = resultTableContent;
-    mainBlock.style.display = 'block';
-    backButton.classList.remove('hidden');
+
+  /** Показывает ТУПОЗ (аккордеон) */
+  function showTupozView() {
+    mainBlock.innerHTML = tupozContent;
+    setupAccordionListeners(); // Назначаем слушатели на новый контент
+    backButton.classList.remove('hidden'); // Показываем кнопку "Назад"
   }
 
-  function showInitialButtons() {
-    mainBlock.innerHTML = initialBlockOContent;
-    mainBlock.style.display = 'grid';
-    backButton.classList.add('hidden');
-    setupObjectionButtonListeners();
+  /** Показывает НАЧПОЗ (сетку кнопок) */
+  function showNachpozView() {
+    mainBlock.innerHTML = nachpozContent;
+    setupNachpozListeners(); // Назначаем слушатели на новый контент
+    backButton.classList.add('hidden'); // Скрываем кнопку "Назад"
   }
-
-  function setupObjectionButtonListeners() {
-    const objectionButtons = mainBlock.querySelectorAll('button');
+  
+  /** Назначает слушатели на кнопки в НАЧПОЗ */
+  function setupNachpozListeners() {
+    const objectionButtons = mainBlock.querySelectorAll('.button-grid button');
     objectionButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        showResultTable(button.textContent);
+      button.addEventListener('click', showTupozView);
+    });
+  }
+
+  /** Назначает слушатели на аккордеон в ТУПОЗ */
+  function setupAccordionListeners() {
+    const accordionHeaders = mainBlock.querySelectorAll('.accordion-header');
+    accordionHeaders.forEach(header => {
+      header.addEventListener('click', () => {
+        const currentlyActiveHeader = mainBlock.querySelector('.accordion-header.active');
+        // Если кликнули не по уже активному заголовку, закрываем его
+        if (currentlyActiveHeader && currentlyActiveHeader !== header) {
+          currentlyActiveHeader.classList.remove('active');
+          currentlyActiveHeader.nextElementSibling.classList.remove('active');
+        }
+        // Переключаем классы для текущего заголовка и его панели
+        header.classList.toggle('active');
+        header.nextElementSibling.classList.toggle('active');
       });
     });
   }
 
-  // --- Назначение слушателей ---
-  backButton.addEventListener('click', showInitialButtons);
-  setupObjectionButtonListeners();
-
-  // --- ИСПРАВЛЕННАЯ ЛОГИКА ДЛЯ БЕГУНКА ---
+  // --- Назначение слушателей при первой загрузке ---
+  backButton.addEventListener('click', showNachpozView);
+  
   const labelBrokerage = document.querySelector('.label-brokerage');
   const labelPackaging = document.querySelector('.label-packaging');
 
   modeToggle.addEventListener('change', function() {
-    // Управляем классом 'text-active' для смены цвета текста
     labelBrokerage.classList.toggle('text-active', !this.checked);
     labelPackaging.classList.toggle('text-active', this.checked);
 
+    // При любой смене режима, возвращаемся в НАЧПОЗ
+    showNachpozView(); 
+    
     if (this.checked) {
       console.log('Выбран режим: Упаковка');
-      // В будущем здесь будет логика для режима "Упаковка"
+      // Здесь будет логика для режима "Упаковка", например, смена содержимого nachpozContent
     } else {
       console.log('Выбран режим: Брокеридж');
-      showInitialButtons(); // Возвращаем контент для режима "Брокеридж"
     }
   });
+  
+  // Инициализация начального экрана
+  showNachpozView();
 </script>
 
 </body>
