@@ -10,19 +10,16 @@
 
 <style>
   :root {
-    /*
-      Новая, более спокойная и профессиональная палитра.
-      Ушли от "ядовитого" синего к более глубокому и сдержанному оттенку.
-    */
-    --primary-blue-calm: #3b71ca;      /* Спокойный, уверенный синий */
-    --primary-blue-calm-hover: #3260ad; /* Его более темный вариант для наведения */
-    --background-main: #f5f7fa;        /* Светло-серый фон (как в дашборде) */
-    --background-card: #ffffff;         /* Чистый белый для карточки */
-    --text-primary: #2c3e50;            /* Темный, но не черный текст для мягкости */
-    --text-secondary: #8492a6;          /* Спокойный серый для второстепенной информации */
-    --border-color: #e3e8f0;            /* Мягкая рамка */
-    --shadow: 0 6px 20px rgba(0, 0, 0, 0.06); /* Чуть более заметная, но мягкая тень */
-    --focus-ring-color: rgba(59, 113, 202, 0.25); /* Подсветка в цвет нового синего */
+    /* Точная палитра из вашего файла style.css */
+    --primary-blue: #007AFF;
+    --dark-blue: #0056b3;
+    --light-blue: #EAF5FF;
+    --bg-color: #F5F7FA;
+    --card-color: #FFFFFF;
+    --text-primary: #1D232A;
+    --text-secondary: #6C757D;
+    --border-color: #E9ECEF;
+    --shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
   }
 
   /* Общие стили */
@@ -30,8 +27,8 @@
     height: 100%;
     margin: 0;
     font-family: 'Inter', sans-serif;
-    background-color: var(--background-main);
-    color: var(--text-primary);
+    background-color: var(--bg-color); /* Фон страницы из вашей палитры */
+    color: var(--text-primary);        /* Основной текст из вашей палитры */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -47,10 +44,10 @@
     max-height: 850px;
     display: flex;
     flex-direction: column;
-    background-color: var(--background-card);
+    background-color: var(--card-color); /* Фон карточки из вашей палитры */
     border-radius: 12px;
     box-shadow: var(--shadow);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color); /* Рамка из вашей палитры */
     overflow: hidden;
   }
 
@@ -65,20 +62,20 @@
     padding: 12px 16px;
     font-size: 16px;
     font-family: 'Inter', sans-serif;
-    border: 1px solid #dce1e7;
+    border: 1px solid #dce1e7; /* Нейтральный цвет, можно заменить на --border-color */
     border-radius: 8px;
     box-sizing: border-box;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
 
   .top-block input[type="text"]::placeholder {
-      color: var(--text-secondary);
+      color: var(--text-secondary); /* Вторичный текст из вашей палитры */
   }
 
   .top-block input[type="text"]:focus {
     outline: none;
-    border-color: var(--primary-blue-calm);
-    box-shadow: 0 0 0 3px var(--focus-ring-color);
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px var(--light-blue); /* Подсветка при фокусе из вашей палитры */
   }
 
   /* Нижний блок с кнопками */
@@ -92,14 +89,14 @@
     box-sizing: border-box;
   }
 
-  /* Стили для активных кнопок с новым цветом */
+  /* Стили для активных кнопок */
   .bottom-block button {
     width: 100%;
     height: 100%;
     font-size: 16px;
     font-weight: 500;
     color: #fff;
-    background-color: var(--primary-blue-calm);
+    background-color: var(--primary-blue); /* Основной синий цвет кнопки из вашей палитры */
     border: none;
     border-radius: 10px;
     cursor: pointer;
@@ -114,14 +111,14 @@
   }
 
   .bottom-block button:hover {
-    background-color: var(--primary-blue-calm-hover);
+    background-color: var(--dark-blue); /* Темно-синий для наведения из вашей палитры */
   }
 
   .bottom-block button:active {
     transform: scale(0.97);
   }
 
-  /* Стили для неактивных кнопок остались прежними, они выглядят хорошо */
+  /* Стили для неактивных кнопок */
   .bottom-block button.empty {
       background-color: transparent;
       border: 1px solid var(--border-color);
