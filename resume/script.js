@@ -27,7 +27,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const showImage = (index) => {
             const slider = modalImageContainer.querySelector('.modal-image-slider');
-            slider.style.transform = `translateX(-${index * 100}%)`;
+            if (slider) {
+                slider.style.transform = `translateX(-${index * 100}%)`;
+            }
         };
 
         modalPrevBtn.addEventListener('click', () => {
@@ -42,13 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         projectCards.forEach(card => {
             card.addEventListener('click', () => {
-                // Извлекаем данные из data-атрибутов
                 modalTitle.textContent = card.dataset.title;
                 modalDescription.innerHTML = card.dataset.desc;
                 
-                // Обрабатываем изображения
                 images = card.dataset.img.split(',');
-                modalImageContainer.innerHTML = ''; // Очищаем контейнер
+                modalImageContainer.innerHTML = ''; 
                 
                 if (images.length > 1) {
                     const slider = document.createElement('div');
@@ -60,13 +60,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         slider.appendChild(imgDiv);
                     });
                     modalImageContainer.appendChild(slider);
-                    modalNav.style.display = 'block'; // Показываем навигацию
+                    modalNav.style.display = 'block';
                 } else {
                     const imgDiv = document.createElement('div');
                     imgDiv.className = 'modal-image';
-                    imgDiv.style.backgroundImage = `url('${images[0].trim()}')`;
+                    if (images[0]) {
+                      imgDiv.style.backgroundImage = `url('${images[0].trim()}')`;
+                    }
                     modalImageContainer.appendChild(imgDiv);
-                    modalNav.style.display = 'none'; // Скрываем навигацию
+                    modalNav.style.display = 'none';
                 }
 
                 currentImageIndex = 0;
