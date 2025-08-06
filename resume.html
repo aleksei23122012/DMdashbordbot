@@ -47,7 +47,7 @@
 
         /* БЛОК КК (Ключевые компетенции) */
         #competencies { background-color: var(--card-bg-color); }
-        .competencies-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; }
+        .competencies-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
         .competency-card { background: var(--background-color); padding: 25px; border-radius: 8px; border-left: 4px solid var(--secondary-color); }
         .competency-card h3 { color: var(--primary-color); margin-bottom: 10px; font-size: 1.1rem; }
         
@@ -69,10 +69,9 @@
         /* БЛОК ОПЫТ */
         #experience { background-color: #eef1f5; }
         .timeline { position: relative; max-width: 1050px; margin: 0 auto; }
-        .timeline::after { content: ''; position: absolute; width: 4px; background-color: #dbe4f0; top: 20px; bottom: 20px; left: 50%; margin-left: -2px; }
-        .timeline-item { padding: 0 40px 25px 40px; /* Уменьшен вертикальный отступ */ position: relative; width: 50%; }
-        .timeline-item::after { content: ''; position: absolute; width: 22px; height: 22px; background-color: var(--background-color); border: 4px solid var(--secondary-color); top: 15px; border-radius: 50%; z-index: 1; }
-        .timeline-item:first-child { padding-top: 0; }
+        .timeline::after { content: ''; position: absolute; width: 4px; background-color: #dbe4f0; top: 0; bottom: 0; left: 50%; margin-left: -2px; }
+        .timeline-item { padding: 15px 40px; position: relative; width: 50%; }
+        .timeline-item::after { content: ''; position: absolute; width: 22px; height: 22px; background-color: var(--background-color); border: 4px solid var(--secondary-color); top: 40px; border-radius: 50%; z-index: 1; }
         .timeline-item.left { left: 0; }
         .timeline-item.right { left: 50%; }
         .timeline-item.left::after { right: -11px; }
@@ -86,13 +85,9 @@
         
         /* БЛОК К */
         #contact { text-align: center; }
-        #contact .main-text { margin-bottom: 20px; font-size: 1.1rem; }
-        .contact-phone { margin-bottom: 20px; font-size: 1.4rem; font-weight: 500; }
-        .contact-phone a { color: var(--primary-color); text-decoration: none; transition: color 0.3s; }
-        .contact-phone a:hover { color: var(--secondary-color); }
-        .contact-links { display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .contact-links a { color: var(--text-color); text-decoration: none; font-weight: 500; transition: color 0.3s; padding: 0 5px; }
-        .contact-links a:hover { color: var(--secondary-color); }
+        .contact-info { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
+        .contact-info a { color: var(--text-color); text-decoration: none; font-weight: 500; transition: color 0.3s; padding: 0 5px; }
+        .contact-info a:hover { color: var(--secondary-color); }
         footer { background-color: var(--primary-color); color: #ecf0f1; text-align: center; padding: 20px 0; }
         
         /* Модальное окно для проектов */
@@ -138,7 +133,7 @@
                     <p>Опытный руководитель с 6-летним стажем. Превращаю бизнес-идеи в работающие продукты, находя общий язык как с техническими командами, так и со стейкхолдерами.</p>
                     <div class="skills-wrapper">
                         <div class="skills-container">
-                            <h4>Технические навыки</h4>
+                            <h4>Инструменты и технологии</h4>
                             <ul class="skills-list">
                                 <li>HTML/CSS/JS</li><li>Python</li><li>SQL</li><li>Telegram WebApp</li><li>Apps Script</li>
                             </ul>
@@ -165,8 +160,8 @@
                     <div class="competency-card"><h3>Автоматизация процессов</h3><p>Настраиваю сценарии с помощью Apps Script и Python для обработки данных и отчетов.</p></div>
                     <div class="competency-card"><h3>Разработка WebApp</h3><p>Проектирую и создаю веб-приложения внутри Telegram: личные кабинеты, формы, анкеты.</p></div>
                     <div class="competency-card"><h3>Создание и запуск MVP</h3><p>Быстро создаю минимально жизнеспособные продукты для проверки бизнес-гипотез.</p></div>
-                     <div class="competency-card"><h3>Технический консалтинг</h3><p>Провожу аудит текущих процессов, предлагаю пути оптимизации.</p></div>
-                     <div class="competency-card"><h3>Промт-инженер</h3><p>Большая часть крупных проектов сделана с помощью нейросети.</p></div>
+                    <div class="competency-card"><h3>Технический консалтинг</h3><p>Провожу аудит текущих процессов, предлагаю пути оптимизации.</p></div>
+                    <div class="competency-card"><h3>Промт-инженер</h3><p>Большая часть крупных проектов сделана с помощью нейросети.</p></div>
                 </div>
             </div>
         </section>
@@ -179,7 +174,7 @@
                     <div class="projects-slider" id="slider">
                         <div class="project-card" data-title="Интерактивный AI-дашборд" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Разработал дашборд в Telegram Web App. <span class='highlight'>Повысил вовлеченность и прозрачность метрик.</span>">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
-                            <div class="project-info"><h3>Интерактивный дашборд</h3><div class="project-tags"><span>HTML/CSS/JS</span><span>Apps Script</span><span>SQL</span></div></div>
+                            <div class="project-info"><h3>Интерактивный AI-дашборд</h3><div class="project-tags"><span>HTML/CSS/JS</span><span>Apps Script</span><span>SQL</span></div></div>
                         </div>
                         <div class="project-card" data-title="Динамический скрипт возражений" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Создал веб-интерфейс для поиска по скриптам. <span class='highlight'>Сократил время обучения.</span>">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
@@ -218,10 +213,11 @@
         <section id="contact">
             <div class="container">
                  <h2>Связаться со мной</h2>
-                <p class="main-text">Открыт для предложений по работе ^_^</p>
-                <p class="contact-phone"><a href="tel:+79133899230">+7 913 389 92 30</a></p>
-                 <div class="contact-links">
+                <p>Открыт для предложений по работе ^_^</p>
+                 <div class="contact-info">
                     <a href="mailto:rbliar@yandex.ru">Email</a>
+                    <span>|</span>
+                    <a href="tel:+79133899230">Телефон</a>
                     <span>|</span>
                     <a href="https://t.me/don_liar" target="_blank">Telegram</a>
                     <span>|</span>
