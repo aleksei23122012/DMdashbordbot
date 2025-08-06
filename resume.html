@@ -19,45 +19,83 @@
         body { font-family: 'Roboto', sans-serif; background-color: var(--background-color); color: var(--text-color); line-height: 1.6; }
         .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
         h1, h2, h3 { font-family: 'Montserrat', sans-serif; color: var(--primary-color); font-weight: 700; }
-        h2 { text-align: center; font-size: 2.2rem; margin-bottom: 40px; position: relative; }
+        h2 { text-align: center; font-size: 2.2rem; margin-bottom: 50px; position: relative; }
         h2::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 70px; height: 4px; background-color: var(--secondary-color); border-radius: 2px; }
-        section { padding: 60px 0; opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
-        section.visible { opacity: 1; transform: translateY(0); }
+        section { padding: 80px 0; }
         .btn { display: inline-block; padding: 12px 25px; background-color: var(--secondary-color); color: #fff; text-decoration: none; border-radius: 5px; font-weight: 500; transition: background-color 0.3s, transform 0.3s; }
         .btn:hover { background-color: #2980b9; transform: translateY(-2px); }
 
-        header { background-color: var(--card-bg-color); position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; height: var(--header-height); display: flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        header { background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; height: var(--header-height); display: flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .navbar { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .logo { font-family: 'Montserrat', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--primary-color); text-decoration: none; }
         .nav-links { list-style: none; display: flex; }
-        .nav-links li { margin-left: 30px; }
-        .nav-links a { text-decoration: none; color: var(--text-color); font-weight: 500; position: relative; padding-bottom: 5px; }
+        .nav-links li { margin-left: 35px; }
+        .nav-links a { text-decoration: none; color: var(--text-color); font-weight: 500; position: relative; padding-bottom: 5px; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--secondary-color); }
         .nav-links a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background-color: var(--secondary-color); transition: width 0.3s; }
         .nav-links a:hover::after { width: 100%; }
         
-        #hero { padding-top: var(--header-height); display: flex; align-items: center; justify-content: center; text-align: center; min-height: 60vh; }
-        #hero .container { max-width: 800px; }
-        #hero h1 { font-size: 3rem; margin-bottom: 15px; }
-        #hero .subtitle { font-size: 1.2rem; margin-bottom: 25px; color: var(--text-color); }
-
-        #about .about-content { display: flex; align-items: center; gap: 40px; }
-        #about .about-text { flex: 2; }
-        #about .profile-photo { flex: 1; max-width: 220px; }
-        #about .profile-photo img { width: 100%; border-radius: 50%; border: 5px solid var(--secondary-color); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        /* --- Hero Section (Объединенный) --- */
+        #hero {
+            padding-top: var(--header-height);
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+        }
+        .hero-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 50px;
+        }
+        .hero-text {
+            flex-basis: 55%;
+        }
+        .hero-text h1 { font-size: 3.2rem; margin-bottom: 10px; }
+        .hero-text .subtitle { font-size: 1.3rem; font-weight: 500; color: var(--secondary-color); margin-bottom: 20px; }
+        .hero-text .about-me-p { margin-top: 20px; }
+        .hero-photo {
+            flex-basis: 40%;
+            max-width: 320px;
+        }
+        .hero-photo img {
+            width: 100%;
+            border-radius: 50%;
+            border: 7px solid var(--card-bg-color);
+            box-shadow: 0 10px 40px rgba(44, 62, 80, 0.2);
+        }
         
         /* --- Projects Section --- */
         #projects { background-color: #eef1f5; }
-        .projects-slider-container { position: relative; }
-        .projects-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 20px; padding-bottom: 20px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .projects-slider-wrapper { position: relative; }
+        .projects-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 20px; padding: 10px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
         .projects-slider::-webkit-scrollbar { display: none; }
         .project-card { flex: 0 0 320px; scroll-snap-align: start; background-color: var(--card-bg-color); border-radius: 8px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.07); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
         .project-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .project-image { height: 200px; background-size: cover; background-position: center top; }
-        .project-info { padding: 20px; }
+        .project-image { height: 200px; background-size: cover; background-position: center top; pointer-events: none; }
+        .project-info { padding: 20px; pointer-events: none; }
         .project-info h3 { margin-bottom: 10px; font-size: 1.2rem; }
-        .project-tags { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px; }
-        .project-tags span { background: var(--background-color); padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; }
         
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45px;
+            height: 45px;
+            background: var(--card-bg-color);
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            cursor: pointer;
+            z-index: 10;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            transition: transform 0.2s;
+        }
+        .slider-nav:hover { transform: translateY(-50%) scale(1.1); }
+        #prev-btn { left: -22px; }
+        #next-btn { right: -22px; }
+
         /* --- Modal Window for Projects --- */
         .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
         .modal-backdrop.open { display: flex; opacity: 1; }
@@ -68,12 +106,19 @@
         .modal-content h3 { font-size: 1.8rem; margin-bottom: 15px; }
         .modal-content .highlight { font-weight: bold; color: var(--secondary-color); }
         
-        /* --- Experience Section --- */
-        .experience-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; }
-        .experience-card { background: var(--card-bg-color); padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .experience-card h3 { font-size: 1.2rem; }
-        .experience-card .date { font-size: 0.9rem; color: var(--secondary-color); font-weight: bold; margin: 5px 0 10px; }
-        .experience-card .company { font-style: italic; margin-bottom: 10px; }
+        /* --- Experience Section (Timeline) --- */
+        .timeline { position: relative; max-width: 750px; margin: 0 auto; }
+        .timeline::after { content: ''; position: absolute; width: 4px; background-color: #dbe4f0; top: 0; bottom: 0; left: 50%; margin-left: -2px; border-radius: 2px; }
+        .timeline-item { padding: 10px 40px; position: relative; width: 50%; }
+        .timeline-item::after { content: ''; position: absolute; width: 22px; height: 22px; right: -11px; background-color: var(--background-color); border: 4px solid var(--secondary-color); top: 25px; border-radius: 50%; z-index: 1; }
+        .timeline-item.left { left: 0; }
+        .timeline-item.right { left: 50%; }
+        .timeline-item.left::after { right: -11px; }
+        .timeline-item.right::after { left: -11px; }
+        .timeline-content { padding: 20px; background: var(--card-bg-color); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .timeline-content h3 { font-size: 1.2rem; }
+        .timeline-content .date { font-size: 0.9rem; color: var(--secondary-color); font-weight: bold; margin: 5px 0 10px; }
+        .timeline-content .company { font-style: italic; margin-bottom: 10px; }
         
         /* --- Contact Section --- */
         #contact { text-align: center; }
@@ -88,9 +133,15 @@
         @media (max-width: 768px) {
             h2 { font-size: 1.8rem; }
             .nav-links { display: none; }
-            #hero h1 { font-size: 2.2rem; }
-            #about .about-content { flex-direction: column; text-align: center; }
-            .experience-grid { grid-template-columns: 1fr; }
+            #hero { min-height: auto; padding-bottom: 60px; }
+            .hero-content { flex-direction: column; text-align: center; }
+            .hero-photo { order: -1; margin-bottom: 30px; max-width: 250px; }
+            .hero-text h1 { font-size: 2.5rem; }
+            .timeline::after { left: 20px; }
+            .timeline-item { width: 100%; padding-left: 55px; padding-right: 15px; }
+            .timeline-item.left, .timeline-item.right { left: 0; }
+            .timeline-item::after { left: 9px; }
+            .slider-nav { display: none; }
         }
     </style>
 </head>
@@ -100,7 +151,6 @@
         <div class="container navbar">
             <a href="#hero" class="logo">Алексей Ли</a>
             <ul class="nav-links">
-                <li><a href="#about">Обо мне</a></li>
                 <li><a href="#projects">Проекты</a></li>
                 <li><a href="#experience">Опыт</a></li>
                 <li><a href="#contact">Контакты</a></li>
@@ -109,25 +159,17 @@
     </header>
 
     <main>
-        <section id="hero" class="visible">
-            <div class="container">
-                <h1>Алексей Ли</h1>
-                <p class="subtitle">Руководитель проектов | Product & Project Manager</p>
-                <p>Превращаю бизнес-идеи в работающие продукты. Специализируюсь на автоматизации, оптимизации процессов и управлении командами для достижения измеримых результатов.</p>
-            </div>
-        </section>
-
-        <section id="about">
-            <div class="container">
-                <h2>Обо мне</h2>
-                <div class="about-content">
-                    <div class="profile-photo">
-                        <img src="https://i.ibb.co/Gvx6PY8/placeholder-photo.jpg" alt="Фото Алексея Ли">
-                    </div>
-                    <div class="about-text">
-                        <p>Опытный руководитель с 6-летним стажем в сфере клиентского сервиса и управления проектами. Пройдя путь от специалиста до руководителя направления (400+ чел.), я получил глубокое понимание всех уровней бизнес-процессов.</p>
-                        <p>Моя сильная сторона — умение находить общий язык как с техническими командами, так и со стейкхолдерами. Успешно выстраивал работу команд с нуля, разрабатывал системы мотивации и KPI. Ищу возможность применить свои навыки для решения сложных и амбициозных задач, особенно в области автоматизации и оптимизации.</p>
-                    </div>
+        <section id="hero">
+            <div class="container hero-content">
+                <div class="hero-text">
+                    <h1>Алексей Ли</h1>
+                    <p class="subtitle">Руководитель проектов | Product & Project Manager</p>
+                    <p>Превращаю бизнес-идеи в работающие продукты. Специализируюсь на автоматизации, оптимизации процессов и управлении командами для достижения измеримых результатов.</p>
+                    <p class="about-me-p">Опытный руководитель с 6-летним стажем, прошедший путь от специалиста до руководителя направления (400+ чел.). Умею находить общий язык как с техническими командами, так и со стейкхолдерами.</p>
+                </div>
+                <div class="hero-photo">
+                    <!-- НЕ ЗАБУДЬТЕ ЗАМЕНИТЬ ФОТО -->
+                    <img src="https://i.ibb.co/Gvx6PY8/placeholder-photo.jpg" alt="Фото Алексея Ли">
                 </div>
             </div>
         </section>
@@ -135,41 +177,28 @@
         <section id="projects">
             <div class="container">
                 <h2>Избранные проекты</h2>
-                <div class="projects-slider-container">
-                    <div class="projects-slider">
-                        <!-- Карточка проекта 1 -->
-                        <div class="project-card" data-title="Интерактивный AI-дашборд" data-img="https://i.ibb.co/kH7V9F0/project1-dashboard.jpg" data-desc="Разработал персонализированный дашборд для сотрудников, доступный через Telegram Web App. Он подтягивает данные из Google Таблиц через Apps Script и Supabase, отображая актуальные KPI и рекомендации от нейросети. <span class='highlight'>Это повысило вовлеченность и прозрачность метрик.</span>">
+                <div class="projects-slider-wrapper">
+                    <button class="slider-nav" id="prev-btn">&#8249;</button>
+                    <div class="projects-slider" id="slider">
+                        <!-- Карточки проектов... -->
+                         <div class="project-card" data-title="Интерактивный AI-дашборд" data-img="https://i.ibb.co/kH7V9F0/project1-dashboard.jpg" data-desc="Разработал персонализированный дашборд для сотрудников, доступный через Telegram Web App. Он подтягивает данные из Google Таблиц через Apps Script и Supabase, отображая актуальные KPI и рекомендации от нейросети. <span class='highlight'>Это повысило вовлеченность и прозрачность метрик.</span>">
                             <div class="project-image" style="background-image: url('https://i.ibb.co/kH7V9F0/project1-dashboard.jpg');"></div>
-                            <div class="project-info">
-                                <h3>Интерактивный AI-дашборд</h3>
-                                <div class="project-tags"><span>HTML</span><span>CSS</span><span>JS</span><span>Supabase</span></div>
-                            </div>
+                            <div class="project-info"><h3>Интерактивный AI-дашборд</h3></div>
                         </div>
-                        <!-- Карточка проекта 2 -->
                         <div class="project-card" data-title="Динамический скрипт возражений" data-img="https://i.ibb.co/gV71M4g/project2-script.jpg" data-desc="Создал веб-интерфейс для быстрой навигации и поиска по базе знаний и скриптам отработки возражений. Данные подгружаются из Google Таблицы. <span class='highlight'>Инструмент значительно сократил время обучения новых сотрудников и повысил качество диалогов.</span>">
                             <div class="project-image" style="background-image: url('https://i.ibb.co/gV71M4g/project2-script.jpg');"></div>
-                            <div class="project-info">
-                                <h3>Динамический скрипт возражений</h3>
-                                <div class="project-tags"><span>HTML</span><span>CSS</span><span>JS</span><span>Google Sheets</span></div>
-                            </div>
+                            <div class="project-info"><h3>Динамический скрипт возражений</h3></div>
                         </div>
-                        <!-- Карточка проекта 3 -->
                         <div class="project-card" data-title="Оптимизация системы автодозвона" data-img="https://i.ibb.co/2WqG2k8/project3-autodial.jpg" data-desc="В роли PM руководил проектом по улучшению логики и стратегии системы автообзвона. Проанализировал текущие процессы, сформировал гипотезы, провел A/B тесты и презентовал результаты топ-менеджменту. <span class='highlight'>Результат: экономия 132 тыс. человеко-часов и дополнительный доход 1.8 млрд рублей в год.</span>">
                             <div class="project-image" style="background-image: url('https://i.ibb.co/2WqG2k8/project3-autodial.jpg');"></div>
-                            <div class="project-info">
-                                <h3>Оптимизация системы автодозвона</h3>
-                                <div class="project-tags"><span>Project Management</span><span>Анализ данных</span></div>
-                            </div>
+                            <div class="project-info"><h3>Оптимизация автодозвона</h3></div>
                         </div>
-                        <!-- Карточка проекта 4 -->
                         <div class="project-card" data-title="Внедрение ИИ для оценки звонков" data-img="https://i.ibb.co/mH0D5QZ/project4-ai-audio.jpg" data-desc="Инициировал и защитил проект по внедрению ИИ для автоматического контроля качества диалогов в контакт-центре. Разработал концепцию, ТЗ и дорожную карту. <span class='highlight'>Потенциальный эффект: рост производительности оценки на 428%</span> и возможность полной замены отдела ручного контроля качества.">
                             <div class="project-image" style="background-image: url('https://i.ibb.co/mH0D5QZ/project4-ai-audio.jpg');"></div>
-                            <div class="project-info">
-                                <h3>Внедрение ИИ для оценки звонков</h3>
-                                <div class="project-tags"><span>Project Management</span><span>Нейронные сети</span></div>
-                            </div>
+                            <div class="project-info"><h3>Внедрение ИИ для оценки звонков</h3></div>
                         </div>
                     </div>
+                    <button class="slider-nav" id="next-btn">&#8250;</button>
                 </div>
             </div>
         </section>
@@ -177,30 +206,39 @@
         <section id="experience">
             <div class="container">
                 <h2>Опыт работы</h2>
-                <div class="experience-grid">
-                    <div class="experience-card">
-                        <h3>Руководитель отдела</h3>
-                        <div class="date">Июнь 2025 — наст. время</div>
-                        <div class="company">Franch Broker</div>
-                        <p>Фокус на задачах бизнес-анализа и автоматизации. Создание базы знаний (Yandex Wiki), разработка дашбордов (HTML/CSS/JS) и Telegram-бота (Python/MySQL).</p>
+                <div class="timeline">
+                    <!-- Элементы таймлайна... -->
+                    <div class="timeline-item left">
+                        <div class="timeline-content">
+                            <h3>Руководитель отдела</h3>
+                            <div class="date">Июнь 2025 — наст. время</div>
+                            <div class="company">Franch Broker</div>
+                            <p>Фокус на бизнес-анализе и автоматизации. Создание базы знаний, разработка дашбордов и Telegram-бота.</p>
+                        </div>
                     </div>
-                    <div class="experience-card">
-                        <h3>Руководитель направления / PM</h3>
-                        <div class="date">Сентябрь 2021 — Декабрь 2024</div>
-                        <div class="company">Совкомбанк</div>
-                        <p>Управлял портфелем проектов (оптимизация, ИИ), руководил направлением 400+ чел. Достижения: финал конкурса проектов '23, малый кубок '24.</p>
+                    <div class="timeline-item right">
+                        <div class="timeline-content">
+                            <h3>Руководитель направления / PM</h3>
+                            <div class="date">Сен 2021 — Дек 2024</div>
+                            <div class="company">Совкомбанк</div>
+                            <p>Управление портфелем проектов по оптимизации и ИИ. Руководство направлением 400+ чел. Достижения: финал конкурса проектов '23.</p>
+                        </div>
                     </div>
-                    <div class="experience-card">
-                        <h3>Руководитель группы</h3>
-                        <div class="date">Сентябрь 2019 — Сентябрь 2021</div>
-                        <div class="company">Совкомбанк</div>
-                        <p>Создал команду с нуля и вывел в лидеры по KPI в КЦ за 2020 год. Разработал систему премирования. Вырастил нескольких руководителей из своей группы.</p>
+                     <div class="timeline-item left">
+                        <div class="timeline-content">
+                            <h3>Руководитель группы</h3>
+                            <div class="date">Сен 2019 — Сен 2021</div>
+                            <div class="company">Совкомбанк</div>
+                            <p>Создал команду с нуля и вывел в лидеры по KPI в КЦ за 2020 г. Разработал систему премирования.</p>
+                        </div>
                     </div>
-                    <div class="experience-card">
-                        <h3>Специалист отдела поддержки</h3>
-                        <div class="date">Март 2019 — Сентябрь 2019</div>
-                        <div class="company">Совкомбанк</div>
-                        <p>Обработка обращений, обучение новичков. Достиг самого быстрого карьерного роста в управлении в истории подразделения.</p>
+                     <div class="timeline-item right">
+                        <div class="timeline-content">
+                            <h3>Специалист отдела поддержки</h3>
+                            <div class="date">Март 2019 — Сен 2019</div>
+                            <div class="company">Совкомбанк</div>
+                            <p>Обработка обращений, обучение новичков. Самый быстрый карьерный рост в управлении в истории подразделения.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -208,7 +246,7 @@
 
         <section id="contact">
             <div class="container">
-                <h2>Связаться со мной</h2>
+                 <h2>Связаться со мной</h2>
                 <p>Открыт для предложений по работе и фриланс-проектов. Давайте обсудим, как мои навыки могут помочь вашему бизнесу.</p>
                 <a href="mailto:rbliar@yandex.ru" class="btn">Написать на почту</a>
                 <div class="contact-info">
@@ -216,6 +254,7 @@
                     <span>|</span>
                     <a href="https://t.me/don_liar" target="_blank">Telegram</a>
                     <span>|</span>
+                    <!-- НЕ ЗАБУДЬТЕ УКАЗАТЬ СВОЙ НИК НА GITHUB -->
                     <a href="https://github.com/ВАШ_НИК" target="_blank">GitHub</a>
                 </div>
             </div>
@@ -226,7 +265,6 @@
         <div class="container">© 2025 Алексей Ли. Все права защищены.</div>
     </footer>
     
-    <!-- Modal Window HTML -->
     <div class="modal-backdrop" id="project-modal">
         <div class="modal-content">
             <div class="modal-close" id="modal-close-btn">&times;</div>
@@ -237,55 +275,57 @@
     </div>
 
     <script>
-        // --- Анимация появления секций при скролле ---
         document.addEventListener('DOMContentLoaded', () => {
-            const sections = document.querySelectorAll('section');
-            const observer = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1 });
-            sections.forEach(section => observer.observe(section));
-
             // --- Логика модального окна для проектов ---
             const projectCards = document.querySelectorAll('.project-card');
             const modal = document.getElementById('project-modal');
-            const modalCloseBtn = document.getElementById('modal-close-btn');
-            const modalImage = document.getElementById('modal-project-image');
-            const modalTitle = document.getElementById('modal-project-title');
-            const modalDescription = document.getElementById('modal-project-description');
+            if (modal) {
+                const modalCloseBtn = document.getElementById('modal-close-btn');
+                const modalImage = document.getElementById('modal-project-image');
+                const modalTitle = document.getElementById('modal-project-title');
+                const modalDescription = document.getElementById('modal-project-description');
 
-            projectCards.forEach(card => {
-                card.addEventListener('click', () => {
-                    // Извлекаем данные из data-атрибутов
-                    const title = card.dataset.title;
-                    const imageUrl = card.dataset.img;
-                    const description = card.dataset.desc;
-                    
-                    // Заполняем модальное окно
-                    modalTitle.textContent = title;
-                    modalImage.style.backgroundImage = `url('${imageUrl}')`;
-                    modalDescription.innerHTML = description;
-                    
-                    // Открываем окно
-                    modal.classList.add('open');
+                projectCards.forEach(card => {
+                    card.addEventListener('click', () => {
+                        const title = card.dataset.title;
+                        const imageUrl = card.dataset.img;
+                        const description = card.dataset.desc;
+                        
+                        modalTitle.textContent = title;
+                        modalImage.style.backgroundImage = `url('${imageUrl}')`;
+                        modalDescription.innerHTML = description;
+                        
+                        modal.classList.add('open');
+                    });
                 });
-            });
 
-            const closeModal = () => {
-                modal.classList.remove('open');
-            };
+                const closeModal = () => modal.classList.remove('open');
+                modalCloseBtn.addEventListener('click', closeModal);
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) closeModal();
+                });
+            }
 
-            modalCloseBtn.addEventListener('click', closeModal);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeModal();
-                }
-            });
+            // --- Логика слайдера ---
+            const slider = document.getElementById('slider');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+
+            if(slider) {
+                const scrollStep = () => {
+                    // Прокрутка на ширину одной карточки + отступ
+                    return slider.querySelector('.project-card').offsetWidth + 20;
+                };
+
+                nextBtn.addEventListener('click', () => {
+                    slider.scrollBy({ left: scrollStep(), behavior: 'smooth' });
+                });
+
+                prevBtn.addEventListener('click', () => {
+                    slider.scrollBy({ left: -scrollStep(), behavior: 'smooth' });
+                });
+            }
         });
     </script>
 </body>
-</html>
+</html>```
