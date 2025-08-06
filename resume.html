@@ -22,36 +22,38 @@
         h2 { text-align: center; font-size: 2.2rem; margin-bottom: 50px; position: relative; }
         h2::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); width: 70px; height: 4px; background-color: var(--secondary-color); border-radius: 2px; }
         section { padding: 60px 0; }
-        
-        /* БЛОК В (Верхняя титульная часть) */
+        .btn { display: inline-block; padding: 12px 25px; background-color: var(--secondary-color); color: #fff; text-decoration: none; border-radius: 5px; font-weight: 500; transition: background-color 0.3s, transform 0.3s; }
+        .btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+
+        /* БЛОК В */
         header { background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; height: var(--header-height); display: flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .navbar { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .logo { font-family: 'Montserrat', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--primary-color); text-decoration: none; }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); text-decoration: none; }
         .nav-links { list-style: none; display: flex; }
         .nav-links li { margin-left: 35px; }
         .nav-links a { text-decoration: none; color: var(--text-color); font-weight: 500; transition: color 0.3s; }
         .nav-links a:hover { color: var(--secondary-color); }
         
-        /* БЛОК О (Основной блок) */
-        #hero { padding-top: calc(var(--header-height) + 40px); padding-bottom: 40px; display: flex; align-items: center; }
+        /* БЛОК О */
+        #hero { padding-top: var(--header-height); min-height: 90vh; display: flex; align-items: center; }
         .hero-content { display: flex; align-items: center; justify-content: space-between; gap: 50px; }
         .hero-text { flex-basis: 58%; }
-        .hero-text h1 { font-size: 2.8rem; margin-bottom: 10px; }
-        .hero-text .subtitle { font-size: 1.2rem; font-weight: 500; color: var(--secondary-color); margin-bottom: 15px; }
+        .hero-text h1 { font-size: 3rem; margin-bottom: 10px; }
+        .hero-text .subtitle { font-size: 1.2rem; font-weight: 500; color: var(--secondary-color); margin-bottom: 20px; }
         .hero-photo { flex-basis: 42%; max-width: 320px; }
         .hero-photo img { width: 100%; border-radius: 50%; border: 7px solid var(--card-bg-color); box-shadow: 0 10px 40px rgba(44, 62, 80, 0.2); }
-        .skills-wrapper { display: flex; gap: 40px; margin-top: 25px; }
-        .skills-container h4 { margin-bottom: 10px; font-size: 1rem; }
+        .skills-wrapper { display: flex; gap: 40px; margin-top: 30px; }
+        .skills-container h4 { margin-bottom: 15px; font-size: 1rem; }
         .skills-list { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
         .skills-list li { background-color: #e9ecef; color: var(--primary-color); padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 500; }
 
         /* БЛОК КК (Ключевые компетенции) */
         #competencies { background-color: var(--card-bg-color); }
-        .competencies-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .competencies-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; }
         .competency-card { background: var(--background-color); padding: 25px; border-radius: 8px; border-left: 4px solid var(--secondary-color); }
-        .competency-card h3 { color: var(--primary-color); margin-bottom: 10px; }
+        .competency-card h3 { color: var(--primary-color); margin-bottom: 10px; font-size: 1.1rem; }
         
-        /* БЛОК П (Проекты) */
+        /* БЛОК П */
         .projects-slider-wrapper { position: relative; }
         .projects-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 20px; padding: 10px; scrollbar-width: none; }
         .projects-slider::-webkit-scrollbar { display: none; }
@@ -66,18 +68,9 @@
         #prev-btn { left: -22px; }
         #next-btn { right: -22px; }
         
-        /* Модальное окно для проектов */
-        .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
-        .modal-backdrop.open { display: flex; opacity: 1; }
-        .modal-content { background: var(--card-bg-color); border-radius: 8px; padding: 30px; max-width: 700px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; }
-        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 2rem; color: #95a5a6; cursor: pointer; line-height: 1; }
-        .modal-image { width: 100%; height: 300px; background-size: cover; background-position: center; border-radius: 8px; margin-bottom: 20px; }
-        .modal-content h3 { font-size: 1.8rem; margin-bottom: 15px; }
-        .modal-content .highlight { font-weight: bold; color: var(--secondary-color); }
-        
-        /* БЛОК ОПЫТ (Опыт работы) */
+        /* БЛОК ОПЫТ */
         #experience { background-color: #eef1f5; }
-        .timeline { position: relative; max-width: 800px; margin: 0 auto; }
+        .timeline { position: relative; max-width: 950px; margin: 0 auto; }
         .timeline::after { content: ''; position: absolute; width: 4px; background-color: #dbe4f0; top: 0; bottom: 0; left: 50%; margin-left: -2px; }
         .timeline-item { padding: 10px 40px; position: relative; width: 50%; }
         .timeline-item::after { content: ''; position: absolute; width: 22px; height: 22px; background-color: var(--background-color); border: 4px solid var(--secondary-color); top: 25px; border-radius: 50%; z-index: 1; }
@@ -85,17 +78,23 @@
         .timeline-item.right { left: 50%; }
         .timeline-item.left::after { right: -11px; }
         .timeline-item.right::after { left: -11px; }
-        .timeline-content { padding: 20px; background: var(--card-bg-color); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .timeline-content { padding: 25px; background: var(--card-bg-color); border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .timeline-content h3 { font-size: 1.2rem; }
         .timeline-content .date { font-size: 0.9rem; color: var(--secondary-color); font-weight: bold; margin: 5px 0 10px; }
         .timeline-content .company { font-style: italic; margin-bottom: 15px; }
         .timeline-content h4 { font-size: 1rem; margin-top: 15px; margin-bottom: 10px; border-bottom: 2px solid #eef1f5; padding-bottom: 5px; }
         .timeline-content ul { list-style-position: inside; padding-left: 5px; }
         
-        /* БЛОК К (Контакты) */
+        /* БЛОК К */
         #contact { text-align: center; }
+        .contact-info { display: flex; justify-content: center; gap: 15px; margin-top: 30px; flex-wrap: wrap; }
+        .contact-info a { color: var(--text-color); text-decoration: none; font-weight: 500; transition: color 0.3s; padding: 0 5px; }
+        .contact-info a:hover { color: var(--secondary-color); }
         footer { background-color: var(--primary-color); color: #ecf0f1; text-align: center; padding: 20px 0; }
         
+        /* Модальное окно для проектов */
+        .modal-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:2000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .3s ease}.modal-backdrop.open{display:flex;opacity:1}.modal-content{background:var(--card-bg-color);border-radius:8px;padding:30px;max-width:700px;width:90%;max-height:90vh;overflow-y:auto;position:relative}.modal-close{position:absolute;top:15px;right:15px;font-size:2rem;color:#95a5a6;cursor:pointer;line-height:1}.modal-image{width:100%;height:300px;background-size:cover;background-position:center;border-radius:8px;margin-bottom:20px}.modal-content h3{font-size:1.8rem;margin-bottom:15px}.modal-content .highlight{font-weight:700;color:var(--secondary-color)}
+
         @media (max-width: 768px) {
             h2 { font-size: 1.8rem; }
             .nav-links { display: none; }
@@ -137,20 +136,13 @@
                         <div class="skills-container">
                             <h4>Технические навыки</h4>
                             <ul class="skills-list">
-                                <li>HTML/CSS/JS</li>
-                                <li>Python</li>
-                                <li>SQL</li>
-                                <li>Telegram WebApp</li>
-                                <li>Apps Script</li>
+                                <li>HTML/CSS/JS</li><li>Python</li><li>SQL</li><li>Telegram WebApp</li><li>Apps Script</li>
                             </ul>
                         </div>
                         <div class="skills-container">
                             <h4>Управленческие навыки</h4>
                             <ul class="skills-list">
-                                <li>Project Management</li>
-                                <li>Бизнес-анализ</li>
-                                <li>Управление командой</li>
-                                <li>Agile / Scrum</li>
+                                <li>Project Management</li><li>Бизнес-анализ</li><li>Управление командой</li><li>Agile / Scrum</li>
                             </ul>
                         </div>
                     </div>
@@ -165,10 +157,12 @@
             <div class="container">
                 <h2>Ключевые компетенции</h2>
                 <div class="competencies-grid">
-                    <div class="competency-card"><h3>Интерактивные дашборды</h3><p>Создаю инструменты для отслеживания KPI, мотивации сотрудников и анализа данных.</p></div>
-                    <div class="competency-card"><h3>Автоматизация процессов</h3><p>Настраиваю сложные сценарии с помощью Apps Script, Python для автоматической обработки данных и отчетов.</p></div>
-                    <div class="competency-card"><h3>Разработка WebApp</h3><p>Проектирую и создаю веб-приложения внутри Telegram: личные кабинеты, формы, анкеты и другие решения.</p></div>
-                    <div class="competency-card"><h3>Создание и запуск MVP</h3><p>Быстро создаю минимально жизнеспособные продукты для проверки бизнес-гипотез с минимальными затратами.</p></div>
+                    <div class="competency-card"><h3>Интерактивные дашборды</h3><p>Создаю инструменты для отслеживания KPI, мотивации и анализа данных.</p></div>
+                    <div class="competency-card"><h3>Автоматизация процессов</h3><p>Настраиваю сценарии с помощью Apps Script и Python для обработки данных и отчетов.</p></div>
+                    <div class="competency-card"><h3>Разработка WebApp</h3><p>Проектирую и создаю веб-приложения внутри Telegram: личные кабинеты, формы, анкеты.</p></div>
+                    <div class="competency-card"><h3>Создание и запуск MVP</h3><p>Быстро создаю минимально жизнеспособные продукты для проверки бизнес-гипотез.</p></div>
+                     <div class="competency-card"><h3>Технический консалтинг</h3><p>Провожу аудит текущих IT-решений и процессов, предлагаю пути оптимизации.</p></div>
+                     <div class="competency-card"><h3>Разработка чат-ботов</h3><p>Создаю ботов для автоматизации коммуникаций и рутинных задач в Telegram.</p></div>
                 </div>
             </div>
         </section>
@@ -179,21 +173,25 @@
                 <div class="projects-slider-wrapper">
                     <button class="slider-nav" id="prev-btn">&#8249;</button>
                     <div class="projects-slider" id="slider">
-                        <div class="project-card" data-title="Интерактивный AI-дашборд" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Разработал персонализированный дашборд в Telegram Web App. <span class='highlight'>Повысил вовлеченность и прозрачность метрик.</span>">
+                        <div class="project-card" data-title="Интерактивный AI-дашборд" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Разработал дашборд в Telegram Web App. <span class='highlight'>Повысил вовлеченность и прозрачность метрик.</span>">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
                             <div class="project-info"><h3>Интерактивный AI-дашборд</h3><div class="project-tags"><span>HTML/CSS/JS</span><span>Apps Script</span><span>SQL</span></div></div>
                         </div>
-                        <div class="project-card" data-title="Динамический скрипт возражений" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Создал веб-интерфейс для поиска по скриптам. <span class='highlight'>Сократил время обучения и повысил качество диалогов.</span>">
+                        <div class="project-card" data-title="Динамический скрипт возражений" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Создал веб-интерфейс для поиска по скриптам. <span class='highlight'>Сократил время обучения.</span>">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
                             <div class="project-info"><h3>Динамический скрипт возражений</h3><div class="project-tags"><span>HTML/CSS/JS</span><span>Apps Script</span></div></div>
                         </div>
-                        <div class="project-card" data-title="Оптимизация системы автодозвона" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Руководил проектом по улучшению логики автообзвона. <span class='highlight'>Результат: экономия 132 тыс. чел.-часов и доп. доход 1.8 млрд/год.</span>">
+                        <div class="project-card" data-title="Оптимизация системы автодозвона" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Руководил проектом по улучшению логики автообзвона. <span class='highlight'>Доп. доход 1.8 млрд/год.</span>">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
                             <div class="project-info"><h3>Оптимизация автодозвона</h3><div class="project-tags"><span>Project Management</span><span>Анализ данных</span></div></div>
                         </div>
-                        <div class="project-card" data-title="Внедрение ИИ для оценки звонков" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Инициировал и защитил проект по внедрению ИИ для контроля качества. <span class='highlight'>Рост эффективности оценки на 428%.</span>">
+                        <div class="project-card" data-title="Внедрение ИИ для оценки звонков" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Инициировал и защитил проект по внедрению ИИ. <span class='highlight'>Рост эффективности оценки на 428%.</span>">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
                             <div class="project-info"><h3>Внедрение ИИ для оценки звонков</h3><div class="project-tags"><span>Project Management</span><span>AI/ML</span></div></div>
+                        </div>
+                        <div class="project-card" data-title="Автоматизация обратной связи" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Создал систему автоматической генерации отчетов для фин. консультантов. <span class='highlight'>Сократил время на подготовку ОС в 10 раз.</span>">
+                            <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
+                            <div class="project-info"><h3>Автоматизация обратной связи</h3><div class="project-tags"><span>Excel</span><span>Word</span><span>Outlook</span></div></div>
                         </div>
                     </div>
                     <button class="slider-nav" id="next-btn">&#8250;</button>
@@ -205,34 +203,10 @@
             <div class="container">
                 <h2>Опыт работы</h2>
                 <div class="timeline">
-                    <div class="timeline-item left">
-                        <div class="timeline-content">
-                            <h3>Руководитель отдела</h3>
-                            <div class="date">Июнь 2025 — наст. время</div><div class="company">Franch Broker</div>
-                            <h4>Обязанности:</h4>
-                            <ul><li>Бизнес-анализ и автоматизация, выявление зон роста, создание дашбордов и Telegram-ботов.</li></ul>
-                        </div>
-                    </div>
-                    <div class="timeline-item right">
-                        <div class="timeline-content">
-                            <h3>Руководитель направления / PM</h3>
-                            <div class="date">Сен 2021 — Дек 2024</div><div class="company">Совкомбанк</div>
-                            <h4>Обязанности:</h4>
-                            <ul><li>Управление портфелем проектов по оптимизации бизнес-процессов.</li><li>Руководство направлением (400+ сотрудников).</li><li>Запуск и продажа проектов топ-менеджменту.</li></ul>
-                            <h4>Достижения:</h4>
-                            <ul><li>Экономия 132 тыс. ч/ч и рост эффективности на 428% по итогам проектов.</li><li>Финалист конкурса проектов '23, малый кубок '24.</li></ul>
-                        </div>
-                    </div>
-                     <div class="timeline-item left">
-                        <div class="timeline-content">
-                            <h3>Специалист отдела поддержки</h3>
-                            <div class="date">Март 2019 — Сен 2019</div><div class="company">Совкомбанк</div>
-                            <h4>Обязанности:</h4>
-                            <ul><li>Обработка обращений, обучение новых сотрудников.</li></ul>
-                            <h4>Достижения:</h4>
-                            <ul><li>Многократные победы во внутреннем конкурсе.</li><li>Самый быстрый карьерный рост в управлении.</li></ul>
-                        </div>
-                    </div>
+                    <div class="timeline-item left"><div class="timeline-content"><h3>Руководитель отдела</h3><div class="date">Июнь 2025 — наст. время</div><div class="company">Franch Broker</div><h4>Обязанности:</h4><ul><li>Бизнес-анализ и автоматизация, выявление зон роста, создание дашбордов и Telegram-ботов.</li></ul></div></div>
+                    <div class="timeline-item right"><div class="timeline-content"><h3>Руководитель направления / PM</h3><div class="date">Сен 2021 — Дек 2024</div><div class="company">Совкомбанк</div><h4>Обязанности:</h4><ul><li>Управление портфелем проектов по оптимизации.</li><li>Руководство направлением (400+ сотрудников).</li></ul><h4>Достижения:</h4><ul><li>Экономия 132 тыс. ч/ч и рост эффективности на 428%.</li><li>Финалист конкурса проектов '23, малый кубок '24.</li></ul></div></div>
+                    <div class="timeline-item left"><div class="timeline-content"><h3>Руководитель группы</h3><div class="date">Сен 2019 — Сен 2021</div><div class="company">Совкомбанк</div><h4>Обязанности:</h4><ul><li>Контроль KPI группы, обучение сотрудников.</li><li>Создание команды с нуля и вывод в лидеры.</li></ul><h4>Достижения:</h4><ul><li>Лучшая группа КЦ по KPI за 2020 год.</li><li>Помощь в создании системы премирования.</li></ul></div></div>
+                    <div class="timeline-item right"><div class="timeline-content"><h3>Специалист отдела поддержки</h3><div class="date">Март 2019 — Сен 2019</div><div class="company">Совкомбанк</div><h4>Обязанности:</h4><ul><li>Обработка обращений, обучение новичков.</li></ul><h4>Достижения:</h4><ul><li>Многократные победы во внутреннем конкурсе.</li><li>Самый быстрый карьерный рост в управлении.</li></ul></div></div>
                 </div>
             </div>
         </section>
@@ -242,46 +216,23 @@
                  <h2>Связаться со мной</h2>
                 <p>Открыт для предложений по работе. Давайте обсудим, как мои навыки могут помочь вашему бизнесу.</p>
                 <a href="mailto:rbliar@yandex.ru" class="btn">Написать на почту</a>
+                 <div class="contact-info">
+                    <a href="tel:+79133899230">+7 (913) 389-92-30</a>
+                    <span>|</span>
+                    <a href="https://t.me/don_liar" target="_blank">Telegram</a>
+                    <span>|</span>
+                    <a href="https://github.com/ВАШ_НИК" target="_blank">GitHub</a>
+                </div>
             </div>
         </section>
     </main>
 
-    <footer>
-        <div class="container">© 2025 Алексей Ли</div>
-    </footer>
+    <footer><div class="container">© 2025 Алексей Ли</div></footer>
     
     <div class="modal-backdrop" id="project-modal"><div class="modal-content"><div class="modal-close" id="modal-close-btn">&times;</div><div class="modal-image" id="modal-project-image"></div><h3 id="modal-project-title"></h3><p id="modal-project-description"></p></div></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const projectCards = document.querySelectorAll('.project-card');
-            const modal = document.getElementById('project-modal');
-            if (modal) {
-                const modalCloseBtn = document.getElementById('modal-close-btn');
-                const modalImage = document.getElementById('modal-project-image');
-                const modalTitle = document.getElementById('modal-project-title');
-                const modalDescription = document.getElementById('modal-project-description');
-                projectCards.forEach(card => {
-                    card.addEventListener('click', () => {
-                        modalTitle.textContent = card.dataset.title;
-                        modalImage.style.backgroundImage = `url('${card.dataset.img}')`;
-                        modalDescription.innerHTML = card.dataset.desc;
-                        modal.classList.add('open');
-                    });
-                });
-                const closeModal = () => modal.classList.remove('open');
-                modalCloseBtn.addEventListener('click', closeModal);
-                modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-            }
-            const slider = document.getElementById('slider');
-            const prevBtn = document.getElementById('prev-btn');
-            const nextBtn = document.getElementById('next-btn');
-            if(slider) {
-                const scrollStep = () => slider.querySelector('.project-card').offsetWidth + 20;
-                nextBtn.addEventListener('click', () => slider.scrollBy({ left: scrollStep(), behavior: 'smooth' }));
-                prevBtn.addEventListener('click', () => slider.scrollBy({ left: -scrollStep(), behavior: 'smooth' }));
-            }
-        });
+        document.addEventListener('DOMContentLoaded',()=>{const t=document.querySelectorAll('.project-card'),e=document.getElementById('project-modal');if(e){const o=document.getElementById('modal-close-btn'),n=document.getElementById('modal-project-image'),d=document.getElementById('modal-project-title'),i=document.getElementById('modal-project-description');t.forEach(t=>{t.addEventListener('click',()=>{d.textContent=t.dataset.title,n.style.backgroundImage=`url('${t.dataset.img}')`,i.innerHTML=t.dataset.desc,e.classList.add('open')})});const l=()=>e.classList.remove('open');o.addEventListener('click',l),e.addEventListener('click',t=>{t.target===e&&l()})}const o=document.getElementById('slider'),n=document.getElementById('prev-btn'),d=document.getElementById('next-btn');if(o){const t=()=>o.querySelector('.project-card').offsetWidth+20;d.addEventListener('click',()=>{o.scrollBy({left:t(),behavior:'smooth'})}),n.addEventListener('click',()=>{o.scrollBy({left:-t(),behavior:'smooth'})})}});
     </script>
 </body>
 </html>
