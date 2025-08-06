@@ -13,6 +13,7 @@
             --background-color-end: #f4f6f9;
             --text-color: #34495e;
             --card-bg-color: #ffffff;
+            --light-text-color: #ecf0f1;
             --header-height: 70px;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,12 +31,12 @@
         section { padding: 60px 0; }
         
         /* БЛОК В */
-        header { background-color: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; height: var(--header-height); display: flex; align-items: center; box-shadow: 0 2px 15px rgba(0,0,0,0.06); }
+        header { background-color: var(--primary-color); position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; height: var(--header-height); display: flex; align-items: center; box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
         .navbar { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); text-decoration: none; }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--light-text-color); text-decoration: none; }
         .nav-links { list-style: none; display: flex; }
         .nav-links li { margin-left: 35px; }
-        .nav-links a { text-decoration: none; color: var(--text-color); font-weight: 500; transition: color 0.3s; }
+        .nav-links a { text-decoration: none; color: var(--light-text-color); font-weight: 500; transition: color 0.3s; }
         .nav-links a:hover { color: var(--secondary-color); }
         
         /* БЛОК О */
@@ -46,7 +47,7 @@
         .hero-text .subtitle { font-size: 1.2rem; font-weight: 500; color: var(--secondary-color); margin-bottom: 20px; }
         .hero-photo { flex-basis: 42%; max-width: 320px; }
         .hero-photo img { width: 100%; border-radius: 50%; border: 7px solid var(--card-bg-color); box-shadow: 0 10px 50px rgba(44, 62, 80, 0.2); }
-        .skills-wrapper { display: flex; gap: 40px; margin-top: 30px; }
+        .skills-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; }
         .skills-container h4 { margin-bottom: 15px; font-size: 1rem; }
         .skills-list { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
         .skills-list li { background-color: #e9ecef; color: var(--primary-color); padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 500; }
@@ -54,7 +55,8 @@
         /* БЛОК КК (Ключевые компетенции) */
         #competencies { background-color: rgba(255,255,255,0.6); }
         .competencies-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
-        .competency-card { background: var(--card-bg-color); padding: 25px; border-radius: 8px; border-left: 4px solid var(--secondary-color); box-shadow: 0 8px 25px rgba(44, 62, 80, 0.08); }
+        .competency-card { background: var(--card-bg-color); padding: 25px; border-radius: 8px; border-left: 4px solid transparent; box-shadow: 0 8px 25px rgba(44, 62, 80, 0.08); transition: border-color 0.3s, transform 0.3s; }
+        .competency-card:hover { border-left-color: var(--secondary-color); transform: translateY(-3px); }
         .competency-card h3 { color: var(--primary-color); margin-bottom: 10px; font-size: 1.1rem; }
         
         /* БЛОК П */
@@ -98,16 +100,16 @@
         .contact-links a { display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; background-color: var(--card-bg-color); border-radius: 50%; box-shadow: 0 5px 15px rgba(44, 62, 80, 0.1); transition: transform 0.3s, box-shadow 0.3s; }
         .contact-links a:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(44, 62, 80, 0.15); }
         .contact-links svg { width: 24px; height: 24px; fill: var(--primary-color); }
-        footer { background-color: var(--primary-color); color: #ecf0f1; text-align: center; padding: 20px 0; }
+        footer { background-color: var(--primary-color); color: var(--light-text-color); text-align: center; padding: 20px 0; }
         
-        /* Модальное окно */
         .modal-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:2000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .3s ease}.modal-backdrop.open{display:flex;opacity:1}.modal-content{background:var(--card-bg-color);border-radius:8px;padding:30px;max-width:700px;width:90%;max-height:90vh;overflow-y:auto;position:relative}.modal-close{position:absolute;top:15px;right:15px;font-size:2rem;color:#95a5a6;cursor:pointer;line-height:1}.modal-image{width:100%;height:300px;background-size:cover;background-position:center;border-radius:8px;margin-bottom:20px}.modal-content h3{font-size:1.8rem;margin-bottom:15px}.modal-content .highlight{font-weight:700;color:var(--secondary-color)}
 
         @media (max-width: 768px) {
             h2 { font-size: 1.8rem; }
             .nav-links { display: none; }
             #hero { min-height: auto; padding-bottom: 60px; }
-            .hero-content, .skills-wrapper { flex-direction: column; text-align: center; }
+            .hero-content { flex-direction: column; text-align: center; }
+            .skills-wrapper { grid-template-columns: 1fr; }
             .hero-photo { order: -1; margin-bottom: 30px; max-width: 250px; }
             .hero-text h1 { font-size: 2.5rem; }
             .timeline { max-width: 100%; }
@@ -145,13 +147,13 @@
                         <div class="skills-container">
                             <h4>Инструменты и технологии</h4>
                             <ul class="skills-list">
-                                <li>Нейронные сети</li><li>Apps Script</li><li>Python</li><li>SQL</li><li>HTML/CSS/JS</li><li>DataLens</li><li>MS Office</li>
+                                <li>Нейронные сети</li><li>Apps Script</li><li>Python</li><li>SQL</li><li>HTML/CSS/JS</li><li>Telegram WebApp</li><li>DataLens</li><li>MS Office</li><li>Google Docs</li>
                             </ul>
                         </div>
                         <div class="skills-container">
                             <h4>Управленческие навыки</h4>
                             <ul class="skills-list">
-                                <li>Project Management</li><li>Бизнес-анализ</li><li>Анализ данных</li><li>Kanban</li><li>Agile / Waterfall</li><li>Публичные выступления</li><li>Обучение сотрудников</li><li>Проведение презентаций</li>
+                                <li>Project Management</li><li>Бизнес-анализ</li><li>Анализ данных</li><li>Kanban</li><li>Agile / Waterfall</li><li>Публичные выступления</li><li>Презентации</li><li>Обучение</li>
                             </ul>
                         </div>
                     </div>
@@ -182,15 +184,15 @@
                 <div class="projects-slider-wrapper">
                     <button class="slider-nav" id="prev-btn">&#8249;</button>
                     <div class="projects-slider" id="slider">
+                         <div class="project-card" data-title="База знаний" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Создал и структурировал базу знаний с нуля для систематизации рабочих процессов и обучения. <span class='highlight'>Ускорил адаптацию и снизил количество рутинных вопросов.</span>">
+                            <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
+                            <div class="project-info"><h3>База знаний</h3><div class="project-tags"><span>Yandex Wiki</span><span>Teamly</span></div></div>
+                        </div>
                         <div class="project-card" data-title="Интерактивный AI-дашборд" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Разработал дашборд в Telegram Web App. <span class='highlight'>Повысил вовлеченность и прозрачность метрик.</span>">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
-                            <div class="project-info"><h3>Интерактивный AI-дашборд</h3><div class="project-tags"><span>HTML/CSS/JS</span><span>Apps Script</span><span>SQL</span></div></div>
+                            <div class="project-info"><h3>Интерактивный AI-дашборд</h3><div class="project-tags"><span>HTML/CSS/JS</span><span>Apps Script</span></div></div>
                         </div>
-                        <div class="project-card" data-title="Динамический скрипт возражений" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Создал веб-интерфейс для поиска по скриптам. <span class='highlight'>Сократил время обучения.</span>">
-                            <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
-                            <div class="project-info"><h3>Динамический скрипт возражений</h3><div class="project-tags"><span>HTML/CSS/JS</span><span>Apps Script</span></div></div>
-                        </div>
-                        <div class="project-card" data-title="Оптимизация системы автодозвона" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Руководил проектом по улучшению логики автообзвона. <span class='highlight'>Доп. доход 1.8 млрд/год.</span>">
+                        <div class="project-card" data-title="Оптимизация автодозвона" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Руководил проектом по улучшению логики автообзвона. <span class='highlight'>Доп. доход 1.8 млрд/год.</span>">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
                             <div class="project-info"><h3>Оптимизация автодозвона</h3><div class="project-tags"><span>Project Management</span><span>Анализ данных</span></div></div>
                         </div>
@@ -198,13 +200,9 @@
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
                             <div class="project-info"><h3>Внедрение ИИ для оценки звонков</h3><div class="project-tags"><span>Project Management</span><span>AI/ML</span></div></div>
                         </div>
-                        <div class="project-card" data-title="Автоматизация обратной связи" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Создал систему автоматической генерации отчетов для фин. консультантов. <span class='highlight'>Сократил время на подготовку ОС в 10 раз.</span>">
+                        <div class="project-card" data-title="Автоматизация обратной связи" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Создал систему автоматической генерации отчетов. <span class='highlight'>Сократил время на подготовку ОС в 10 раз.</span>">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
                             <div class="project-info"><h3>Автоматизация обратной связи</h3><div class="project-tags"><span>Excel</span><span>Word</span><span>Outlook</span></div></div>
-                        </div>
-                         <div class="project-card" data-title="База знаний" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg" data-desc="Создал и структурировал базу знаний с нуля для систематизации рабочих процессов и обучения новых сотрудников. <span class='highlight'>Ускорил адаптацию и снизил количество рутинных вопросов.</span>">
-                            <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
-                            <div class="project-info"><h3>База знаний</h3><div class="project-tags"><span>Yandex Wiki</span><span>Teamly</span><span>Систематизация</span></div></div>
                         </div>
                     </div>
                     <button class="slider-nav" id="next-btn">&#8250;</button>
