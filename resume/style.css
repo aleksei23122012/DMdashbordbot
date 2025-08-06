@@ -121,6 +121,7 @@ header {
     color: var(--secondary-color);
     margin-bottom: 20px;
 }
+.hero-text p { margin-bottom: 15px; }
 .hero-photo { flex-basis: 42%; max-width: 320px; }
 .hero-photo img {
     width: 100%;
@@ -172,6 +173,7 @@ header {
 .competency-card h3 { font-size: 1.1rem; margin-bottom: 10px; }
 
 /* БЛОК П */
+#projects { background: transparent; }
 .projects-slider-wrapper { position: relative; }
 .projects-slider {
     display: flex;
@@ -349,84 +351,7 @@ footer {
 }
 
 /* Модальное окно */
-.modal-backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.75);
-    z-index: 2000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity .3s ease;
-}
-.modal-backdrop.open {
-    display: flex;
-    opacity: 1;
-}
-.modal-content {
-    background: var(--card-bg-color);
-    border-radius: 8px;
-    padding: 30px;
-    max-width: 700px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-}
-.modal-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 2rem;
-    color: #95a5a6;
-    cursor: pointer;
-    line-height: 1;
-}
-.modal-image-container {
-    width: 100%;
-    height: 350px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    overflow: hidden;
-    position: relative;
-}
-.modal-image-slider {
-    display: flex;
-    height: 100%;
-    transition: transform 0.4s ease-in-out;
-}
-.modal-image {
-    flex-shrink: 0;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-}
-.modal-nav {
-    display: none; /* Скрыто по умолчанию */
-}
-.modal-nav-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(44, 62, 80, 0.5);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 24px;
-    cursor: pointer;
-}
-#modal-prev-btn { left: 10px; }
-#modal-next-btn { right: 10px; }
-
-.modal-content h3 { font-size: 1.8rem; margin-bottom: 15px; }
-.modal-content .highlight { font-weight: 700; color: var(--secondary-color); }
+.modal-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:2000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .3s ease}.modal-backdrop.open{display:flex;opacity:1}.modal-content{background:var(--card-bg-color);border-radius:8px;padding:30px;max-width:700px;width:90%;max-height:90vh;overflow-y:auto;position:relative}.modal-close{position:absolute;top:15px;right:15px;font-size:2rem;color:#95a5a6;cursor:pointer;line-height:1}.modal-image-container{width:100%;height:350px;border-radius:8px;margin-bottom:20px;overflow:hidden;position:relative}.modal-image-slider{display:flex;height:100%;transition:transform .4s ease-in-out}.modal-image{flex-shrink:0;width:100%;height:100%;background-size:cover;background-position:center}.modal-nav{display:none}.modal-nav-btn{position:absolute;top:50%;transform:translateY(-50%);background-color:rgba(44,62,80,.5);color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:24px;cursor:pointer}#modal-prev-btn{left:10px}#modal-next-btn{right:10px}.modal-content h3{font-size:1.8rem;margin-bottom:15px}.modal-content .highlight{font-weight:700;color:var(--secondary-color)}
 
 @media (max-width: 768px) {
     h2 { font-size: 1.8rem; }
