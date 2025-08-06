@@ -8,6 +8,10 @@
     <!-- =============================================================== -->
     <title>Алексей Ли | Визитка</title>
     <!-- =============================================================== -->
+    
+    <!-- Иконка для вкладки браузера (favicon) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡️</text></svg>">
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -33,40 +37,26 @@
             <div class="container hero-content">
                 <div class="hero-text">
                     <h1>Алексей Ли</h1>
-                    <!-- РЕДАКТИРУЕМЫЙ БЛОК: ВАША ДОЛЖНОСТЬ / ПОЗИЦИОНИРОВАНИЕ -->
                     <p class="subtitle">Project manager | Бизнес-аналитик | Промт-инженер</p>
                     
                     <!-- РЕДАКТИРУЕМЫЙ БЛОК: ОСНОВНОЙ ТЕКСТ О СЕБЕ -->
-                    <p>Опытный руководитель с 6-летним стажем. Превращаю бизнес-идеи в работающие продукты, находя общий язык как с техническими командами, так и со стейкхолдерами.</p>
-                    
+                    <p>Опытный руководитель в сфере клиентского сервиса с 6-летним стажем.<br>Прошел путь от специалиста колл-центра до руководителя направления и менеджера проектов.</p>
+                    <p>Успешно выстраивал работу команд с нуля, разрабатывал системы мотивации и KPI, выводил подразделения на лидирующие позиции. Специализируюсь на проектах по автоматизации и оптимизации бизнес-процессов. Умею превращать бизнес-идеи в работающие продукты и находить общий язык с техническими командами и стейкхолдерами. Подбираю инструменты под проект и команду.</p>
+                    <p>Не знаком с программированием: все проекты, где требовалось писать код, совершал с помощью нейросети. Вместе с этим имею многогранный опыт, который требовался для решения задач: знаком с работой продуктовых и BI аналитиков, менеджеров продукта, тестировщиков. Занимался созданием дизайна, презентацией и защитой проектов. С помощью нейросетей писал коды на html css js python.</p>
+
                     <div class="skills-wrapper">
                         <!-- РЕДАКТИРУЕМЫЙ БЛОК: СПИСОК ТЕХНОЛОГИЙ -->
                         <div class="skills-container">
                             <h4>Инструменты и технологии</h4>
                             <ul class="skills-list">
-                                <li>Нейронные сети</li>
-                                <li>Apps Script</li>
-                                <li>Python</li>
-                                <li>SQL</li>
-                                <li>HTML/CSS/JS</li>
-                                <li>Telegram WebApp</li>
-                                <li>DataLens</li>
-                                <li>MS Office</li>
-                                <li>Google Docs</li>
+                                <li>Нейронные сети</li><li>Apps Script</li><li>Python</li><li>SQL</li><li>HTML/CSS/JS</li><li>Supabase</li><li>Telegram WebApp</li><li>DataLens</li><li>MS Office</li><li>Google Docs</li>
                             </ul>
                         </div>
                         <!-- РЕДАКТИРУЕМЫЙ БЛОК: СПИСОК УПРАВЛЕНЧЕСКИХ НАВЫКОВ -->
                         <div class="skills-container">
                             <h4>Управленческие навыки</h4>
                             <ul class="skills-list">
-                                <li>Project Management</li>
-                                <li>Бизнес-анализ</li>
-                                <li>Анализ данных</li>
-                                <li>Kanban</li>
-                                <li>Agile / Waterfall</li>
-                                <li>Публичные выступления</li>
-                                <li>Презентации</li>
-                                <li>Обучение</li>
+                                <li>Project Management</li><li>Бизнес-анализ</li><li>Анализ данных</li><li>Kanban</li><li>Agile / Waterfall</li><li>Публичные выступления</li><li>Презентации</li><li>Обучение</li>
                             </ul>
                         </div>
                     </div>
@@ -88,10 +78,10 @@
                     <!-- РЕДАКТИРУЕМЫЙ БЛОК: ОПИСАНИЕ КОМПЕТЕНЦИЙ -->
                     <div class="competency-card"><h3>Интерактивные дашборды</h3><p>Создаю инструменты для отслеживания KPI, мотивации и анализа данных.</p></div>
                     <div class="competency-card"><h3>Автоматизация процессов</h3><p>Настраиваю сценарии с помощью Apps Script и Python для обработки данных и отчетов.</p></div>
-                    <div class="competency-card"><h3>Разработка WebApp</h3><p>Проектирую и создаю веб-приложения внутри Telegram: личные кабинеты, формы, анкеты.</p></div>
+                    <div class="competency-card"><h3>Разработка WebApp</h3><p>Проектирую и создаю ботов в Telegram, с интеграцией приложений.</p></div>
                     <div class="competency-card"><h3>Создание и запуск MVP</h3><p>Быстро создаю минимально жизнеспособные продукты для проверки бизнес-гипотез.</p></div>
                     <div class="competency-card"><h3>Технический консалтинг</h3><p>Провожу аудит текущих процессов, предлагаю пути оптимизации.</p></div>
-                    <div class="competency-card"><h3>Промт-инженер</h3><p>Большая часть крупных проектов сделана с помощью нейросети.</p></div>
+                    <div class="competency-card"><h3>Промт-инженер</h3><p>Большую часть крупных проектов сделал с помощью нейросетей.</p></div>
                 </div>
             </div>
         </section>
@@ -105,79 +95,42 @@
                 <div class="projects-slider-wrapper">
                     <button class="slider-nav" id="prev-btn">&#8249;</button>
                     <div class="projects-slider" id="slider">
-                        <!-- РЕДАКТИРУЕМЫЙ БЛОК: КАРТОЧКИ ПРОЕКТОВ -->
+                        <!-- РЕДАКТИРУЕМЫЙ БЛОК: КАРТОЧКИ ПРОЕКТОВ. ВАЖНО: ДЛЯ НЕСКОЛЬКИХ ФОТО В data-img, ПЕРЕЧИСЛИТЕ ССЫЛКИ ЧЕРЕЗ ЗАПЯТУЮ -->
                         
-                        <!-- Проект 1: Дашборд (с 2-мя картинками) -->
-                        <div class="project-card" 
-                             data-title="Интерактивный AI-дашборд" 
-                             data-desc="Разработал дашборд в Telegram Web App. <span class='highlight'>Повысил вовлеченность и прозрачность метрик.</span>"
-                             data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg,https://i.ibb.co/kH7V9F0/project1-dashboard.jpg">
-                            <!-- Картинка для карточки -->
-                            <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
-                            <div class="project-info">
-                                <h3>Интерактивный AI-дашборд</h3>
-                                <div class="project-tags"><span>HTML/CSS/JS</span><span>Apps Script</span><span>SQL</span></div>
-                            </div>
+                        <!-- Проект 1: Дашборд -->
+                        <div class="project-card" data-title="Интерактивный дашборд" data-desc="Разработал дашборд в Telegram Web App. <span class='highlight'>Повысил вовлеченность и прозрачность метрик.</span>" data-img="https://i.ibb.co/kH7V9F0/project1-dashboard.jpg,https://i.ibb.co/bFDDn0Q/dashboard2.jpg">
+                            <div class="project-image" style="background-image: url('https://i.ibb.co/kH7V9F0/project1-dashboard.jpg');"></div>
+                            <div class="project-info"><h3>Интерактивный дашборд</h3><div class="project-tags"><span>HTML/CSS/JS</span><span>Apps Script</span><span>SQL</span></div></div>
                         </div>
 
                         <!-- Проект 2: Оптимизация автодозвона -->
-                        <div class="project-card" 
-                             data-title="Оптимизация системы автодозвона" 
-                             data-desc="Руководил проектом по улучшению логики автообзвона. <span class='highlight'>Доп. доход 1.8 млрд/год.</span>"
-                             data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg">
+                        <div class="project-card" data-title="Оптимизация системы автодозвона" data-desc="Руководил проектом по улучшению логики автообзвона. <span class='highlight'>Доп. доход 1.8 млрд/год.</span>" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
-                            <div class="project-info">
-                                <h3>Оптимизация автодозвона</h3>
-                                <div class="project-tags"><span>Project Management</span><span>Анализ данных</span></div>
-                            </div>
+                            <div class="project-info"><h3>Оптимизация автодозвона</h3><div class="project-tags"><span>Project Management</span><span>Анализ данных</span></div></div>
                         </div>
 
-                        <!-- Проект 3: Бот с отработкой возражений -->
-                        <div class="project-card" 
-                             data-title="Динамическая отработка возражений" 
-                             data-desc="Создал Telegram-бота для тренировки и быстрой навигации по скриптам отработки возражений. <span class='highlight'>Ускорил адаптацию новых сотрудников.</span>"
-                             data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg">
+                        <!-- Проект 3: Динамическая отработка возражений -->
+                        <div class="project-card" data-title="Динамическая отработка возражений" data-desc="Создал Telegram-бота для тренировки и быстрой навигации по скриптам отработки возражений. <span class='highlight'>Ускорил адаптацию новых сотрудников.</span>" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
-                            <div class="project-info">
-                                <h3>Динамическая отработка возражений</h3>
-                                <div class="project-tags"><span>Telegram Bot</span><span>Python</span><span>AI</span></div>
-                            </div>
+                            <div class="project-info"><h3>Динамическая отработка возражений</h3><div class="project-tags"><span>Telegram Bot</span><span>Python</span><span>Supabase</span></div></div>
                         </div>
                         
                         <!-- Проект 4: База знаний -->
-                        <div class="project-card" 
-                             data-title="База знаний" 
-                             data-desc="Создал и структурировал базу знаний с нуля для систематизации рабочих процессов и обучения. <span class='highlight'>Ускорил адаптацию и снизил количество рутинных вопросов.</span>"
-                             data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg">
+                        <div class="project-card" data-title="База знаний" data-desc="Создал и структурировал базу знаний с нуля для систематизации рабочих процессов и обучения. <span class='highlight'>Ускорил адаптацию и снизил количество рутинных вопросов.</span>" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
-                            <div class="project-info">
-                                <h3>База знаний</h3>
-                                <div class="project-tags"><span>Yandex Wiki</span><span>Teamly</span><span>Систематизация</span></div>
-                            </div>
+                            <div class="project-info"><h3>База знаний</h3><div class="project-tags"><span>Yandex Wiki</span><span>Teamly</span></div></div>
                         </div>
 
                         <!-- Проект 5: Внедрение ИИ -->
-                        <div class="project-card" 
-                             data-title="Внедрение ИИ для оценки звонков" 
-                             data-desc="Инициировал и защитил проект по внедрению ИИ. <span class='highlight'>Рост эффективности оценки на 428%.</span>"
-                             data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg">
+                        <div class="project-card" data-title="Внедрение ИИ для оценки звонков" data-desc="Инициировал и защитил проект по внедрению ИИ. <span class='highlight'>Рост эффективности оценки на 428%.</span>" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
-                            <div class="project-info">
-                                <h3>Внедрение ИИ для оценки звонков</h3>
-                                <div class="project-tags"><span>Project Management</span><span>AI/ML</span></div>
-                            </div>
+                            <div class="project-info"><h3>Внедрение ИИ для оценки звонков</h3><div class="project-tags"><span>Project Management</span><span>AI/ML</span></div></div>
                         </div>
 
                         <!-- Проект 6: Автоматизация ОС -->
-                        <div class="project-card" 
-                             data-title="Автоматизация обратной связи" 
-                             data-desc="Создал систему автоматической генерации отчетов для фин. консультантов. <span class='highlight'>Сократил время на подготовку ОС в 10 раз.</span>"
-                             data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg">
+                        <div class="project-card" data-title="Автоматизация обратной связи" data-desc="Создал систему автоматической генерации отчетов. <span class='highlight'>Сократил время на подготовку ОС в 10 раз.</span>" data-img="https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg">
                             <div class="project-image" style="background-image: url('https://yac-wh-sb-prod-s3-media-07001.storage.yandexcloud.net/media/images/tabby-cat-sharpens-claws-on-so.max-2880x1820.format-jpeg_yuRdEqE.jpg');"></div>
-                            <div class="project-info">
-                                <h3>Автоматизация обратной связи</h3>
-                                <div class="project-tags"><span>Excel</span><span>Word</span><span>Outlook</span></div>
-                            </div>
+                            <div class="project-info"><h3>Автоматизация обратной связи</h3><div class="project-tags"><span>Excel</span><span>Word</span><span>Outlook</span></div></div>
                         </div>
                     </div>
                     <button class="slider-nav" id="next-btn">&#8250;</button>
@@ -206,23 +159,21 @@
         <!-- ================================================================== -->
         <section id="contact">
             <div class="container">
-                 <h2>Связаться со мной</h2>
+                <h2>Связаться со мной</h2>
                 <p>Открыт для предложений по работе ^_^</p>
                 <div class="contact-phone">
                     <a href="tel:+79133899230">+7 913 389 92 30</a>
                 </div>
                 <div class="contact-links">
-                   <!-- Ссылка на почту -->
                    <a href="mailto:rbliar@yandex.ru" title="Email">
                        <svg viewBox="0 0 24 24"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"></path></svg>
                    </a>
-                   <!-- Ссылка на Telegram -->
                    <a href="https://t.me/don_liar" target="_blank" title="Telegram">
                        <svg viewBox="0 0 24 24"><path d="M9.78 18.65l.28-4.23l7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3L3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.57c-.28 1.13-1.04 1.4-1.74.88L14.25 16l-4.12 3.85c-.79.71-1.2.33-1.35-.6z"></path></svg>
                    </a>
                    <!-- РЕДАКТИРУЕМЫЙ БЛОК: ССЫЛКА НА ВАШЕ РЕЗЮМЕ НА HH.RU -->
                    <a href="https://spb.hh.ru/resume/52861b9eff0f32bc060039ed1f435539794a53" target="_blank" title="Резюме на HH.ru">
-                        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"></path></svg>
+                        <svg viewBox="0 0 48 48"><path fill="#D6001C" d="M15.5 15.4h5.2v5.1h-5.2zM27.3 15.4h5.2v17.2h-5.2zM15.5 25.6h5.2v7h-5.2z"></path><path fill="#D6001C" d="M38 9.3H10c-1.7 0-3 1.4-3 3v23.3c0 1.7 1.4 3 3 3h28c1.7 0 3-1.4 3-3V12.3c0-1.7-1.4-3-3-3zm-25.5 26h-2c-1.1 0-2-.9-2-2V15.4c0-1.1.9-2 2-2h8.1c1.1 0 2 .9 2 2V21h-2v-5.6h-6.1v5.1H15v-5.1h-2.5v12.1H15v-2h2.5v7H12.5v-2.5h-2.5v3.1c0 1.4-1.1 2.5-2.5 2.5zm11-13.9c0-1.1.9-2 2-2h8.1c1.1 0 2 .9 2 2v11.9c0 1.1-.9 2-2 2h-8.1c-1.1 0-2-.9-2-2V21.4zm8.1 11.9h-6.1V21.4h6.1v11.9z"></path></svg>
                    </a>
                 </div>
             </div>
@@ -232,16 +183,14 @@
     <footer>
         <div class="container">
             <!-- РЕДАКТИРУЕМЫЙ БЛОК: ТЕКСТ В ПОДВАЛЕ -->
-            (с) 2025 Алексей Ли. Эта страница тоже создана с помощью нейронки.
+            © 2025 Алексей Ли. Эта страница тоже создана с помощью нейронки.
         </div>
     </footer>
     
     <div class="modal-backdrop" id="project-modal">
         <div class="modal-content">
             <div class="modal-close" id="modal-close-btn">&times;</div>
-            <div class="modal-image-container">
-                <!-- Сюда JS будет вставлять картинки -->
-            </div>
+            <div class="modal-image-container"></div>
             <div class="modal-nav">
                 <button class="modal-nav-btn" id="modal-prev-btn">&#8249;</button>
                 <button class="modal-nav-btn" id="modal-next-btn">&#8250;</button>
