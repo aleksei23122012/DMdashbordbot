@@ -107,6 +107,7 @@
             .nav-links { display: none; }
             #hero { min-height: auto; padding: 60px 0; }
             .hero-content { flex-direction: column; text-align: center; }
+            .skills-wrapper { grid-template-columns: 1fr; }
             .hero-photo { order: -1; margin-bottom: 40px; max-width: 280px; }
             .hero-text .main-title { font-size: 1.8rem; }
             .hero-text h1 { font-size: 2.5rem; }
@@ -135,6 +136,7 @@
     </header>
 
     <main>
+        <!-- БЛОК О -->
         <section id="hero">
             <div class="container hero-content">
                 <div class="hero-text">
@@ -152,43 +154,66 @@
             </div>
         </section>
 
+        <!-- БЛОК НАВЫКИ -->
         <section id="skills">
             <div class="container skills-container">
                 <h2>Ключевые навыки</h2>
                 <ul class="skills-list">
-                    <li>Нейронные сети</li><li>Apps Script</li><li>Python</li><li>SQL</li><li>HTML/CSS/JS</li><li>Telegram WebApp</li><li>DataLens</li><li>MS Office</li><li>Google Docs</li><li>Waterfall</li><li>Kanban</li><li>Agile</li><li>Публичные выступления</li><li>Обучение</li><li>Анализ данных</li><li>Pyrus</li><li>CRM</li><li>Oracle RBS</li><li>BAT</li>
+                    <li>Нейронные сети</li><li>Apps Script</li><li>Python</li><li>SQL</li><li>HTML/CSS/JS</li><li>Telegram WebApp</li><li>DataLens</li><li>MS Office</li><li>Google Docs</li><li>Waterfall</li><li>Kanban</li><li>Agile</li><li>Публичные выступления</li><li>Обучение</li><li>Анализ данных</li><li>Pyrus</li><li>CRM</li><li>Oracle</li><li>RBS</li><li>BAT</li>
                 </ul>
             </div>
         </section>
 
+        <!-- БЛОК ПРОЕКТЫ -->
         <section id="projects">
             <div class="container">
                 <h2>Избранные проекты</h2>
                 <div class="projects-slider-wrapper">
                     <button class="slider-nav" id="prev-btn">&#8249;</button>
                     <div class="projects-slider" id="slider">
-                        <div class="project-card" data-title="Интерактивный дашборд" data-desc="Написан с нуля с помощью нейросети на html css js. Зашит в Web App телеграм: когда сотрудник открывает страницу, по id телеграма страница берет данные именно этого сотрудника из supabase, туда данные отправляются из гугл таблицы с помощью apps script.<br><br><span class='highlight'>Повысил вовлеченность сотрудников и прозрачность метрик, инструмент для контроля показателей.</span><br><a href='https://aleksei23122012.github.io/DMdashbordbot/conc/conc.html' target='_blank'>Посмотреть тестовую страницу</a>" data-img="images/dashboard1.jpg,images/dashboard2.jpg">
-                            <div class="project-image" style="background-image: url('images/dashboard1.jpg');"></div>
+                        
+                        <!-- Проект 1: Дашборд -->
+                        <div class="project-card" 
+                             data-title="Интерактивный дашборд" 
+                             data-desc="Написан с нуля с помощью нейросети на html css js. Зашит в Web App телеграм: когда сотрудник открывает страницу, по id телеграма страница берет данные именно этого сотрудника из supabase, туда данные отправляются из гугл таблицы с помощью apps script.<br><br><span class='highlight'>Повысил вовлеченность сотрудников и прозрачность метрик, инструмент для контроля показателей.</span><br><a href='https://aleksei23122012.github.io/DMdashbordbot/conc/conc.html' target='_blank'>Посмотреть тестовую страницу</a>" 
+                             data-img="images/dash1.jpg,images/dash2.jpg,images/dash3.jpg,images/dash4.jpg">
+                            <div class="project-image" style="background-image: url('images/dash1.jpg');"></div>
                             <div class="project-info"><h3>Интерактивный дашборд</h3><div class="project-tags"><span>HTML/CSS/JS</span><span>Apps Script</span><span>SQL</span></div></div>
                         </div>
-                        <div class="project-card" data-title="Оптимизация системы автодозвона" data-desc="Внедрил ряд доработок в систему автодозвона банка в роли PM/аналитика/дизайнера. В рамках этого проекта также занимался озвучкой, и частично оператором и монтажером видео (для презентации проекта стейкхолдерам).<br><br><span class='highlight'>Принесли банку 1,8 млрд. рублей годового дохода и экономит 132 тыс. ч.ч.</span><br>Проект выиграл номинацию в финале конкурса проектов Лига Достижений в 2023." data-img="images/autodial.jpg">
-                            <div class="project-image" style="background-image: url('images/autodial.jpg');"></div>
+
+                        <!-- Проект 2: Оптимизация автодозвона -->
+                        <div class="project-card" 
+                             data-title="Оптимизация системы автодозвона" 
+                             data-desc="Внедрил ряд доработок в систему автодозвона банка в роли PM/аналитика/дизайнера. В рамках этого проекта также занимался озвучкой, и частично оператором и монтажером видео (для презентации проекта стейкхолдерам).<br><br><span class='highlight'>Принесли банку 1,8 млрд. рублей годового дохода и экономит 132 тыс. ч.ч.</span><br>Проект выиграл номинацию в финале конкурса проектов Лига Достижений в 2023." 
+                             data-img="images/dailer1.jpg,images/dailer2.jpg">
+                            <div class="project-image" style="background-image: url('images/dailer1.jpg');"></div>
                             <div class="project-info"><h3>Оптимизация автодозвона</h3><div class="project-tags"><span>Project Management</span><span>Анализ данных</span></div></div>
                         </div>
-                        <div class="project-card" data-title="Динамическая отработка возражений" data-desc="Создал Telegram-бота для тренировки и быстрой навигации по скриптам отработки возражений. Данные для бота берутся из Supabase, куда отправляются через Apps Script из гугл таблиц, что позволяет легко вносить корректировки в возражения и менять их списки.<br><br><span class='highlight'>Ускорил адаптацию новых сотрудников для улучшения ситуации с текучкой кадров в КЦ.</span><br><a href='https://aleksei23122012.github.io/DMdashbordbot/ov/ov.html' target='_blank'>Посмотреть тестовую страницу</a>" data-img="images/objections-bot.jpg">
-                            <div class="project-image" style="background-image: url('images/objections-bot.jpg');"></div>
+
+                        <!-- Проект 3: Динамическая отработка возражений -->
+                        <div class="project-card" 
+                             data-title="Динамическая отработка возражений" 
+                             data-desc="Создал Telegram-бота для тренировки и быстрой навигации по скриптам отработки возражений. Данные для бота берутся из Supabase, куда отправляются через Apps Script из гугл таблиц, что позволяет легко вносить корректировки в возражения и менять их списки.<br><br><span class='highlight'>Ускорил адаптацию новых сотрудников для улучшения ситуации с текучкой кадров в КЦ.</span><br><a href='https://aleksei23122012.github.io/DMdashbordbot/ov/ov.html' target='_blank'>Посмотреть тестовую страницу</a>" 
+                             data-img="images/ov1.jpg,images/ov2.jpg,images/ov3.jpg">
+                            <div class="project-image" style="background-image: url('images/ov1.jpg');"></div>
                             <div class="project-info"><h3>Динамическая отработка возражений</h3><div class="project-tags"><span>Telegram Bot</span><span>Python</span><span>Supabase</span></div></div>
                         </div>
-                        <div class="project-card" data-title="База знаний" data-desc="В роли бизнес-аналитика описал ряд рабочих процессов в целях оптимизации. После на бесплатной платформе создал с нуля базу знаний для систематизации рабочих процессов и обучения.<br><br><span class='highlight'>Ускорил адаптацию новых сотрудников, снизил количество рутинных вопросов. Упростил ряд процессов для руководящего состава и учебного центра. Создал единый формат работы.</span>" data-img="images/knowledge-base.jpg">
-                            <div class="project-image" style="background-image: url('images/knowledge-base.jpg');"></div>
-                            <div class="project-info"><h3>База знаний</h3><div class="project-tags"><span>Бизнес-аналитик</span><span>Yandex Wiki</span><span>Teamly</span></div></div>
-                        </div>
-                        <div class="project-card" data-title="Внедрение ИИ для оценки звонков" data-desc="В роли PM с командой аналитиков и ML инженеров инициировал и запустил проект по внедрению ИИ в процесс оценки звонков с целью повышения качества у операторов и экономии средств на агентах контроля качества.<br><br><span class='highlight'>Рост эффективности оценки звонков на 428%.</span><br>Проект выиграл малый кубок в конкрусе проектов Лига Достижений в 2024." data-img="images/ai-scoring.jpg">
-                            <div class="project-image" style="background-image: url('images/ai-scoring.jpg');"></div>
+                        
+                        <!-- Проект 4: Внедрение ИИ -->
+                        <div class="project-card" 
+                             data-title="Внедрение ИИ для оценки звонков" 
+                             data-desc="В роли PM с командой аналитиков и ML инженеров инициировал и запустил проект по внедрению ИИ в процесс оценки звонков с целью повышения качества у операторов и экономии средств на агентах контроля качества.<br><br><span class='highlight'>Рост эффективности оценки звонков на 428%.</span><br>Проект выиграл малый кубок в конкрусе проектов Лига Достижений в 2024." 
+                             data-img="images/prozvoni1.jpg,images/prozvoni2.jpg,images/prozvoni3.jpg,images/prozvoni4.jpg">
+                            <div class="project-image" style="background-image: url('images/prozvoni1.jpg');"></div>
                             <div class="project-info"><h3>Внедрение ИИ для оценки звонков</h3><div class="project-tags"><span>Project Management</span><span>AI/ML</span></div></div>
                         </div>
-                        <div class="project-card" data-title="Автоматизация обратной связи" data-desc="С помощью базовых инструментов в роли руководителя направления создал для дирекции 400+ человек инструмент для массового предоставления персональной обратной связи. Сделано написанием сценариев, текст которых зависит от показателей сотрудников.<br><br><span class='highlight'>Увеличил охват сотрудников, получающих индивидуальную ОС, с 20-30 в неделю до 400+ в день.</span>" data-img="images/feedback-automation.jpg">
-                            <div class="project-image" style="background-image: url('images/feedback-automation.jpg');"></div>
+
+                        <!-- Проект 5: Автоматизация ОС -->
+                        <div class="project-card" 
+                             data-title="Автоматизация обратной связи" 
+                             data-desc="С помощью базовых инструментов в роли руководителя направления создал для дирекции 400+ человек инструмент для массового предоставления персональной обратной связи. Сделано написанием сценариев, текст которых зависит от показателей сотрудников.<br><br><span class='highlight'>Увеличил охват сотрудников, получающих индивидуальную ОС, с 20-30 в неделю до 400+ в день.</span>" 
+                             data-img="images/os1.jpg,images/os2.jpg,images/os3.jpg">
+                            <div class="project-image" style="background-image: url('images/os1.jpg');"></div>
                             <div class="project-info"><h3>Автоматизация обратной связи</h3><div class="project-tags"><span>Excel</span><span>Word</span><span>Outlook</span></div></div>
                         </div>
                     </div>
@@ -197,6 +222,7 @@
             </div>
         </section>
 
+        <!-- БЛОК ОПЫТ -->
         <section id="experience">
             <div class="container">
                 <h2>Опыт работы</h2>
@@ -249,6 +275,7 @@
             </div>
         </section>
 
+        <!-- БЛОК КОНТАКТЫ -->
         <section id="contact">
             <div class="container">
                 <h2>Связаться со мной</h2>
@@ -292,6 +319,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // JS для слайдера проектов на главной странице
             const mainSlider = document.getElementById('slider');
             if (mainSlider) {
                 const prevBtn = document.getElementById('prev-btn');
@@ -302,6 +330,7 @@
                 prevBtn.addEventListener('click', () => mainSlider.scrollBy({ left: -scrollStep(), behavior: 'smooth' }));
             }
 
+            // JS для модального окна проектов
             const projectCards = document.querySelectorAll('.project-card');
             const modal = document.getElementById('project-modal');
             if (modal) {
@@ -375,6 +404,7 @@
                 });
             }
 
+            // JS для раскрывающихся блоков в "Опыте работы"
             const experienceCards = document.querySelectorAll('.timeline-content');
             experienceCards.forEach(card => {
                 card.addEventListener('click', () => {
