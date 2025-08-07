@@ -3,7 +3,7 @@
 :root {
     --primary-color: #2c3e50;
     --secondary-color: #3498db;
-    --dark-section-bg-color: #eaf0f6; /* Новый цвет для темных секций */
+    --dark-section-bg-color: #eaf0f6;
     --background-color-start: #ffffff;
     --background-color-end: #f4f6f9;
     --text-color: #34495e;
@@ -59,7 +59,6 @@ h2::after {
 
 section { padding: 60px 0; }
 
-/* БЛОК В */
 header {
     background-color: var(--primary-color);
     position: fixed;
@@ -87,10 +86,7 @@ header {
     text-decoration: none;
 }
 
-.nav-links {
-    list-style: none;
-    display: flex;
-}
+.nav-links { list-style: none; display: flex; }
 .nav-links li { margin-left: 35px; }
 .nav-links a {
     text-decoration: none;
@@ -100,7 +96,6 @@ header {
 }
 .nav-links a:hover { color: var(--secondary-color); }
 
-/* БЛОК О */
 #hero {
     padding-top: var(--header-height);
     min-height: 90vh;
@@ -151,7 +146,6 @@ header {
     font-weight: 500;
 }
 
-/* БЛОК КК (Ключевые компетенции) */
 #competencies { background-color: var(--dark-section-bg-color); }
 .competencies-grid {
     display: grid;
@@ -172,7 +166,6 @@ header {
 }
 .competency-card h3 { font-size: 1.1rem; margin-bottom: 10px; }
 
-/* БЛОК П */
 #projects { background: transparent; }
 .projects-slider-wrapper { position: relative; }
 .projects-slider {
@@ -240,7 +233,6 @@ header {
 #prev-btn { left: -22px; }
 #next-btn { right: -22px; }
 
-/* БЛОК ОПЫТ */
 #experience { background-color: var(--dark-section-bg-color); }
 .timeline {
     position: relative;
@@ -306,7 +298,6 @@ header {
     padding-left: 5px;
 }
 
-/* БЛОК К */
 #contact { text-align: center; }
 #contact p { font-size: 1.2rem; }
 .contact-phone {
@@ -350,8 +341,12 @@ footer {
     padding: 20px 0;
 }
 
-/* Модальное окно */
-.modal-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:2000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .3s ease}.modal-backdrop.open{display:flex;opacity:1}.modal-content{background:var(--card-bg-color);border-radius:8px;padding:30px;max-width:700px;width:90%;max-height:90vh;overflow-y:auto;position:relative}.modal-close{position:absolute;top:15px;right:15px;font-size:2rem;color:#95a5a6;cursor:pointer;line-height:1}.modal-image-container{width:100%;height:350px;border-radius:8px;margin-bottom:20px;overflow:hidden;position:relative}.modal-image-slider{display:flex;height:100%;transition:transform .4s ease-in-out}.modal-image{flex-shrink:0;width:100%;height:100%;background-size:cover;background-position:center}.modal-nav{display:none}.modal-nav-btn{position:absolute;top:50%;transform:translateY(-50%);background-color:rgba(44,62,80,.5);color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:24px;cursor:pointer}#modal-prev-btn{left:10px}#modal-next-btn{right:10px}.modal-content h3{font-size:1.8rem;margin-bottom:15px}.modal-content .highlight{font-weight:700;color:var(--secondary-color)}
+.modal-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:2000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity .3s ease}.modal-backdrop.open{display:flex;opacity:1}.modal-content{background:var(--card-bg-color);border-radius:8px;padding:30px;max-width:700px;width:90%;max-height:90vh;overflow-y:auto;position:relative}.modal-close{position:absolute;top:15px;right:15px;font-size:2rem;color:#95a5a6;cursor:pointer;line-height:1}
+.modal-image-container{width:100%;height:350px;border-radius:8px;margin-bottom:20px;overflow:hidden;position:relative}
+.modal-image-slider{display:flex;height:100%;transition:transform .4s ease-in-out}.modal-image{flex-shrink:0;width:100%;height:100%;background-size:cover;background-position:center}.modal-nav{display:none}.modal-nav-btn{position:absolute;top:50%;transform:translateY(-50%);background-color:rgba(44,62,80,.5);color:#fff;border:none;border-radius:50%;width:40px;height:40px;font-size:24px;cursor:pointer}#modal-prev-btn{left:10px}#modal-next-btn{right:10px}
+.modal-content h3{font-size:1.8rem;margin-bottom:15px}.modal-content .highlight{font-weight:700;color:var(--secondary-color)}
+.modal-content a {color: var(--secondary-color); text-decoration: none; font-weight: 500;}
+.modal-content a:hover {text-decoration: underline;}
 
 @media (max-width: 768px) {
     h2 { font-size: 1.8rem; }
