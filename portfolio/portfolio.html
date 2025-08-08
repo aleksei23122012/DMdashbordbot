@@ -59,14 +59,12 @@
         #prev-btn, #skills-prev-btn { left: -22px; }
         #next-btn, #skills-next-btn { right: -22px; }
 
-        .skills-slider-wrapper { position: relative; max-width: 900px; margin: 0 auto; }
-        #skills-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; padding: 10px; scrollbar-width: none; white-space: nowrap; }
-        #skills-slider::-webkit-scrollbar { display: none; }
-        #skills-slider li { flex-shrink: 0; scroll-snap-align: start; }
         .technologies-showcase { text-align: center; margin-top: 60px; }
         .technologies-showcase h4 { margin-bottom: 25px; font-size: 1.2rem; font-weight: 500; color: var(--text-color); }
-        .technologies-showcase .skills-list { list-style: none; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 900px; margin: 0 auto; }
-        .technologies-showcase .skills-list li { background-color: #fff; color: var(--primary-color); padding: 8px 18px; border-radius: 20px; font-size: 0.95rem; font-weight: 500; box-shadow: 0 4px 10px rgba(44, 62, 80, 0.05); }
+        .skills-slider-wrapper { position: relative; max-width: 900px; margin: 0 auto; }
+        .skills-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; padding: 10px; scrollbar-width: none; white-space: nowrap; }
+        .skills-slider::-webkit-scrollbar { display: none; }
+        .skills-slider li { flex-shrink: 0; scroll-snap-align: start; list-style-type: none; background-color: #fff; color: var(--primary-color); padding: 8px 18px; border-radius: 20px; font-size: 0.95rem; font-weight: 500; box-shadow: 0 4px 10px rgba(44, 62, 80, 0.05); }
         
         #experience { background-color: var(--dark-section-bg-color); }
         .timeline { position: relative; max-width: 1050px; margin: 0 auto; }
@@ -187,9 +185,9 @@
                     <h4>Инструменты и технологии</h4>
                     <div class="skills-slider-wrapper">
                         <button class="slider-nav" id="skills-prev-btn">&#8249;</button>
-                        <ul class="skills-list" id="skills-slider">
+                        <div class="skills-slider" id="skills-slider">
                             <li>Нейронные сети</li><li>Apps Script</li><li>Python</li><li>SQL</li><li>HTML/CSS/JS</li><li>Telegram WebApp</li><li>DataLens</li><li>MS Office</li><li>Google Docs</li><li>Pyrus</li><li>CRM</li><li>Oracle</li><li>RBS</li><li>BAT</li>
-                        </ul>
+                        </div>
                         <button class="slider-nav" id="skills-next-btn">&#8250;</button>
                     </div>
                 </div>
@@ -305,7 +303,7 @@
             if (skillsSlider) {
                 const skillsPrevBtn = document.getElementById('skills-prev-btn');
                 const skillsNextBtn = document.getElementById('skills-next-btn');
-                const scrollAmount = 300; // Прокрутка на 300px
+                const scrollAmount = 300; 
 
                 skillsNextBtn.addEventListener('click', () => skillsSlider.scrollBy({ left: scrollAmount, behavior: 'smooth' }));
                 skillsPrevBtn.addEventListener('click', () => skillsSlider.scrollBy({ left: -scrollAmount, behavior: 'smooth' }));
