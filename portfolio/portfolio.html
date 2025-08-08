@@ -56,9 +56,13 @@
         .project-tags { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px; }
         .project-tags span { background: #f4f6f9; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; }
         .slider-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 45px; height: 45px; background: var(--card-bg-color); border-radius: 50%; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); cursor: pointer; z-index: 10; font-size: 1.5rem; color: var(--primary-color); }
-        #prev-btn { left: -22px; }
-        #next-btn { right: -22px; }
+        #prev-btn, #skills-prev-btn { left: -22px; }
+        #next-btn, #skills-next-btn { right: -22px; }
 
+        .skills-slider-wrapper { position: relative; max-width: 900px; margin: 0 auto; }
+        #skills-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; padding: 10px; scrollbar-width: none; white-space: nowrap; }
+        #skills-slider::-webkit-scrollbar { display: none; }
+        #skills-slider li { flex-shrink: 0; scroll-snap-align: start; }
         .technologies-showcase { text-align: center; margin-top: 60px; }
         .technologies-showcase h4 { margin-bottom: 25px; font-size: 1.2rem; font-weight: 500; color: var(--text-color); }
         .technologies-showcase .skills-list { list-style: none; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; max-width: 900px; margin: 0 auto; }
@@ -155,8 +159,12 @@
                 <div class="projects-slider-wrapper">
                     <button class="slider-nav" id="prev-btn">&#8249;</button>
                     <div class="projects-slider" id="slider">
-                        <div class="project-card" data-title="Интерактивный дашборд" data-desc="Написан с нуля с помощью нейросети на html css js. Зашит в Web App телеграм: когда сотрудник открывает страницу, по id телеграма страница берет данные именно этого сотрудника из supabase, туда данные отправляются из гугл таблицы с помощью apps script.<br><br><span class='highlight'>Повысил вовлеченность сотрудников и прозрачность метрик, инструмент для контроля показателей.</span><br><a href='https://aleksei23122012.github.io/DMdashbordbot/conc/conc.html' target='_blank'>Посмотреть тестовую страницу</a>" data-img="image/dash1.jpg,image/dash2.jpg,image/dash3.jpg,image/dash4.jpg">
-                            <div class="project-image" style="background-image: url('image/dash1.jpg');"></div>
+                        <div class="project-card" data-title="Внедрение ИИ для оценки звонков" data-desc="В роли PM с командой аналитиков и ML инженеров инициировал и запустил проект по внедрению ИИ в процесс оценки звонков с целью повышения качества у операторов и экономии средств на агентах контроля качества.<br><br><span class='highlight'>Рост эффективности оценки звонков на 428%.</span><br>Проект выиграл малый кубок в конкрусе проектов Лига Достижений в 2024." data-img="image/prozvoni1.jpg,image/prozvoni2.jpg,image/prozvoni3.jpg,image/prozvoni4.jpg">
+                            <div class="project-image" style="background-image: url('image/prozvoni1.jpg');"></div>
+                            <div class="project-info"><h3>Внедрение ИИ для оценки звонков</h3><div class="project-tags"><span>Project Management</span><span>AI/ML</span></div></div>
+                        </div>
+                        <div class="project-card" data-title="Интерактивный дашборд" data-desc="Написан с нуля с помощью нейросети на html css js. Зашит в Web App телеграм: когда сотрудник открывает страницу, по id телеграма страница берет данные именно этого сотрудника из supabase, туда данные отправляются из гугл таблицы с помощью apps script.<br><br><span class='highlight'>Повысил вовлеченность сотрудников и прозрачность метрик, инструмент для контроля показателей.</span><br><a href='https://aleksei23122012.github.io/DMdashbordbot/conc/conc.html' target='_blank'>Посмотреть тестовую страницу</a>" data-img="image/dash4.jpg,image/dash1.jpg,image/dash2.jpg,image/dash3.jpg">
+                            <div class="project-image" style="background-image: url('image/dash4.jpg');"></div>
                             <div class="project-info"><h3>Интерактивный дашборд</h3><div class="project-tags"><span>HTML/CSS/JS</span><span>Apps Script</span><span>SQL</span></div></div>
                         </div>
                         <div class="project-card" data-title="Оптимизация системы автодозвона" data-desc="Внедрил ряд доработок в систему автодозвона банка в роли PM/аналитика/дизайнера. В рамках этого проекта также занимался озвучкой, и частично оператором и монтажером видео (для презентации проекта стейкхолдерам).<br><br><span class='highlight'>Принесли банку 1,8 млрд. рублей годового дохода и экономит 132 тыс. ч.ч.</span><br>Проект выиграл номинацию в финале конкурса проектов Лига Достижений в 2023." data-img="image/dailer1.jpg,image/dailer2.jpg">
@@ -166,10 +174,6 @@
                         <div class="project-card" data-title="Динамическая отработка возражений" data-desc="Создал Telegram-бота для тренировки и быстрой навигации по скриптам отработки возражений. Данные для бота берутся из Supabase, куда отправляются через Apps Script из гугл таблиц, что позволяет легко вносить корректировки в возражения и менять их списки.<br><br><span class='highlight'>Ускорил адаптацию новых сотрудников для улучшения ситуации с текучкой кадров в КЦ.</span><br><a href='https://aleksei23122012.github.io/DMdashbordbot/ov/ov.html' target='_blank'>Посмотреть тестовую страницу</a>" data-img="image/ov1.jpg,image/ov2.jpg,image/ov3.jpg">
                             <div class="project-image" style="background-image: url('image/ov1.jpg');"></div>
                             <div class="project-info"><h3>Динамическая отработка возражений</h3><div class="project-tags"><span>Telegram Bot</span><span>Python</span><span>Supabase</span></div></div>
-                        </div>
-                        <div class="project-card" data-title="Внедрение ИИ для оценки звонков" data-desc="В роли PM с командой аналитиков и ML инженеров инициировал и запустил проект по внедрению ИИ в процесс оценки звонков с целью повышения качества у операторов и экономии средств на агентах контроля качества.<br><br><span class='highlight'>Рост эффективности оценки звонков на 428%.</span><br>Проект выиграл малый кубок в конкрусе проектов Лига Достижений в 2024." data-img="image/prozvoni1.jpg,image/prozvoni2.jpg,image/prozvoni3.jpg,image/prozvoni4.jpg">
-                            <div class="project-image" style="background-image: url('image/prozvoni1.jpg');"></div>
-                            <div class="project-info"><h3>Внедрение ИИ для оценки звонков</h3><div class="project-tags"><span>Project Management</span><span>AI/ML</span></div></div>
                         </div>
                         <div class="project-card" data-title="Автоматизация обратной связи" data-desc="С помощью базовых инструментов в роли руководителя направления создал для дирекции 400+ человек инструмент для массового предоставления персональной обратной связи. Сделано написанием сценариев, текст которых зависит от показателей сотрудников.<br><br><span class='highlight'>Увеличил охват сотрудников, получающих индивидуальную ОС, с 20-30 в неделю до 400+ в день.</span>" data-img="image/os1.jpg,image/os2.jpg,image/os3.jpg">
                             <div class="project-image" style="background-image: url('image/os1.jpg');"></div>
@@ -181,9 +185,13 @@
 
                 <div class="technologies-showcase">
                     <h4>Инструменты и технологии</h4>
-                    <ul class="skills-list">
-                        <li>Нейронные сети</li><li>Apps Script</li><li>Python</li><li>SQL</li><li>HTML/CSS/JS</li><li>Telegram WebApp</li><li>DataLens</li><li>MS Office</li><li>Google Docs</li><li>Pyrus</li><li>CRM</li><li>Oracle</li><li>RBS</li><li>BAT</li>
-                    </ul>
+                    <div class="skills-slider-wrapper">
+                        <button class="slider-nav" id="skills-prev-btn">&#8249;</button>
+                        <ul class="skills-list" id="skills-slider">
+                            <li>Нейронные сети</li><li>Apps Script</li><li>Python</li><li>SQL</li><li>HTML/CSS/JS</li><li>Telegram WebApp</li><li>DataLens</li><li>MS Office</li><li>Google Docs</li><li>Pyrus</li><li>CRM</li><li>Oracle</li><li>RBS</li><li>BAT</li>
+                        </ul>
+                        <button class="slider-nav" id="skills-next-btn">&#8250;</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -291,6 +299,16 @@
 
                 nextBtn.addEventListener('click', () => mainSlider.scrollBy({ left: scrollStep(), behavior: 'smooth' }));
                 prevBtn.addEventListener('click', () => mainSlider.scrollBy({ left: -scrollStep(), behavior: 'smooth' }));
+            }
+
+            const skillsSlider = document.getElementById('skills-slider');
+            if (skillsSlider) {
+                const skillsPrevBtn = document.getElementById('skills-prev-btn');
+                const skillsNextBtn = document.getElementById('skills-next-btn');
+                const scrollAmount = 300; // Прокрутка на 300px
+
+                skillsNextBtn.addEventListener('click', () => skillsSlider.scrollBy({ left: scrollAmount, behavior: 'smooth' }));
+                skillsPrevBtn.addEventListener('click', () => skillsSlider.scrollBy({ left: -scrollAmount, behavior: 'smooth' }));
             }
 
             const projectCards = document.querySelectorAll('.project-card');
