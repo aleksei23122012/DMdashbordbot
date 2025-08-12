@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentCategory = 'Брокеридж';
   let currentType = null;
   let debounceTimeout;
-  const pusheenImageUrl = 'https://cdn.imgbin.com/9/12/6/imgbin-pusheen-sticker-telegram-vkontakte-jj-pusheen-cat-illustration-FYzgapPV2qHfFNKvYnCcXKHuH.jpg';
+  const pusheenImageUrl = 'https://vyxjfeoqngnlvqttetbd.supabase.co/storage/v1/object/public/cat1//catov.png';
 
   // --- ФУНКЦИИ ОТОБРАЖЕНИЯ ---
   
