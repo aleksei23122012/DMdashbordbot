@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const labelBrokerage = document.querySelector('.label-brokerage');
     const labelPackaging = document.querySelector('.label-packaging');
     labelBrokerage.classList.toggle('text-active', !this.checked);
-    labelPackaging.classList.toggle('text-active', !this.checked);
+    labelPackaging.classList.toggle('text-active', this.checked);
     searchInput.value = '';
     if (this.checked) {
       currentCategory = 'Упаковка';
