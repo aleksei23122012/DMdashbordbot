@@ -6,7 +6,7 @@ import json
 # --- [ НАСТРОЙКИ СКРИПТА ] ---
 # ВАЖНО: Вставьте сюда ID вашей главной таблицы
  
-# ID вашей ЕДИНОЙ таблицы (где "Дашборд", "crm" и "lidscrm")
+# ID вашей ЕДИНОЙ таблицы (где "Дашборд", "crm" и "lidscram")
 DASHBOARD_SHEET_ID = '1s_m6Sssjld0BFwhGDVXEC4YRWeH3dYgzNpgiTMwdgSk'
  
 # Название листа, где лежит список CRM-ссылок
@@ -15,47 +15,32 @@ SETTINGS_WORKSHEET_NAME = 'crm'
 # Название листа, КУДА выгружать собранные данные
 TARGET_WORKSHEET_NAME = 'lidscrm'
  
-# --- Названия листов и колонок в ИСХОДНЫХ CRM-таблицах ---
+# --- Названия листов и ИНДЕКСЫ колонок в ИСХОДНЫХ CRM-таблицах ---
 TODAY_SHEET_NAME = 'Стат по ТМ-БРО (сегодня)'
 MONTH_SHEET_NAME = 'Стат по ТМ-БРО (месяц)'
-# Буквы больше не используются, но оставим для справки
-# OPERATOR_COLUMN_LETTER = 'O'
-# LEADS_COLUMN_LETTER = 'R'
 
-# НОВЫЕ НАСТРОЙКИ: Точные названия заголовков, которые ищем
-OPERATOR_COLUMN_NAME = 'для рейтинга' # <-- Убедитесь, что это точный заголовок колонки O
-LEADS_COLUMN_NAME_TODAY = 'Лидов' # <-- Убедитесь, что это точный заголовок колонки R на листе "сегодня"
-LEADS_COLUMN_NAME_MONTH = 'Лидов' # <-- Убедитесь, что это точный заголовок колонки R на листе "месяц"
+# O - это 15-я колонка (индекс 14)
+# R - это 18-я колонка (индекс 17)
+OPERATOR_COLUMN_INDEX = 14 
+LEADS_COLUMN_INDEX = 17
 # --- КОНЕЦ НАСТРОЕК ---
 
-def get_data_from_worksheet(worksheet, operator_col_name, leads_col_name):
-    """Более надежная функция для чтения данных с листа."""
+
+def get_data_from_worksheet_by_index(worksheet, operator_idx, leads_idx):
+    """Надежная функция для чтения данных по индексам колонок."""
     all_values = worksheet.get_all_values()
     if not all_values:
         return pd.DataFrame(columns=['Оператор', 'Лиды'])
         
-    headers = all_values[0]
-    try:
-        operator_idx = headers.index(operator_col_name)
-    except ValueError:
-        # Если не нашли колонку "для рейтинга", ищем "Оператор"
-        try:
-            operator_idx = headers.index('Оператор')
-        except ValueError:
-            raise ValueError(f"Не удалось найти колонку оператора ('{operator_col_name}' или 'Оператор')")
-
-    try:
-        leads_idx = headers.index(leads_col_name)
-    except ValueError:
-        raise ValueError(f"Не удалось найти колонку лидов ('{leads_col_name}')")
-
     data = []
-    for row in all_values[1:]: # Пропускаем заголовки
+    # Начинаем с 4-й строки (индекс 3), чтобы пропустить заголовки, как на вашем скриншоте
+    for row in all_values[3:]: 
         # Убеждаемся, что в строке достаточно колонок
         if len(row) > max(operator_idx, leads_idx):
             operator = row[operator_idx]
             leads = row[leads_idx]
-            if operator: # Добавляем только если есть имя оператора
+            # Добавляем только если есть имя оператора
+            if operator and str(operator).strip():
                 data.append({'Оператор': operator, 'Лиды': leads})
                 
     return pd.DataFrame(data)
@@ -99,7 +84,7 @@ def run_etl():
             # 1. Получаем данные за СЕГОДНЯ
             try:
                 today_ws = source_spreadsheet.worksheet(TODAY_SHEET_NAME)
-                df_today = get_data_from_worksheet(today_ws, OPERATOR_COLUMN_NAME, LEADS_COLUMN_NAME_TODAY)
+                df_today = get_data_from_worksheet_by_index(today_ws, OPERATOR_COLUMN_INDEX, LEADS_COLUMN_INDEX)
                 df_today = df_today.rename(columns={'Лиды': 'Лидов сегодня'})
                 print(f"  ✅ Данные 'сегодня' загружены ({len(df_today)} строк).")
             except gspread.exceptions.WorksheetNotFound:
@@ -109,7 +94,7 @@ def run_etl():
             # 2. Получаем данные за МЕСЯЦ
             try:
                 month_ws = source_spreadsheet.worksheet(MONTH_SHEET_NAME)
-                df_month = get_data_from_worksheet(month_ws, OPERATOR_COLUMN_NAME, LEADS_COLUMN_NAME_MONTH)
+                df_month = get_data_from_worksheet_by_index(month_ws, OPERATOR_COLUMN_INDEX, LEADS_COLUMN_INDEX)
                 df_month = df_month.rename(columns={'Лиды': 'Лидов месяц'})
                 print(f"  ✅ Данные 'месяц' загружены ({len(df_month)} строк).")
             except gspread.exceptions.WorksheetNotFound:
