@@ -1,0 +1,1 @@
+gspread pandas google-auth-oauthlib
