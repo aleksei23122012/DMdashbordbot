@@ -7,7 +7,7 @@ import json
 # ВАЖНО: Вставьте сюда ID вашей главной таблицы
  
 # ID вашей ЕДИНОЙ таблицы (где "Дашборд", "crm" и "lidscrm")
-DASHBOARD_SHEET_ID = 'ВАШ_ID_ГЛАВНОЙ_ТАБЛИЦЫ_ДАШБОРД'
+DASHBOARD_SHEET_ID = '1s_m6Sssjld0BFwhGDVXEC4YRWeH3dYgzNpgiTMwdgSk'
  
 # Название листа, где лежит список CRM-ссылок
 SETTINGS_WORKSHEET_NAME = 'crm' 
