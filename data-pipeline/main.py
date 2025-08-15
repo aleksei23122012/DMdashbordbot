@@ -1,4 +1,3 @@
- ```python
  import pandas as pd
  import gspread
  import os
@@ -127,4 +126,3 @@
 
  if __name__ == "__main__":
      run_etl()
- ```
