@@ -7,7 +7,7 @@ import json
 # ВАЖНО: Вставьте сюда ID вашей главной таблицы
  
 # ID вашей ЕДИНОЙ таблицы (где "Дашборд", "crm" и "lidscrm")
-DASHBOARD_SHEET_ID = '1s_m6Sssjld0BFwhGDVXEC4YRWeH3dYgzNpgiTMwdgSk'
+DASHBOARD_SHEET_ID = 'ВАШ_ID_ГЛАВНОЙ_ТАБЛИЦЫ_ДАШБОРД'
  
 # Название листа, где лежит список CRM-ссылок
 SETTINGS_WORKSHEET_NAME = 'crm' 
@@ -18,9 +18,48 @@ TARGET_WORKSHEET_NAME = 'lidscrm'
 # --- Названия листов и колонок в ИСХОДНЫХ CRM-таблицах ---
 TODAY_SHEET_NAME = 'Стат по ТМ-БРО (сегодня)'
 MONTH_SHEET_NAME = 'Стат по ТМ-БРО (месяц)'
-OPERATOR_COLUMN_LETTER = 'O'
-LEADS_COLUMN_LETTER = 'R'
+# Буквы больше не используются, но оставим для справки
+# OPERATOR_COLUMN_LETTER = 'O'
+# LEADS_COLUMN_LETTER = 'R'
+
+# НОВЫЕ НАСТРОЙКИ: Точные названия заголовков, которые ищем
+OPERATOR_COLUMN_NAME = 'для рейтинга' # <-- Убедитесь, что это точный заголовок колонки O
+LEADS_COLUMN_NAME_TODAY = 'Лидов' # <-- Убедитесь, что это точный заголовок колонки R на листе "сегодня"
+LEADS_COLUMN_NAME_MONTH = 'Лидов' # <-- Убедитесь, что это точный заголовок колонки R на листе "месяц"
 # --- КОНЕЦ НАСТРОЕК ---
+
+def get_data_from_worksheet(worksheet, operator_col_name, leads_col_name):
+    """Более надежная функция для чтения данных с листа."""
+    all_values = worksheet.get_all_values()
+    if not all_values:
+        return pd.DataFrame(columns=['Оператор', 'Лиды'])
+        
+    headers = all_values[0]
+    try:
+        operator_idx = headers.index(operator_col_name)
+    except ValueError:
+        # Если не нашли колонку "для рейтинга", ищем "Оператор"
+        try:
+            operator_idx = headers.index('Оператор')
+        except ValueError:
+            raise ValueError(f"Не удалось найти колонку оператора ('{operator_col_name}' или 'Оператор')")
+
+    try:
+        leads_idx = headers.index(leads_col_name)
+    except ValueError:
+        raise ValueError(f"Не удалось найти колонку лидов ('{leads_col_name}')")
+
+    data = []
+    for row in all_values[1:]: # Пропускаем заголовки
+        # Убеждаемся, что в строке достаточно колонок
+        if len(row) > max(operator_idx, leads_idx):
+            operator = row[operator_idx]
+            leads = row[leads_idx]
+            if operator: # Добавляем только если есть имя оператора
+                data.append({'Оператор': operator, 'Лиды': leads})
+                
+    return pd.DataFrame(data)
+
 
 def run_etl():
     print("🚀 Запуск процесса сбора данных по операторам...")
@@ -60,16 +99,8 @@ def run_etl():
             # 1. Получаем данные за СЕГОДНЯ
             try:
                 today_ws = source_spreadsheet.worksheet(TODAY_SHEET_NAME)
-                today_data = today_ws.get(f'{OPERATOR_COLUMN_LETTER}:{OPERATOR_COLUMN_LETTER}')
-                today_leads = today_ws.get(f'{LEADS_COLUMN_LETTER}:{LEADS_COLUMN_LETTER}')
-                 
-                df_today = pd.DataFrame({
-                    'Оператор': [item for sublist in today_data for item in sublist],
-                    'Лидов сегодня': [item for sublist in today_leads for item in sublist]
-                })
-                # Убираем заголовок если он попал в данные
-                if not df_today.empty and df_today.iloc[0]['Оператор'] == 'Оператор':
-                     df_today = df_today.iloc[1:].reset_index(drop=True)
+                df_today = get_data_from_worksheet(today_ws, OPERATOR_COLUMN_NAME, LEADS_COLUMN_NAME_TODAY)
+                df_today = df_today.rename(columns={'Лиды': 'Лидов сегодня'})
                 print(f"  ✅ Данные 'сегодня' загружены ({len(df_today)} строк).")
             except gspread.exceptions.WorksheetNotFound:
                 print(f"  ⚠️ Лист '{TODAY_SHEET_NAME}' не найден. Данные за сегодня будут 0.")
@@ -78,15 +109,8 @@ def run_etl():
             # 2. Получаем данные за МЕСЯЦ
             try:
                 month_ws = source_spreadsheet.worksheet(MONTH_SHEET_NAME)
-                month_data = month_ws.get(f'{OPERATOR_COLUMN_LETTER}:{OPERATOR_COLUMN_LETTER}')
-                month_leads = month_ws.get(f'{LEADS_COLUMN_LETTER}:{LEADS_COLUMN_LETTER}')
-                 
-                df_month = pd.DataFrame({
-                    'Оператор': [item for sublist in month_data for item in sublist],
-                    'Лидов месяц': [item for sublist in month_leads for item in sublist]
-                })
-                if not df_month.empty and df_month.iloc[0]['Оператор'] == 'Оператор':
-                    df_month = df_month.iloc[1:].reset_index(drop=True)
+                df_month = get_data_from_worksheet(month_ws, OPERATOR_COLUMN_NAME, LEADS_COLUMN_NAME_MONTH)
+                df_month = df_month.rename(columns={'Лиды': 'Лидов месяц'})
                 print(f"  ✅ Данные 'месяц' загружены ({len(df_month)} строк).")
             except gspread.exceptions.WorksheetNotFound:
                 print(f"  ⚠️ Лист '{MONTH_SHEET_NAME}' не найден. Данные за месяц будут 0.")
@@ -97,7 +121,6 @@ def run_etl():
                 print("  ❌ В обеих вкладках нет данных, пропускаем команду.")
                 continue
              
-            # Внешнее объединение, чтобы не потерять операторов, которые есть только в одном отчете
             merged_df = pd.merge(df_today, df_month, on='Оператор', how='outer')
             merged_df['Команда'] = team_name
             all_teams_dataframes.append(merged_df)
@@ -111,11 +134,8 @@ def run_etl():
 
     # Финальная сборка и очистка
     final_df = pd.concat(all_teams_dataframes, ignore_index=True)
-    # Заменяем пустые значения (NaN) на 0
     final_df.fillna(0, inplace=True)
-    # Устанавливаем правильный порядок колонок
     final_df = final_df[['Команда', 'Оператор', 'Лидов сегодня', 'Лидов месяц']]
-    # Удаляем строки, где оператор не указан или является пустым
     final_df = final_df[final_df['Оператор'].astype(str).str.strip() != '']
      
     print(f"\n✅ Итого собрано {len(final_df)} уникальных строк по операторам.")
@@ -124,7 +144,6 @@ def run_etl():
     try:
         target_worksheet = dashboard_spreadsheet.worksheet(TARGET_WORKSHEET_NAME)
         target_worksheet.clear()
-        # Готовим данные к выгрузке (с заголовками)
         data_to_upload = [final_df.columns.values.tolist()] + final_df.values.tolist()
         target_worksheet.update(data_to_upload, value_input_option='USER_ENTERED')
         target_worksheet.format('A1:Z1', {'textFormat': {'bold': True}})
