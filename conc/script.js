@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
     let doughnutChartDay, doughnutChartMonth, trafficLineChart, leadsLineChart, timePerLeadLineChart;
-    let currentUserTgId = "don_liar"; 
+    let currentUserTgId = "EgorRazzhivin12"; 
     let currentUserName = "", currentUserPosition = "", currentUserTeam = "";
     
     const TAG_MAP = {"t_net": "Теги не проставлены", "t_avtootvet": "Автоответчик", "t_lid": "Лид", "t_neinteres": "Не интересно", "t_finorg": "Фин. орг.", "t_perezvon": "Перезвонить позже", "t_woman": "Женщина", "t_sbros": "Сброс", "t_nomany": "Нет денег", "t_buisnes": "Есть бизнес", "t_mat": "Ругается", "t_idiot": "Неадекват", "t_deti": "Дети", "t_old": "Пенсионер", "t_bankrot": "Банкрот", "t_duble": "Дубль", "t_gos": "Госслужащие"};
