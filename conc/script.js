@@ -22,7 +22,64 @@ document.addEventListener('DOMContentLoaded', () => {
     function setComparisonIndicator(elementId, userValue, avgValue, isTime = false) { const element = document.getElementById(elementId); if (!element || userValue === null || userValue === undefined || avgValue === null || avgValue === undefined) { if (element) element.textContent = '---'; return; } const userSeconds = isTime ? timeToSeconds(userValue) : parseFloat(userValue); const avgSeconds = isTime ? timeToSeconds(avgValue) : parseFloat(avgValue); let userIsBetter = isTime ? userSeconds < avgSeconds : userSeconds > avgSeconds; element.textContent = userIsBetter ? '>' : '<'; element.className = userIsBetter ? 'indicator-col indicator-green' : 'indicator-col indicator-red'; }
     function timeToSeconds(timeStr) { if (!timeStr || typeof timeStr !== 'string') return 0; const parts = formatInterval(timeStr).split(':'); if (parts.length !== 3) return 0; return parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10); }
     function timeToHours(timeStr) { if (!timeStr) return 0; const totalSeconds = timeToSeconds(timeStr); return totalSeconds / 3600; }
-    function applyRelativeGradient(selector, isReversed = false) { const cells = document.querySelectorAll(selector); if (cells.length === 0) return; const values = Array.from(cells).map(cell => { const text = cell.textContent; if (text.includes(':')) { return timeToSeconds(text); } return parseFloat(text.replace('%', '')); }); const min = Math.min(...values); const max = Math.max(...values); if (min === max) return; const range = max - min; cells.forEach((cell, index) => { const value = values[index]; let normalized = (value - min) / range; if (isReversed) normalized = 1 - normalized; const hue = normalized * 120; cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`; cell.style.color = `hsl(${hue}, 80%, 25%)`; cell.style.fontWeight = '600'; cell.style.borderRadius = '4px'; }); }
+    function applyRelativeGradient(selector, isReversed = false) {
+    const cells = document.querySelectorAll(selector);
+    if (cells.length === 0) return;
+
+    // --- ИЗМЕНЕНИЕ НАЧАЛО ---
+
+    // 1. Сначала обрабатываем нулевые значения
+    const nonZeroValues = [];
+    cells.forEach(cell => {
+        const text = cell.textContent;
+        const value = text.includes(':') ? timeToSeconds(text) : parseFloat(text.replace('%', ''));
+
+        if (value === 0) {
+            // Если значение 0, принудительно красим в красный
+            cell.style.backgroundColor = 'hsl(0, 90%, 85%)'; // Красный оттенок
+            cell.style.color = 'hsl(0, 80%, 25%)';
+            cell.style.fontWeight = '600';
+            cell.style.borderRadius = '4px';
+        } else {
+            // Собираем все ненулевые значения для расчета градиента
+            nonZeroValues.push({ cell, value });
+        }
+    });
+
+    // 2. Рассчитываем градиент только для ненулевых значений
+    if (nonZeroValues.length === 0) return;
+
+    const values = nonZeroValues.map(item => item.value);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    
+    // Если все оставшиеся значения одинаковы, красим их в нейтральный цвет (желтый)
+    if (min === max) {
+         nonZeroValues.forEach(item => {
+            const hue = 60; // Желтый
+            item.cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`;
+            item.cell.style.color = `hsl(${hue}, 80%, 25%)`;
+            item.cell.style.fontWeight = '600';
+            item.cell.style.borderRadius = '4px';
+        });
+        return;
+    }
+
+    const range = max - min;
+    nonZeroValues.forEach(item => {
+        let normalized = (item.value - min) / range;
+        if (isReversed) {
+            normalized = 1 - normalized;
+        }
+        const hue = normalized * 120; // 0 = красный, 120 = зеленый
+        item.cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`;
+        item.cell.style.color = `hsl(${hue}, 80%, 25%)`;
+        item.cell.style.fontWeight = '600';
+        item.cell.style.borderRadius = '4px';
+    });
+
+    // --- ИЗМЕНЕНИЕ КОНЕЦ ---
+}
     function updateTagsTable(tbodyId, data) { const tbody = document.getElementById(tbodyId); if (!tbody || !data) { tbody.innerHTML = '<tr><td colspan="2">Нет данных</td></tr>'; return; } tbody.innerHTML = ''; const tagsArray = Object.keys(data).filter(key => key.startsWith('t_') && key !== 't_os').map(key => ({ key, name: TAG_MAP[key] || key, count: data[key] || 0 })).filter(tag => tag.count > 0).sort((a, b) => b.count - a.count); if (tagsArray.length === 0) { tbody.innerHTML = '<tr><td colspan="2">Теги не найдены</td></tr>'; return; } tagsArray.forEach(tag => { const row = document.createElement('tr'); if (tag.key === 't_net') row.classList.add('highlight-red'); row.innerHTML = `<td>${tag.name}</td><td>${tag.count}</td>`; tbody.appendChild(row); }); }
     function createOrUpdateLineChart(canvasId, chartInstance, labels, yourData, avgData, yAxisFormatter) { const ctx = document.getElementById(canvasId).getContext('2d'); const data = { labels: labels, datasets: [ { label: 'Средние значения', data: avgData, borderColor: '#1e88e5', backgroundColor: '#1e88e5', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: '#1e88e5', pointBorderWidth: 2 }, { label: 'Твои значения', data: yourData, borderColor: '#e53935', backgroundColor: '#e53935', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: '#e53935', pointBorderWidth: 2 } ] }; const options = { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false, }, plugins: { legend: { display: false }, tooltip: { enabled: true, backgroundColor: 'rgba(0, 0, 0, 0.85)', titleColor: '#FFFFFF', bodyColor: '#FFFFFF', titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 12 }, padding: 12, cornerRadius: 8, displayColors: true, borderColor: 'rgba(0,0,0,0)', borderWidth: 0, callbacks: { labelColor: function(context) { return { borderColor: context.dataset.borderColor, backgroundColor: context.dataset.borderColor, borderWidth: 2, borderRadius: 2, }; }, title: function(tooltipItems) { const label = tooltipItems[0].label; return capitalizeFirstLetter(label); }, label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += yAxisFormatter(context.parsed.y); } return label; } } } }, scales: { y: { beginAtZero: true, ticks: { callback: yAxisFormatter } } } }; if (chartInstance) { chartInstance.data = data; chartInstance.options = options; chartInstance.update(); return chartInstance; } else { return new Chart(ctx, { type: 'line', data: data, options: options }); } }
 
