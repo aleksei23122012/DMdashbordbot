@@ -26,37 +26,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const cells = document.querySelectorAll(selector);
     if (cells.length === 0) return;
 
-    // --- ИЗМЕНЕНИЕ НАЧАЛО ---
+    // --- ИСПРАВЛЕННАЯ ЛОГИКА ---
 
-    // 1. Сначала обрабатываем нулевые значения
-    const nonZeroValues = [];
-    cells.forEach(cell => {
+    const cellData = Array.from(cells).map(cell => {
         const text = cell.textContent;
         const value = text.includes(':') ? timeToSeconds(text) : parseFloat(text.replace('%', ''));
-
-        if (value === 0) {
-            // Если значение 0, принудительно красим в красный
-            cell.style.backgroundColor = 'hsl(0, 90%, 85%)'; // Красный оттенок
-            cell.style.color = 'hsl(0, 80%, 25%)';
-            cell.style.fontWeight = '600';
-            cell.style.borderRadius = '4px';
-        } else {
-            // Собираем все ненулевые значения для расчета градиента
-            nonZeroValues.push({ cell, value });
-        }
+        return { cell, value };
     });
 
-    // 2. Рассчитываем градиент только для ненулевых значений
-    if (nonZeroValues.length === 0) return;
-
-    const values = nonZeroValues.map(item => item.value);
+    const values = cellData.map(item => item.value).filter(v => !isNaN(v));
+    if (values.length === 0) return;
+    
     const min = Math.min(...values);
     const max = Math.max(...values);
     
-    // Если все оставшиеся значения одинаковы, красим их в нейтральный цвет (желтый)
+    // Если все значения одинаковы, красим в один цвет (нейтральный желтый) и выходим
     if (min === max) {
-         nonZeroValues.forEach(item => {
-            const hue = 60; // Желтый
+        cellData.forEach(item => {
+            const hue = item.value === 0 ? 0 : 60; // 0 (красный) для нуля, 60 (желтый) для остальных
             item.cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`;
             item.cell.style.color = `hsl(${hue}, 80%, 25%)`;
             item.cell.style.fontWeight = '600';
@@ -66,19 +53,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const range = max - min;
-    nonZeroValues.forEach(item => {
-        let normalized = (item.value - min) / range;
+    cellData.forEach(item => {
+        let normalized = 0.5; // Нейтральный цвет для некорректных значений
+        if (range > 0 && !isNaN(item.value)) {
+            normalized = (item.value - min) / range;
+        }
+
         if (isReversed) {
             normalized = 1 - normalized;
         }
+
         const hue = normalized * 120; // 0 = красный, 120 = зеленый
         item.cell.style.backgroundColor = `hsl(${hue}, 90%, 85%)`;
         item.cell.style.color = `hsl(${hue}, 80%, 25%)`;
         item.cell.style.fontWeight = '600';
         item.cell.style.borderRadius = '4px';
-    });
 
-    // --- ИЗМЕНЕНИЕ КОНЕЦ ---
+        // ПОВТОРНАЯ ПРОВЕРКА: Если значение было 0, принудительно перекрашиваем в красный
+        if (item.value === 0) {
+            item.cell.style.backgroundColor = 'hsl(0, 90%, 85%)'; // Красный оттенок
+            item.cell.style.color = 'hsl(0, 80%, 25%)';
+        }
+    });
 }
     function updateTagsTable(tbodyId, data) { const tbody = document.getElementById(tbodyId); if (!tbody || !data) { tbody.innerHTML = '<tr><td colspan="2">Нет данных</td></tr>'; return; } tbody.innerHTML = ''; const tagsArray = Object.keys(data).filter(key => key.startsWith('t_') && key !== 't_os').map(key => ({ key, name: TAG_MAP[key] || key, count: data[key] || 0 })).filter(tag => tag.count > 0).sort((a, b) => b.count - a.count); if (tagsArray.length === 0) { tbody.innerHTML = '<tr><td colspan="2">Теги не найдены</td></tr>'; return; } tagsArray.forEach(tag => { const row = document.createElement('tr'); if (tag.key === 't_net') row.classList.add('highlight-red'); row.innerHTML = `<td>${tag.name}</td><td>${tag.count}</td>`; tbody.appendChild(row); }); }
     function createOrUpdateLineChart(canvasId, chartInstance, labels, yourData, avgData, yAxisFormatter) { const ctx = document.getElementById(canvasId).getContext('2d'); const data = { labels: labels, datasets: [ { label: 'Средние значения', data: avgData, borderColor: '#1e88e5', backgroundColor: '#1e88e5', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: '#1e88e5', pointBorderWidth: 2 }, { label: 'Твои значения', data: yourData, borderColor: '#e53935', backgroundColor: '#e53935', borderWidth: 4, tension: 0.4, pointRadius: 5, pointBackgroundColor: 'white', pointBorderColor: '#e53935', pointBorderWidth: 2 } ] }; const options = { responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false, }, plugins: { legend: { display: false }, tooltip: { enabled: true, backgroundColor: 'rgba(0, 0, 0, 0.85)', titleColor: '#FFFFFF', bodyColor: '#FFFFFF', titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 12 }, padding: 12, cornerRadius: 8, displayColors: true, borderColor: 'rgba(0,0,0,0)', borderWidth: 0, callbacks: { labelColor: function(context) { return { borderColor: context.dataset.borderColor, backgroundColor: context.dataset.borderColor, borderWidth: 2, borderRadius: 2, }; }, title: function(tooltipItems) { const label = tooltipItems[0].label; return capitalizeFirstLetter(label); }, label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += yAxisFormatter(context.parsed.y); } return label; } } } }, scales: { y: { beginAtZero: true, ticks: { callback: yAxisFormatter } } } }; if (chartInstance) { chartInstance.data = data; chartInstance.options = options; chartInstance.update(); return chartInstance; } else { return new Chart(ctx, { type: 'line', data: data, options: options }); } }
