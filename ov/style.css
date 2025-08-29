@@ -67,19 +67,20 @@ html {
   border: 1px solid var(--ui-primary-blue); border-radius: 8px; box-sizing: border-box;
 }
 
-/* --- ГЛАВНОЕ ИСПРАВЛЕНИЕ --- */
+/* --- ГЛАВНОЕ ИСПРАВЛЕНИЕ СУЖЕНИЯ --- */
 .block-o {
-  flex-grow: 1; /* Растягиваем блок на всю доступную высоту */
+  flex-grow: 1;
   padding: 25px;
   box-sizing: border-box;
   overflow-y: auto;
   transition: opacity 0.2s ease-in-out;
-  display: flex; /* Делаем его flex-контейнером */
+  display: flex; /* Делаем flex-контейнером */
 }
 .block-o.loading { opacity: 0.5; pointer-events: none; }
 
-/* Правило, чтобы любой прямой потомок БЛОКА О растягивался на всю высоту */
+/* Правило, чтобы любой прямой потомок БЛОКА О растягивался на всю ширину и высоту */
 .block-o > * {
+  width: 100%;
   flex-grow: 1;
 }
 
@@ -91,7 +92,7 @@ html {
   gap: 20px;
 }
 .button-grid button {
-  font-size: 19px; /* УВЕЛИЧЕННЫЙ ШРИФТ */
+  font-size: 19px;
   font-weight: 600;
   color: #fff;
   background-color: var(--ui-primary-blue);
