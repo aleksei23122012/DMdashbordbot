@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- ФУНКЦИИ ОТОБРАЖЕНИЯ ---
   
-  async function renderNachpoz(categoryColumn) {
+   async function renderNachpoz(categoryColumn) {
     currentType = null;
     mainBlock.classList.add('loading');
     backButton.classList.add('hidden');
@@ -34,10 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (error) { mainBlock.innerHTML = `<p style="color:red;">Ошибка загрузки: ${error.message}</p>`; return; }
     
     let buttonsHtml = '';
-    const buttonSlots = Array.from({ length: 6 }, (_, i) => data.find(d => d.num === i + 1) || { num: i + 1, [categoryColumn]: null });
+    // ИЗМЕНЕНО: Создаем 9 слотов для кнопок
+    const buttonSlots = Array.from({ length: 9 }, (_, i) => data.find(d => d.num === i + 1) || { num: i + 1, [categoryColumn]: null });
     buttonSlots.forEach(buttonData => {
       const buttonText = buttonData[categoryColumn];
-      if (buttonData.num === 6 && !buttonText) {
+      // ИЗМЕНЕНО: Картинка теперь появляется на 9-м месте, если оно пустое
+      if (buttonData.num === 9 && !buttonText) {
         buttonsHtml += `<div class="empty-slot"><img src="${pusheenImageUrl}" alt="Pusheen Cat" class="pusheen-image"></div>`;
       } else if (buttonText) {
         buttonsHtml += `<button>${buttonText}</button>`;
