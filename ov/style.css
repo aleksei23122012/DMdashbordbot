@@ -21,10 +21,19 @@ html {
 }
 
 .app-container {
-  width: 100%; max-width: 800px; height: 95%; max-height: 850px;
-  display: flex; flex-direction: column; background-color: var(--palette-card-color);
-  border-radius: 12px; box-shadow: var(--shadow);
-  border: 1px solid var(--palette-border-color); overflow: hidden;
+  width: 100%;
+  max-width: 800px;
+  /* --- ГЛАВНОЕ ИСПРАВЛЕНИЕ: Задаем минимальную ширину --- */
+  min-width: 600px; /* Запрещаем контейнеру быть слишком узким */
+  height: 95%;
+  max-height: 850px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--palette-card-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--palette-border-color);
+  overflow: hidden;
 }
 
 /* БЛОК В */
@@ -67,18 +76,17 @@ html {
   border: 1px solid var(--ui-primary-blue); border-radius: 8px; box-sizing: border-box;
 }
 
-/* --- ГЛАВНОЕ ИСПРАВЛЕНИЕ СУЖЕНИЯ --- */
+/* БЛОК О */
 .block-o {
   flex-grow: 1;
   padding: 25px;
   box-sizing: border-box;
   overflow-y: auto;
   transition: opacity 0.2s ease-in-out;
-  display: flex; /* Делаем flex-контейнером */
+  display: flex;
 }
 .block-o.loading { opacity: 0.5; pointer-events: none; }
 
-/* Правило, чтобы любой прямой потомок БЛОКА О растягивался на всю ширину и высоту */
 .block-o > * {
   width: 100%;
   flex-grow: 1;
@@ -86,20 +94,13 @@ html {
 
 /* Сетка кнопок */
 .button-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 20px;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr); gap: 20px;
 }
 .button-grid button {
-  font-size: 19px;
-  font-weight: 600;
-  color: #fff;
-  background-color: var(--ui-primary-blue);
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  font-size: 19px; font-weight: 600; color: #fff;
+  background-color: var(--ui-primary-blue); border: none; border-radius: 10px;
+  cursor: pointer; transition: background-color 0.2s;
 }
 .button-grid button:hover { background-color: var(--ui-primary-blue-hover); }
 .empty-slot {
