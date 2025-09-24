@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд</title>
+    
+    <!-- Подключение библиотек -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Подключение внешних файлов стилей и шрифтов -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- НОВОЕ: Модальное окно для авторизации в браузере -->
+    <div id="auth-overlay">
+        <div id="auth-modal">
+            <h2>Авторизация</h2>
+            <p>Пожалуйста, введите ваш ID для доступа к дашборду.</p>
+            <input type="text" id="auth-id-input" placeholder="Ваш ID Mango">
+            <button id="auth-submit-btn">Войти</button>
+            <p id="auth-error"></p>
+        </div>
+    </div>
+
+    <!-- Основной контейнер дашборда (изначально скрыт) -->
+    <div class="dashboard-container">
+        <div class="block-v">
+            <div class="header-buttons">
+                <button id="btn-day" class="active">День</button>
+                <button id="btn-month">Месяц</button>
+                <button id="btn-position">Рейтинг</button>
+                <button id="btn-dynamics">Динамика</button>
+            </div>
+            <div class="user-info-container">
+                <span id="context-name"></span>
+                <span id="operator-name">Загрузка...</span>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div id="view-day" class="view active">
+                 <div class="block-l">
+                    <div class="block-l-top">
+                        <div class="chart-center-text"><div class="title">Трафик</div><div class="value" id="trafic-value-day">...</div></div>
+                        <canvas id="doughnutChartDay"></canvas>
+                    </div>
+                    <div class="block-l-bottom">
+                        <div class="horizontal-bar bar-calls" id="kz-bar-day"></div>
+                        <div class="horizontal-bar bar-leads" id="lid-bar-day"></div>
+                        <div class="horizontal-bar bar-time" id="avg-time-lid-bar-day"></div>
+                    </div>
+                </div>
+                <div class="block-c">
+                    <div class="block-c-top"><p id="os-text-day">Загрузка обратной связи...</p></div>
+                    <div class="block-c-bottom"><img id="cat-image-day" src="" alt="Кот" class="cat-image"></div>
+                </div>
+                <div class="block-p">
+                    <div class="block-p-upper-day">
+                         <table class="data-table">
+                            <thead><tr><th>Показатели</th><th>Твои</th><th class="indicator-col"></th><th>Средние</th></tr></thead>
+                            <tbody>
+                                <tr><td>Количество звонков</td><td id="day-user-kz">...</td><td id="day-ind-kz" class="indicator-col"></td><td id="day-srav-kz">...</td></tr>
+                                <tr><td>Количество лидов</td><td id="day-user-lid">...</td><td id="day-ind-lid" class="indicator-col"></td><td id="day-srav-lid">...</td></tr>
+                                <tr><td>Время на лид</td><td id="day-user-time">...</td><td id="day-ind-time" class="indicator-col"></td><td id="day-srav-time">...</td></tr>
+                                <tr><td>Трафик</td><td id="day-user-trafic">...</td><td id="day-ind-trafic" class="indicator-col"></td><td id="day-srav-trafic">...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="block-p-lower-day">
+                        <table class="data-table"><thead><tr><th>Теги</th><th>Кол-во</th></tr></thead><tbody id="tags-table-body-day"></tbody></table>
+                    </div>
+                </div>
+            </div>
+            <div id="view-month" class="view">
+                <div class="block-l">
+                    <div class="block-l-top">
+                        <div class="chart-center-text"><div class="title">Трафик (Месяц)</div><div class="value" id="trafic-value-month">...</div></div><canvas id="doughnutChartMonth"></canvas>
+                    </div>
+                    <div class="block-l-bottom">
+                        <div class="horizontal-bar bar-calls" id="kz-bar-month">...</div><div class="horizontal-bar bar-leads" id="lid-bar-month">...</div><div class="horizontal-bar bar-time" id="avg-time-lid-bar-month">...</div>
+                    </div>
+                </div>
+                <div class="block-c">
+                     <div class="block-c-top"><p id="os-text-month">Загрузка обратной связи...</p></div>
+                     <div class="block-c-bottom-month">
+                        <div class="plan-indicator"><div>Выполнение плана по трафику (прогноз):</div><div id="plan-trafic-prognoz-value" class="value">...</div></div>
+                        <div class="plan-indicator"><div>Выполнение плана по лидам (прогноз):</div><div id="plan-lid-prognoz-value" class="value">...</div></div>
+                    </div>
+                </div>
+                <div class="block-p">
+                    <div class="block-p-upper-month">
+                         <table class="data-table">
+                            <thead><tr><th>Показатели</th><th>Твои</th><th class="indicator-col"></th><th>Средние</th></tr></thead>
+                            <tbody>
+                                <tr><td>Количество звонков</td><td id="month-user-kz">...</td><td id="month-ind-kz" class="indicator-col"></td><td id="month-srav-kz">...</td></tr>
+                                <tr><td>Количество лидов</td><td id="month-user-lid">...</td><td id="month-ind-lid" class="indicator-col"></td><td id="month-srav-lid">...</td></tr>
+                                <tr><td>Время на лид</td><td id="month-user-time">...</td><td id="month-ind-time" class="indicator-col"></td><td id="month-srav-time">...</td></tr>
+                                <tr><td>Трафик</td><td id="month-user-trafic">...</td><td id="month-ind-trafic" class="indicator-col"></td><td id="month-srav-trafic">...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="block-p-lower-month">
+                        <table class="data-table"><thead><tr><th>Теги</th><th>Кол-во</th></tr></thead><tbody id="tags-table-body-month"></tbody></table>
+                    </div>
+                </div>
+            </div>
+            <div id="view-position" class="view">
+                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
+                    <h3 class="block-title">День</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="separator-right" style="vertical-align: middle; width: 200px;">Оператор</th><th colspan="6" class="separator-right">Показатели</th><th colspan="2">План</th>
+                            </tr>
+                            <tr>
+                                <th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th><th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th><th>План по<br>трафику</th><th>План по<br>лидам</th>
+                            </tr>
+                        </thead>
+                        <tbody id="position-data-body-day"></tbody>
+                    </table>
+                </div>
+                <div class="block-team-custom" style="flex: 1; overflow-y: auto;">
+                    <h3 class="block-title">Месяц</h3>
+                     <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="separator-right">Оператор</th><th>Трафик</th><th>Вып.<br>трафика</th><th>Кол-во<br>звонков</th><th>Лиды</th><th>Время на<br>лид</th><th class="separator-right">Вып.<br>лидов</th><th>Ср. время<br>поствызова</th>
+                            </tr>
+                        </thead>
+                        <tbody id="position-data-body-month"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="view-dynamics" class="view">
+                <div class="dynamics-grid">
+                    <div class="dynamics-block" id="block-vl">
+                        <h3 class="block-title">Трафик</h3>
+                        <div class="chart-container"><canvas id="traffic-line-chart"></canvas></div>
+                    </div>
+                    <div class="dynamics-block" id="block-vp">
+                        <h3 class="block-title">Лиды</h3>
+                        <div class="chart-container"><canvas id="leads-line-chart"></canvas></div>
+                    </div>
+                    <div class="dynamics-block" id="block-nl">
+                        <h3 class="block-title">Время на лид</h3>
+                        <div class="chart-container"><canvas id="time-per-lead-line-chart"></canvas></div>
+                    </div>
+                    <div class="dynamics-block" id="block-np">
+                        <div class="legend-container">
+                            <div class="legend-item"><div class="legend-color-box" style="background-color: var(--chart-blue);"></div><span>Средние значения</span></div>
+                            <div class="legend-item"><div class="legend-color-box" style="background-color: var(--chart-red);"></div><span>Твои значения</span></div>
+                        </div>
+                        <div id="dynamics-os-block" class="block-c-top"><p id="dynamics-os-text">Загрузка обратной связи...</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
