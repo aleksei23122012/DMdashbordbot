@@ -8,7 +8,7 @@
 }
 body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow-x: hidden; }
 
-/* НОВОЕ: Стили для окна авторизации */
+/* Стили для окна авторизации */
 #auth-overlay {
     position: fixed;
     top: 0;
@@ -42,19 +42,27 @@ body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; backgrou
     box-sizing: border-box;
     font-size: 16px;
 }
+
+/* ======================================================= */
+/* ИЗМЕНЕНИЕ: Стиль кнопки входа                         */
+/* ======================================================= */
 #auth-submit-btn {
     width: 100%;
     padding: 12px;
     border: none;
     border-radius: 8px;
-    background-color: var(--primary-blue);
+    background-color: var(--dark-blue); /* ИЗМЕНЕНО: на темно-синий */
     color: white;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s;
 }
-#auth-submit-btn:hover { background-color: var(--dark-blue); }
+#auth-submit-btn:hover { 
+    background-color: var(--primary-blue); /* ИЗМЕНЕНО: при наведении - более яркий синий */
+}
+/* ======================================================= */
+
 #auth-submit-btn:disabled { background-color: var(--text-secondary); cursor: not-allowed; }
 #auth-error {
     color: var(--indicator-red);
@@ -63,7 +71,7 @@ body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; backgrou
     font-size: 14px;
     font-weight: 500;
 }
-/* НОВОЕ: Скрываем дашборд по умолчанию, пока не пройдена авторизация */
+/* Скрываем дашборд по умолчанию, пока не пройдена авторизация */
 .dashboard-container { visibility: hidden; }
 
 /* --- Старые стили --- */
