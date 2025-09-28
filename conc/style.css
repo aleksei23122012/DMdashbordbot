@@ -7,7 +7,74 @@
     --chart-red: #e53935; --chart-blue: #1e88e5;
 }
 body, html { height: 100%; margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-primary); overflow-x: hidden; }
-.dashboard-container { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* Стили для окна авторизации */
+#auth-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 0.3s;
+}
+#auth-modal {
+    background: white;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    text-align: center;
+    width: 100%;
+    max-width: 320px;
+}
+#auth-modal h2 { margin-top: 0; }
+#auth-modal p { color: var(--text-secondary); }
+#auth-id-input {
+    width: 100%;
+    padding: 10px;
+    margin: 15px 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+/* ======================================================= */
+/* ИЗМЕНЕНИЕ: Стиль кнопки входа                         */
+/* ======================================================= */
+#auth-submit-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--dark-blue); /* ИЗМЕНЕНО: на темно-синий */
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+#auth-submit-btn:hover { 
+    background-color: var(--primary-blue); /* ИЗМЕНЕНО: при наведении - более яркий синий */
+}
+/* ======================================================= */
+
+#auth-submit-btn:disabled { background-color: var(--text-secondary); cursor: not-allowed; }
+#auth-error {
+    color: var(--indicator-red);
+    margin-top: 10px;
+    height: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+/* Скрываем дашборд по умолчанию, пока не пройдена авторизация */
+.dashboard-container { visibility: hidden; }
+
+/* --- Старые стили --- */
 .block-v { height: 10vh; display: flex; justify-content: space-between; align-items: center; padding: 0 24px; background-color: var(--card-color); border-bottom: 1px solid var(--border-color); box-sizing: border-box; flex-shrink: 0; }
 .header-buttons button { margin-right: 12px; padding: 10px 20px; border: none; border-radius: 8px; background-color: var(--dark-blue); color: white; cursor: pointer; font-size: 14px; font-weight: 600; transition: background-color 0.2s, opacity 0.2s; opacity: 0.6; }
 .header-buttons button.active { opacity: 1; }
