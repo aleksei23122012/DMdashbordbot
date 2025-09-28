@@ -17,6 +17,18 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- НОВОЕ: Модальное окно для авторизации в браузере -->
+    <div id="auth-overlay">
+        <div id="auth-modal">
+            <h2>Авторизация</h2>
+            <p>Пожалуйста, введите ваш ID для доступа к дашборду.</p>
+            <input type="text" id="auth-id-input" placeholder="Ваш ID Mango">
+            <button id="auth-submit-btn">Войти</button>
+            <p id="auth-error"></p>
+        </div>
+    </div>
+
+    <!-- Основной контейнер дашборда (изначально скрыт) -->
     <div class="dashboard-container">
         <div class="block-v">
             <div class="header-buttons">
@@ -151,7 +163,6 @@
         </div>
     </div>
     
-    <!-- ИЗМЕНЕНИЕ: Скрипт перемещен из <head> сюда, в конец <body> -->
     <script src="script.js"></script>
 </body>
 </html>
