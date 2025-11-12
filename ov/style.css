@@ -21,19 +21,11 @@ html {
 }
 
 .app-container {
-  width: 100%;
-  max-width: 800px;
-  /* --- ГЛАВНОЕ ИСПРАВЛЕНИЕ: Задаем минимальную ширину --- */
-  min-width: 600px; /* Запрещаем контейнеру быть слишком узким */
-  height: 95%;
-  max-height: 850px;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--palette-card-color);
-  border-radius: 12px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--palette-border-color);
-  overflow: hidden;
+  width: 100%; max-width: 800px; min-width: 600px;
+  height: 95%; max-height: 850px;
+  display: flex; flex-direction: column; background-color: var(--palette-card-color);
+  border-radius: 12px; box-shadow: var(--shadow);
+  border: 1px solid var(--palette-border-color); overflow: hidden;
 }
 
 /* БЛОК В */
@@ -78,11 +70,8 @@ html {
 
 /* БЛОК О */
 .block-o {
-  flex-grow: 1;
-  padding: 25px;
-  box-sizing: border-box;
-  overflow-y: auto;
-  transition: opacity 0.2s ease-in-out;
+  flex-grow: 1; padding: 25px; box-sizing: border-box;
+  overflow-y: auto; transition: opacity 0.2s ease-in-out;
   display: flex;
 }
 .block-o.loading { opacity: 0.5; pointer-events: none; }
@@ -92,16 +81,29 @@ html {
   flex-grow: 1;
 }
 
-/* Сетка кнопок */
+/* --- ИЗМЕНЕНИЯ ДЛЯ РЕШЕНИЯ 2 --- */
 .button-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr); gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  /* Задаем 3 ряда, каждый из которых будет не меньше 100px, а остальное пространство разделит поровну */
+  grid-template-rows: repeat(3, minmax(100px, 1fr));
+  gap: 15px; /* Слегка уменьшаем отступ */
 }
+
 .button-grid button {
-  font-size: 19px; font-weight: 600; color: #fff;
-  background-color: var(--ui-primary-blue); border: none; border-radius: 10px;
-  cursor: pointer; transition: background-color 0.2s;
+  font-size: 19px;
+  font-weight: 600;
+  color: #fff;
+  background-color: var(--ui-primary-blue);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  /* Убираем внутренние отступы, так как размер теперь контролирует сетка */
+  padding: 10px;
+  word-break: break-word; /* Позволяет тексту переноситься, если он не влезает */
 }
+
 .button-grid button:hover { background-color: var(--ui-primary-blue-hover); }
 .empty-slot {
   border-radius: 10px; background-color: #f8f9fa;
